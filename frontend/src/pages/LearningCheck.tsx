@@ -1,3 +1,5 @@
+import { t as tr } from "../lib/i18n";
+import { useLanguage } from "../lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { PageTitle } from "../components/PageTitle";
@@ -13,15 +15,18 @@ export function LearningCheck() {
   if (!/^\d+$/.test(bookingId ?? "") || (stage !== "pre" && stage !== "post"))
     return (
       <ErrorState
-        message="This Learning Check link is invalid. Open a check from My learning & impact."
+        message={tr(
+          "This Learning Check link is invalid. Open a check from My learning & impact.",
+        )}
         retry={() => window.history.back()}
       />
     );
   if (user.role === "professor")
     return (
       <p className="info-box">
-        Professor demo access uses aggregated insights. Switch to the Learner
-        demo to try a private check.
+        {tr(
+          "Professor demo access uses aggregated insights. Switch to the Learner demo to try a private check.",
+        )}
       </p>
     );
   return (
@@ -41,8 +46,9 @@ function CheckForm({
   stage: "pre" | "post";
 }) {
   const { user, version, refresh } = useDemo();
+  const language = useLanguage();
   const remote = useRemote<CheckPayload>(
-    `/bookings/${bookingId}/learning-checks/${stage}`,
+    `/bookings/${bookingId}/learning-checks/${stage}?language=${language}`,
     user.id,
     version,
   );
@@ -72,7 +78,7 @@ function CheckForm({
     controller.current = abort;
     try {
       await request<CheckPayload>(
-        `/bookings/${bookingId}/learning-checks/${stage}`,
+        `/bookings/${bookingId}/learning-checks/${stage}?language=${language}`,
         user.id,
         {
           method: "POST",
@@ -86,7 +92,9 @@ function CheckForm({
         setError(
           err instanceof Error
             ? err.message
-            : "Could not submit. Your selections are still here; try again.",
+            : tr(
+                "Could not submit. Your selections are still here; try again.",
+              ),
         );
         if (err instanceof Error && err.message.includes("already submitted"))
           refresh();
@@ -98,64 +106,97 @@ function CheckForm({
   return (
     <>
       <PageTitle
-        eyebrow="SYNTHETIC DEMO · OPTIONAL PRACTICE"
-        title={`${stage === "pre" ? "Pre-session" : "Post-session"} Learning Check`}
+        eyebrow={tr("SYNTHETIC DEMO · OPTIONAL PRACTICE")}
+        title={tr("{{0}} Learning Check", {
+          0: tr(stage === "pre" ? "Pre-session" : "Post-session"),
+        })}
         description={
           item?.title ??
-          "A short snapshot of your understanding. Your answers stay in your demo learning space."
+          tr(
+            "A short snapshot of your understanding. Your answers stay in your demo learning space.",
+          )
         }
       />
       <Link className="text-link" to="/app/impact">
-        Back to My learning & impact
+        {tr("Back to My learning & impact")}
       </Link>
       {remote.loading ? (
-        <Loading label="Loading your Learning Check" />
+        <Loading label={tr("Loading your Learning Check")} />
       ) : remote.error ? (
-        <ErrorState message={remote.error} retry={remote.retry} />
+        <ErrorState message={tr(remote.error)} retry={remote.retry} />
       ) : (
         check && (
           <section className="learning-card quiz-card">
+            {check.course && (
+              <p>
+                <strong>{tr(check.course)}</strong> ·{" "}
+                {check.topics?.join(" · ")} ·{" "}
+                {check.content_language?.toUpperCase()}
+              </p>
+            )}
+            {check.professor_reviewed && (
+              <p className="info-box">
+                {check.provenance === "prepared-demo"
+                  ? tr(
+                      "Prepared demonstration · Professor-reviewed course materials",
+                    )
+                  : tr("AI-generated · Professor-reviewed course materials")}
+              </p>
+            )}
             {item && (
               <>
-                <h2>What you’ll practise</h2>
+                <h2>{tr("What you’ll practise")}</h2>
                 <ul>
                   {item.objectives.map((o) => (
-                    <li key={o.id}>{o.description}</li>
+                    <li key={o.id}>
+                      {o.id >= 10 && o.id <= 61 && o.id % 10 <= 1
+                        ? tr(o.description)
+                        : o.description}
+                    </li>
                   ))}
                 </ul>
               </>
             )}
             {check.status === "locked" ? (
-              <p className="info-box">{check.reason}</p>
+              <p className="info-box">{tr(check.reason)}</p>
             ) : (
               <>
                 {completed ? (
                   <div aria-live="polite">
                     <h2 tabIndex={-1} ref={resultHeading}>
-                      Your saved result
+                      {tr("Your saved result")}
                     </h2>
                     <ScoreBar
                       label={
-                        stage === "pre" ? "Before tutoring" : "After tutoring"
+                        stage === "pre"
+                          ? tr("Before tutoring")
+                          : tr("After tutoring")
                       }
                       score={check.result}
                     />
                     <p>
                       {check.result && check.result.percent < 67
-                        ? "These questions point to useful practice. Take your time with the explanations below."
-                        : "A useful starting point. Try explaining the reasoning in your own words."}
+                        ? tr(
+                            "These questions point to useful practice. Take your time with the explanations below.",
+                          )
+                        : tr(
+                            "A useful starting point. Try explaining the reasoning in your own words.",
+                          )}
                     </p>
                     <p className="fine-print">
-                      This short check is not a grade or a validated measure of
-                      learning improvement.
+                      {tr(
+                        "This short check is not a grade or a validated measure of learning improvement.",
+                      )}
                     </p>
                   </div>
                 ) : (
                   <p aria-live="polite">
-                    {Object.keys(answers).length} of {check.questions.length}{" "}
-                    answered · Answer every question, then submit once. Your
-                    draft remains here until you leave this page; only submitted
-                    checks are saved.
+                    {Object.keys(answers).length}
+                    {tr(" of ")}
+                    {check.questions.length}{" "}
+                    {tr(
+                      "answered · Answer every question, then submit once. Your draft remains here until you leave this page; only submitted checks are saved.",
+                    )}
                   </p>
                 )}
                 <form onSubmit={submit}>
@@ -190,10 +231,10 @@ function CheckForm({
                           <span>
                             {o.label}
                             {completed && q.correct_option_id === o.id
-                              ? " · Correct answer"
+                              ? tr(" · Correct answer")
                               : ""}
                             {completed && q.selected_option_id === o.id
-                              ? " · Your answer"
+                              ? tr(" · Your answer")
                               : ""}
                           </span>
                         </label>
@@ -205,7 +246,7 @@ function CheckForm({
                   ))}
                   {error && (
                     <p role="alert" className="form-error">
-                      {error}
+                      {tr(error)}
                     </p>
                   )}
                   {!completed && (
@@ -216,36 +257,43 @@ function CheckForm({
                         Object.keys(answers).length !== check.questions.length
                       }
                     >
-                      {busy ? "Saving your answers…" : "Submit Learning Check"}
+                      {busy
+                        ? tr("Saving your answers…")
+                        : tr("Submit Learning Check")}
                     </button>
                   )}
                 </form>
                 {completed && item && (
                   <div className="learning-followup">
-                    <p>{item.suggestion}</p>
+                    <p>{tr(item.suggestion)}</p>
                     {item.change_percentage_points !== null ? (
                       <>
                         <ScoreBar
-                          label="Before tutoring"
+                          label={tr("Before tutoring")}
                           score={item.pre.result}
                         />
                         <ScoreBar
-                          label="After tutoring"
+                          label={tr("After tutoring")}
                           score={item.post.result}
                         />
                         <p>
-                          Difference on these checks:{" "}
+                          {tr("Difference on these checks:")}{" "}
                           {item.change_percentage_points > 0 ? "+" : ""}
-                          {item.change_percentage_points} percentage points.
-                          This describes your answers on different questions; it
-                          does not establish a tutoring effect.
+                          {item.change_percentage_points}
+                          {tr(
+                            " percentage points. This describes your answers on different questions; it does not establish a tutoring effect.",
+                          )}
                         </p>
                       </>
                     ) : (
-                      <p>Comparison pending until both checks are complete.</p>
+                      <p>
+                        {tr(
+                          "Comparison pending until both checks are complete.",
+                        )}
+                      </p>
                     )}
                     <Link className="button secondary" to="/app/impact">
-                      See progress & demo follow-up
+                      {tr("See progress & demo follow-up")}
                     </Link>
                   </div>
                 )}

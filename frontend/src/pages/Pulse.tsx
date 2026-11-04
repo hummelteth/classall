@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { HeartHandshake, ArrowUpRight } from "lucide-react";
@@ -19,16 +20,16 @@ import type {
 import { EmptyState } from "../components/ui";
 
 const responses = [
-  ["confident", "I feel confident.", "Keep sharing your strengths."],
+  ["confident", tr("I feel confident."), tr("Keep sharing your strengths.")],
   [
     "practice",
-    "I understand some of it, but need more practice.",
-    "A fresh example can help.",
+    tr("I understand some of it, but need more practice."),
+    tr("A fresh example can help."),
   ],
   [
     "support",
-    "I'm struggling and would like support.",
-    "You don’t have to work it out alone.",
+    tr("I'm struggling and would like support."),
+    tr("You don’t have to work it out alone."),
   ],
 ] as const;
 export function Pulse() {
@@ -56,9 +57,9 @@ export function Pulse() {
   }>(`/topics/${tid}/support`, user.id, version, user.role !== "professor");
   if (user.role === "professor")
     return (
-      <EmptyState title="Private reflection belongs to learners.">
+      <EmptyState title={tr("Private reflection belongs to learners.")}>
         <Link className="text-link" to="/app/insights">
-          Open aggregated learning insights
+          {tr("Open aggregated learning insights")}
         </Link>
       </EmptyState>
     );
@@ -69,9 +70,11 @@ export function Pulse() {
   return (
     <>
       <PageTitle
-        eyebrow="YOUR LEARNING PULSE"
-        title="A small check-in. A useful next step."
-        description="Share how a topic feels today. Participation is optional; you can update or withdraw at any time."
+        eyebrow={tr("YOUR LEARNING PULSE")}
+        title={tr("A small check-in. A useful next step.")}
+        description={tr(
+          "Share how a topic feels today. Participation is optional; you can update or withdraw at any time.",
+        )}
       />
       <div className="pulse-layout">
         <section className="form-panel">
@@ -84,7 +87,7 @@ export function Pulse() {
               />
             )}
           </RemoteContent>
-          <h2>How are you feeling about this topic?</h2>
+          <h2>{tr("How are you feeling about this topic?")}</h2>
           <RemoteContent remote={pulses}>
             {() => (
               <PulseResponse
@@ -98,7 +101,9 @@ export function Pulse() {
                         method: "PUT",
                         body: JSON.stringify({ response }),
                       }),
-                    "Your check-in is saved. Choose a next step that works for you.",
+                    tr(
+                      "Your check-in is saved. Choose a next step that works for you.",
+                    ),
                   );
                 }}
               />
@@ -107,10 +112,11 @@ export function Pulse() {
           {saved && (
             <div className="action-row">
               <small>
-                Updated {dateLabel(saved.updated_at)} ·{" "}
+                {tr("Updated ")}
+                {dateLabel(saved.updated_at)} ·{" "}
                 {saved.source === "seeded-synthetic"
-                  ? "Synthetic example"
-                  : "Demo interaction"}
+                  ? tr("Synthetic example")
+                  : tr("Demo interaction")}
               </small>
               <button
                 className="text-link"
@@ -119,32 +125,37 @@ export function Pulse() {
                   void mutation.run(
                     () =>
                       request(`/pulses/${tid}`, user.id, { method: "DELETE" }),
-                    "Your response was withdrawn and removed from current aggregates.",
+                    tr(
+                      "Your response was withdrawn and removed from current aggregates.",
+                    ),
                   )
                 }
               >
-                Withdraw response
+                {tr("Withdraw response")}
               </button>
             </div>
           )}
           {mutation.feedback}
           <p className="fine-print">
-            A voluntary reflection is not a grade or an assessment of academic
-            performance. Faculty see aggregated responses only, with small
-            groups suppressed.
+            {tr(
+              "A voluntary reflection is not a grade or an assessment of academic performance. Faculty see aggregated responses only, with small groups suppressed.",
+            )}
           </p>
         </section>
         <aside className="next-card">
           <HeartHandshake size={30} />
-          <h2>Let’s find a little support.</h2>
-          <p>You can request help even when no session is available.</p>
+          <h2>{tr("Let’s find a little support.")}</h2>
+          <p>{tr("You can request help even when no session is available.")}</p>
           {active ? (
             <>
-              <span className="pill sage">Request {active.status}</span>
+              <span className="pill sage">
+                {tr("Request ")}
+                {tr(active.status)}
+              </span>
               <p>
                 {active.status === "matched"
-                  ? "You booked a session or joined a group for this topic."
-                  : "Your request contributes to aggregated course demand."}
+                  ? tr("You booked a session or joined a group for this topic.")
+                  : tr("Your request contributes to aggregated course demand.")}
               </p>
               <button
                 disabled={mutation.busy}
@@ -157,11 +168,11 @@ export function Pulse() {
                         user.id,
                         { method: "POST" },
                       ),
-                    "Your support request was withdrawn.",
+                    tr("Your support request was withdrawn."),
                   )
                 }
               >
-                Withdraw support request
+                {tr("Withdraw support request")}
               </button>
             </>
           ) : (
@@ -175,33 +186,34 @@ export function Pulse() {
                       method: "POST",
                       body: JSON.stringify({ topic_id: tid }),
                     }),
-                  "Your request is open. You can withdraw it at any time.",
+                  tr("Your request is open. You can withdraw it at any time."),
                 )
               }
             >
-              Request help with this topic
+              {tr("Request help with this topic")}
             </button>
           )}
           {requests.error && (
             <p role="alert">
-              {requests.error}
+              {tr(requests.error)}
               <button className="text-link" onClick={requests.retry}>
-                Try again
+                {tr("Try again")}
               </button>
             </p>
           )}
         </aside>
       </div>
       <section className="support-options">
-        <h2>Your next step, your choice.</h2>
+        <h2>{tr("Your next step, your choice.")}</h2>
         <RemoteContent remote={suggestions}>
           {(data) => (
             <div className="group-grid">
               <article className="group-card">
-                <span className="eyebrow">LEARN WITH A TUTOR</span>
+                <span className="eyebrow">{tr("LEARN WITH A TUTOR")}</span>
                 <h3>
-                  {data.sessions.length} relevant{" "}
-                  {data.sessions.length === 1 ? "session" : "sessions"}
+                  {data.sessions.length}
+                  {tr(" relevant")}{" "}
+                  {data.sessions.length === 1 ? tr("session") : tr("sessions")}
                 </h3>
                 {data.sessions.slice(0, 3).map((s) => (
                   <Link
@@ -211,25 +223,29 @@ export function Pulse() {
                   >
                     {s.title}
                     <small>
-                      {dateLabel(s.starts_at)} · {s.available_seats} places
+                      {dateLabel(s.starts_at)} · {s.available_seats}
+                      {tr(" places")}
                     </small>
                   </Link>
                 ))}
                 {!data.sessions.length && (
                   <p>
-                    No matching places right now. Your support request can help
-                    faculty recognize demand.
+                    {tr(
+                      "No matching places right now. Your support request can help faculty recognize demand.",
+                    )}
                   </p>
                 )}
                 <Link className="text-link" to={`/app/explore?topic=${tid}`}>
-                  Find tutoring <ArrowUpRight size={15} />
+                  {tr("Find tutoring ")}
+                  <ArrowUpRight size={15} />
                 </Link>
               </article>
               <article className="group-card">
-                <span className="eyebrow">WORK IT OUT TOGETHER</span>
+                <span className="eyebrow">{tr("WORK IT OUT TOGETHER")}</span>
                 <h3>
-                  {data.groups.length} relevant study{" "}
-                  {data.groups.length === 1 ? "group" : "groups"}
+                  {data.groups.length}
+                  {tr(" relevant study")}{" "}
+                  {data.groups.length === 1 ? tr("group") : tr("groups")}
                 </h3>
                 {data.groups.slice(0, 3).map((g) => (
                   <Link
@@ -238,30 +254,42 @@ export function Pulse() {
                     to={`/app/groups?topic_id=${tid}`}
                   >
                     {g.title}
-                    <small>{g.available_places} places available</small>
+                    <small>
+                      {g.available_places}
+                      {tr(" places available")}
+                    </small>
                   </Link>
                 ))}
                 {!data.groups.length && (
-                  <p>No open circle for this topic yet. You can start one.</p>
+                  <p>
+                    {tr(
+                      "No open circle for this topic yet. You can start one.",
+                    )}
+                  </p>
                 )}
                 <Link className="text-link" to={`/app/groups?topic_id=${tid}`}>
-                  Explore study groups <ArrowUpRight size={15} />
+                  {tr("Explore study groups ")}
+                  <ArrowUpRight size={15} />
                 </Link>
               </article>
               <article className="group-card">
-                <span className="eyebrow">MAKE ROOM FOR PRACTICE</span>
-                <h3>Try one small step</h3>
+                <span className="eyebrow">{tr("MAKE ROOM FOR PRACTICE")}</span>
+                <h3>{tr("Try one small step")}</h3>
                 {data.practice.map((p) => (
                   <p key={p.id} className="support-result">
-                    {p.description}
+                    {p.id >= 10 && p.id <= 61 && p.id % 10 <= 1
+                      ? tr(p.description)
+                      : p.description}
                   </p>
                 ))}
                 <p className="fine-print">
-                  Use these objectives to guide practice. Curated Learning
-                  Checks are available through relevant tutoring bookings.
+                  {tr(
+                    "Use these objectives to guide practice. Curated Learning Checks are available through relevant tutoring bookings.",
+                  )}
                 </p>
                 <Link className="text-link" to="/app/impact">
-                  Review my Learning Checks <ArrowUpRight size={15} />
+                  {tr("Review my Learning Checks ")}
+                  <ArrowUpRight size={15} />
                 </Link>
               </article>
             </div>
@@ -289,7 +317,7 @@ function PulseResponse({
       }}
     >
       <fieldset className="pulse-choices">
-        <legend className="sr-only">Choose how you feel</legend>
+        <legend className="sr-only">{tr("Choose how you feel")}</legend>
         {responses.map(([id, label, copy]) => (
           <label key={id} className={value === id ? "selected" : ""}>
             <input
@@ -301,14 +329,18 @@ function PulseResponse({
               required
             />
             <span>
-              <strong>{label}</strong>
-              <small>{copy}</small>
+              <strong>{tr(label)}</strong>
+              <small>{tr(copy)}</small>
             </span>
           </label>
         ))}
       </fieldset>
       <button className="button primary" disabled={busy || !value}>
-        {busy ? "Saving…" : initial ? "Update check-in" : "Save check-in"}
+        {busy
+          ? tr("Saving…")
+          : initial
+            ? tr("Update check-in")
+            : tr("Save check-in")}
       </button>
     </form>
   );

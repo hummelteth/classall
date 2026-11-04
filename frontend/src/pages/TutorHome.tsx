@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -25,34 +26,38 @@ export function TutorHome() {
   return (
     <>
       <PageTitle
-        eyebrow="YOUR TUTOR WORKSPACE"
-        title={`A little of your time. A lot of impact.`}
-        description={`Welcome back, ${user.name.split(" ")[0]}. Thanks for making learning a shared experience.`}
+        eyebrow={tr("YOUR TUTOR WORKSPACE")}
+        title={tr("A little of your time. A lot of impact.")}
+        description={tr(
+          "Welcome back, {{0}}. Thanks for making learning a shared experience.",
+          { 0: user.name.split(" ")[0] },
+        )}
       />
       <section className="tutor-banner">
         <span className="tutor-banner-icon">
           <HeartHandshake size={42} />
         </span>
         <div>
-          <span className="eyebrow">SHARE WHAT YOU KNOW</span>
+          <span className="eyebrow">{tr("SHARE WHAT YOU KNOW")}</span>
           <h2>
-            Someone’s next breakthrough
+            {tr("Someone’s next breakthrough")}
             <br />
-            could start with you.
+            {tr("could start with you.")}
           </h2>
           <p>
-            Offer a new session in your approved subjects and welcome learners
-            into your teaching space.
+            {tr(
+              "Offer a new session in your approved subjects and welcome learners into your teaching space.",
+            )}
           </p>
         </div>
         <Link className="button primary" to="/app/teaching?create=true">
-          Create a session
+          {tr("Create a session")}
         </Link>
       </section>
       {remote.loading ? (
-        <Loading label="Loading your workspace" />
+        <Loading label={tr("Loading your workspace")} />
       ) : remote.error ? (
-        <ErrorState message={remote.error} retry={remote.retry} />
+        <ErrorState message={tr(remote.error)} retry={remote.retry} />
       ) : (
         remote.data && (
           <>
@@ -60,10 +65,10 @@ export function TutorHome() {
             <div className="workspace-columns">
               <section>
                 <SectionHeading
-                  title="Your upcoming teaching"
+                  title={tr("Your upcoming teaching")}
                   link={{
                     to: "/app/teaching",
-                    label: "Manage teaching & bookings",
+                    label: tr("Manage teaching & bookings"),
                   }}
                 />
                 {remote.data.sessions.length ? (
@@ -73,30 +78,33 @@ export function TutorHome() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState title="A little space in your schedule.">
-                    No upcoming teaching sessions in the demo dataset.
+                  <EmptyState title={tr("A little space in your schedule.")}>
+                    {tr("No upcoming teaching sessions in the demo dataset.")}
                   </EmptyState>
                 )}
               </section>
               <aside className="approval-card">
                 <ShieldCheck size={26} />
-                <h3>Your approved subjects</h3>
-                <p>Subject-specific approvals in the fictional dataset.</p>
+                <h3>{tr("Your approved subjects")}</h3>
+                <p>
+                  {tr("Subject-specific approvals in the fictional dataset.")}
+                </p>
                 {remote.data.approved_subjects.map((s) => (
                   <div className="approved-subject" key={s.id}>
                     <span className={`subject-mini-symbol tone-${s.color}`}>
                       {s.symbol}
                     </span>
                     <span>
-                      {s.name}
+                      {tr(s.name)}
                       <small>{s.code}</small>
                     </span>
                     <Check size={16} />
                   </div>
                 ))}
                 <span className="fine-print">
-                  Real application reviews and AI-assisted qualification are not
-                  active.
+                  {tr(
+                    "Real application reviews and AI-assisted qualification are not active.",
+                  )}
                 </span>
               </aside>
             </div>
@@ -106,14 +114,15 @@ export function TutorHome() {
       <div className="reciprocity-note">
         <Sprout size={24} />
         <div>
-          <h3>Tutors have questions, too.</h3>
+          <h3>{tr("Tutors have questions, too.")}</h3>
           <p>
-            You can book sessions in other subjects using this same demo
-            profile.
+            {tr(
+              "You can book sessions in other subjects using this same demo profile.",
+            )}
           </p>
         </div>
         <Link className="text-link" to="/app/explore">
-          Find tutoring
+          {tr("Find tutoring")}
           <ArrowRight size={16} />
         </Link>
       </div>

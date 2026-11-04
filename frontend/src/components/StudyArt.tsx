@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 export default function StudyArt({ compact = false }: { compact?: boolean }) {
   return (
     <div
@@ -135,11 +136,12 @@ export default function StudyArt({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <>
           <div className="art-label art-label-top">
-            <span className="art-asterisk">✳</span> A little guidance goes a
-            long way.
+            <span className="art-asterisk">✳</span>
+            {tr(" A little guidance goes a long way.")}
           </div>
           <div className="art-label art-label-bottom">
-            <span className="dot green" /> Your next “aha!” starts here
+            <span className="dot green" />
+            {tr(" Your next “aha!” starts here")}
           </div>
         </>
       )}

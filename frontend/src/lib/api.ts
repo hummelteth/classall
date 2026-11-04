@@ -1,3 +1,4 @@
+import { t as tr, currentLanguage } from "./i18n";
 import { useEffect, useState } from "react";
 
 export async function request<T>(
@@ -8,27 +9,30 @@ export async function request<T>(
   const response = await fetch(`/api${path}`, {
     ...options,
     headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !(options.body instanceof FormData)
+        ? { "Content-Type": "application/json" }
+        : {}),
       ...(userId ? { "X-Demo-User-Id": String(userId) } : {}),
       ...options.headers,
     },
   });
   if (!response.ok) {
-    let message = "Something went wrong. Please try again.";
+    let message = tr("Something went wrong. Please try again.");
     try {
       const body = await response.json();
       if (typeof body.detail === "string") message = body.detail;
       else if (Array.isArray(body.detail))
         message = body.detail
-          .map((item: { msg: string }) => item.msg)
+          .map((item: { msg: string }) => tr(item.msg))
           .join(" ");
     } catch {
       /* Non-JSON proxy error. */
     }
-    if (response.status >= 500)
-      message =
-        "The API is unavailable. Start the Python backend and try again.";
-    throw new Error(message);
+    if (response.status >= 500 && !path.startsWith("/studio"))
+      message = tr(
+        "The API is unavailable. Start the Python backend and try again.",
+      );
+    throw new Error(tr(message));
   }
   return response.json() as Promise<T>;
 }
@@ -68,7 +72,9 @@ export function useRemote<T>(
             data: null,
             error:
               error instanceof TypeError
-                ? "Cannot reach the API. Check that the Python backend is running."
+                ? tr(
+                    "Cannot reach the API. Check that the Python backend is running.",
+                  )
                 : error.message,
             loading: false,
           });
@@ -88,7 +94,10 @@ export function dateLabel(
     day: "numeric",
   },
 ) {
-  return new Intl.DateTimeFormat(undefined, options).format(new Date(value));
+  return new Intl.DateTimeFormat(
+    currentLanguage() === "es" ? "es-ES" : "en-GB",
+    options,
+  ).format(new Date(value));
 }
 export const timeLabel = (value: string) =>
   dateLabel(value, { hour: "2-digit", minute: "2-digit" });

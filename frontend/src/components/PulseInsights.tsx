@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { Link } from "react-router-dom";
 import { useDemo } from "../lib/demo";
 import { useRemote } from "../lib/api";
@@ -18,14 +19,21 @@ export function PulseInsights({ subjectId }: { subjectId: number }) {
             .filter((s) => s.topic.subject_id === subjectId)
             .map((s) => (
               <section key={s.topic.id}>
-                <h4>{s.topic.name} · voluntary check-ins</h4>
+                <h4>
+                  {tr(s.topic.name)}
+                  {tr(" · voluntary check-ins")}
+                </h4>
                 <p>
-                  {s.participants} participating learners ·{" "}
-                  {s.open_requests ?? "Suppressed (<3)"} open support requests
+                  {s.participants}
+                  {tr(" participating learners ·")}{" "}
+                  {s.open_requests ?? tr("Suppressed (<3)")}
+                  {tr(" open support requests")}
                 </p>
                 {s.suppressed ? (
                   <p className="fine-print">
-                    Response distribution suppressed: fewer than 3 participants.
+                    {tr(
+                      "Response distribution suppressed: fewer than 3 participants.",
+                    )}
                   </p>
                 ) : (
                   <div className="pulse-distribution">
@@ -34,9 +42,9 @@ export function PulseInsights({ subjectId }: { subjectId: number }) {
                         <strong>{n}</strong>
                         {
                           {
-                            confident: "Feel confident",
-                            practice: "Want more practice",
-                            support: "Would like support",
+                            confident: tr("Feel confident"),
+                            practice: tr("Want more practice"),
+                            support: tr("Would like support"),
                           }[key]
                         }
                       </span>
@@ -44,31 +52,30 @@ export function PulseInsights({ subjectId }: { subjectId: number }) {
                   </div>
                 )}
                 <p>
-                  {s.tutoring_places} tutoring places · {s.study_group_places}{" "}
-                  study group places available
+                  {s.tutoring_places}
+                  {tr(" tutoring places · ")}
+                  {s.study_group_places} {tr("study group places available")}
                 </p>
                 <div className="teaching-advice">
                   <span className="pill neutral">
-                    Advisory · Human review required
+                    {tr("Advisory · Human review required")}
                   </span>
-                  <h4>{s.recommendation}</h4>
+                  <h4>{tr(s.recommendation)}</h4>
                   <details>
-                    <summary>Why this suggestion?</summary>
-                    <p>{s.rule}</p>
-                    <p>{s.missing_data}</p>
+                    <summary>{tr("Why this suggestion?")}</summary>
+                    <p>{tr(s.rule)}</p>
+                    <p>{tr(s.missing_data)}</p>
                     <p>
-                      Three-person suppression is illustrative, not
-                      production-ready privacy protection. Pulse, explicit
-                      demand and Learning Checks are different forms of
-                      evidence. Repeated check-ins count once per learner and
-                      topic.
+                      {tr(
+                        "Three-person suppression is illustrative, not production-ready privacy protection. Pulse, explicit demand and Learning Checks are different forms of evidence. Repeated check-ins count once per learner and topic.",
+                      )}
                     </p>
                   </details>
                   <Link
                     className="text-link"
                     to={`/app/actions?topic=${s.topic.id}`}
                   >
-                    Plan a support action
+                    {tr("Plan a support action")}
                   </Link>
                 </div>
               </section>

@@ -1,5 +1,277 @@
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
+async function runStudioJourney(base, artifacts) {
+  const browser = await chromium.launch({
+    executablePath: process.env.CLASSALL_CHROMIUM || undefined,
+    headless: true,
+    args: ["--no-sandbox"],
+  });
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 1000 },
+    timezoneId: "Europe/Paris",
+  });
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  try {
+    await page.goto(base + "/app");
+    await page.getByLabel("Demo role").selectOption("3");
+    await page
+      .getByRole("link", { name: "AI Learning Studio", exact: true })
+      .click();
+    await page
+      .getByRole("heading", { name: "AI Learning Studio", exact: true })
+      .waitFor();
+    await page
+      .getByLabel("Interface language", { exact: true })
+      .selectOption("es");
+    await page
+      .getByRole("heading", {
+        name: "Estudio de aprendizaje con IA",
+        exact: true,
+      })
+      .waitFor();
+    await page.reload();
+    await page
+      .getByRole("heading", {
+        name: "Estudio de aprendizaje con IA",
+        exact: true,
+      })
+      .waitFor();
+    assert.equal(
+      await page.getByLabel("Idioma de la interfaz").inputValue(),
+      "es",
+    );
+    await page.getByLabel("Idioma del contenido educativo").selectOption("es");
+    // Upload original PDF through the real browser and inspect locally extracted passages.
+    await page
+      .getByLabel("PDF con texto seleccionable")
+      .setInputFiles(
+        require("node:path").resolve(
+          __dirname,
+          "../../docs/demo/chain-rule.pdf",
+        ),
+      );
+    await page.getByRole("button", { name: "Subir PDF", exact: true }).click();
+    await page
+      .getByText(
+        "Texto del PDF extraído. Selecciona los fragmentos que deseas analizar.",
+      )
+      .waitFor();
+    await page.getByRole("button", { name: "Abrir ejemplo preparado" }).click();
+    await page
+      .getByText(
+        "Ejemplo preparado cargado. No se ha generado contenido con IA en tiempo real. Revisa cada pregunta antes de publicar.",
+      )
+      .waitFor();
+    await page.locator(".studio-question").first().waitFor();
+    assert.equal(await page.locator(".studio-question").count(), 4);
+    await page.locator(".studio-source summary").first().click();
+    await page
+      .locator(".studio-source blockquote")
+      .first()
+      .waitFor({ state: "visible" });
+    for (const width of [1440, 768, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert(
+        await page.evaluate(() => document.body.scrollWidth <= innerWidth),
+        "Spanish Studio overflow at " + width,
+      );
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: require("node:path").join(
+          artifacts,
+          `studio-es-overview-${width}.png`,
+        ),
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: require("node:path").join(artifacts, `studio-es-${width}.png`),
+        fullPage: true,
+      });
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    assert(
+      await page
+        .getByRole("button", { name: "Aprobar y publicar ambas evaluaciones" })
+        .isDisabled(),
+    );
+    const first = page.locator(".studio-question").first();
+    await first
+      .getByRole("textbox", { name: "Pregunta", exact: true })
+      .fill("En (3x + 1)², identifica la función interior.");
+    assert(
+      await first
+        .getByRole("button", { name: "Aprobar pregunta" })
+        .isDisabled(),
+    );
+    await first
+      .getByRole("button", { name: "Guardar cambios como borrador" })
+      .click();
+    await first.getByRole("button", { name: "Aprobar pregunta" }).waitFor();
+    for (let i = 0; i < 4; i++) {
+      const button = page
+        .getByRole("button", { name: "Aprobar pregunta", exact: true })
+        .nth(i);
+      await button.click();
+      await page.waitForFunction(
+        (index) =>
+          document.querySelectorAll(".studio-review-actions button")[index * 2]
+            ?.disabled,
+        i,
+      );
+      await page.waitForFunction(
+        () => !document.querySelector(".studio-progress"),
+      );
+    }
+    await page
+      .getByRole("checkbox", {
+        name: "He verificado el contenido académico y apruebo ambos conjuntos de preguntas para el alumnado.",
+      })
+      .check();
+    await page
+      .getByRole("button", { name: "Aprobar y publicar ambas evaluaciones" })
+      .click();
+    await page
+      .getByRole("button", { name: "Crear una nueva versión en borrador" })
+      .waitFor();
+    // Create a clean session so seeded/historical submissions never need to be reset.
+    const sid = await page.evaluate(async () => {
+      const response = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Demo-User-Id": "2" },
+        body: JSON.stringify({
+          topic_id: 1,
+          title: "Studio browser assignment",
+          description:
+            "An original synthetic session for reviewed learning practice.",
+          goals: ["Apply the chain rule"],
+          starts_at: new Date(Date.now() + 42 * 86400000).toISOString(),
+          duration_minutes: 60,
+          capacity: 5,
+          format: "In person",
+          location: "Synthetic library",
+        }),
+      });
+      if (!response.ok) throw Error(await response.text());
+      return (await response.json()).id;
+    });
+    await page.reload();
+    await page.getByLabel("Evaluaciones guardadas").selectOption({ index: 1 });
+    await page
+      .getByLabel("Sesión de tutoría compatible")
+      .selectOption(String(sid));
+    await page
+      .getByRole("button", { name: "Asignar ambas evaluaciones publicadas" })
+      .click();
+    await page
+      .getByText(
+        "Evaluación asignada. El alumnado puede abrirla desde su sesión reservada.",
+      )
+      .waitFor();
+    const bid = await page.evaluate(async (sid) => {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Demo-User-Id": "1" },
+        body: JSON.stringify({ session_id: sid }),
+      });
+      if (!response.ok) throw Error(await response.text());
+      return (await response.json()).id;
+    }, sid);
+    await page.getByLabel("Rol de demostración").selectOption("1");
+    await page.goto(base + `/app/checks/${bid}/pre`);
+    await page
+      .getByText("Ejemplo preparado · Materiales revisados por el profesorado")
+      .waitFor();
+    await page.getByRole("radio", { name: "3x + 1", exact: true }).check();
+    await page.getByRole("radio", { name: "6(2x + 1)²", exact: true }).check();
+    assert.equal(await page.locator(".quiz-explanation").count(), 0);
+    await page
+      .getByRole("button", { name: "Enviar evaluación de aprendizaje" })
+      .click();
+    await page
+      .getByRole("heading", { name: "Tu resultado guardado" })
+      .waitFor();
+    assert.equal(await page.locator(".quiz-explanation").count(), 2);
+    await page.reload();
+    await page
+      .getByRole("heading", { name: "Tu resultado guardado" })
+      .waitFor();
+    for (const role of ["1", "2", "3"]) {
+      await page.getByLabel("Rol de demostración").selectOption(role);
+      const routes =
+        role === "3"
+          ? [
+              "/app",
+              "/app/courses",
+              "/app/insights",
+              "/app/actions",
+              "/app/studio",
+            ]
+          : role === "2"
+            ? [
+                "/app",
+                "/app/teaching",
+                "/app/publish",
+                "/app/pulse",
+                "/app/groups",
+                "/app/explore",
+                "/app/sessions",
+                "/app/impact",
+              ]
+            : [
+                "/app",
+                "/app/pulse",
+                "/app/groups",
+                "/app/explore",
+                "/app/sessions",
+                "/app/impact",
+              ];
+      for (const width of [390, 768, 1440]) {
+        await page.setViewportSize({ width, height: 900 });
+        for (const route of routes) {
+          await page.goto(base + route);
+          await page.locator("main h1").waitFor();
+          await page.waitForLoadState("networkidle");
+          assert(
+            await page.evaluate(() => document.body.scrollWidth <= innerWidth),
+            `Spanish overflow ${role} ${width} ${route}: ` +
+              JSON.stringify(
+                await page.evaluate(() =>
+                  [...document.querySelectorAll("body *")]
+                    .filter(
+                      (e) =>
+                        e.getBoundingClientRect().right > innerWidth + 1 &&
+                        getComputedStyle(e).position !== "fixed",
+                    )
+                    .map((e) => ({
+                      tag: e.tagName,
+                      cls: e.className,
+                      text: e.textContent.slice(0, 100),
+                      right: e.getBoundingClientRect().right,
+                    }))
+                    .slice(0, 12),
+                ),
+              ),
+          );
+          assert.equal(await page.getByRole("alert").count(), 0);
+        }
+      }
+    }
+    assert.deepEqual(errors, []);
+    console.log(
+      "PASS Spanish persistence, PDF upload, editable review, immutable publication, tutoring assignment, learner scoring and 57 Spanish viewport checks",
+    );
+  } catch (error) {
+    await page.screenshot({
+      path: require("node:path").join(artifacts, "studio-failure.png"),
+      fullPage: true,
+    });
+    throw error;
+  } finally {
+    await browser.close();
+  }
+}
+
 async function runJourney(base, artifacts) {
   const browser = await chromium.launch({
     executablePath: process.env.CLASSALL_CHROMIUM || undefined,
@@ -432,7 +704,9 @@ async function stop(child) {
     frontend.stdout.on("data", (s) => (logs += s));
     frontend.stderr.on("data", (s) => (logs += s));
     await waitReady(`http://127.0.0.1:${frontPort}`, frontend);
-    await runJourney(`http://127.0.0.1:${frontPort}`, artifacts);
+    if (!process.env.CLASSALL_STUDIO_ONLY)
+      await runJourney(`http://127.0.0.1:${frontPort}`, artifacts);
+    await runStudioJourney(`http://127.0.0.1:${frontPort}`, artifacts);
   } catch (e) {
     console.error(e);
     process.exitCode = 1;

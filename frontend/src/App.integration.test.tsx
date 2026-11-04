@@ -438,3 +438,83 @@ it("connects Pulse, groups, tutor publishing and a human-confirmed faculty sessi
   expect(offering.organizer_id).toBe(3);
   expect(offering.tutor.id).toBe(2);
 }, 30000);
+
+it("reviews and publishes a prepared Studio pair through React and SQLite", async () => {
+  const user = userEvent.setup();
+  localStorage.setItem("classall-demo-user", "3");
+  render(
+    <MemoryRouter initialEntries={["/app/studio"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await screen.findByRole("heading", {
+    name: "AI Learning Studio",
+  });
+  await user.click(
+    screen.getByRole("button", { name: "Open prepared example" }),
+  );
+  await screen.findByText(
+    "Prepared example loaded. No live AI generation was performed. Review every question before publishing.",
+  );
+  const publishName = "Approve & publish complete pair";
+  expect(
+    await screen.findByRole("button", { name: publishName }),
+  ).toBeDisabled();
+  const cards = Array.from(
+    document.querySelectorAll<HTMLElement>(".studio-question"),
+  );
+  expect(cards).toHaveLength(4);
+  await user.click(within(cards[0]).getByText(/Inspect source passage/));
+  expect(
+    within(cards[0]).getByText(/ClassAll - Original synthetic course notes/),
+  ).toBeInTheDocument();
+  const prompt = within(cards[0]).getByRole("textbox", {
+    name: "Question",
+  });
+  await user.clear(prompt);
+  await user.type(
+    prompt,
+    "Which expression is the inner function in (3x + 1)²?",
+  );
+  expect(
+    within(cards[0]).getByRole("button", { name: "Approve question" }),
+  ).toBeDisabled();
+  await user.click(
+    within(cards[0]).getByRole("button", { name: "Save changes as draft" }),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getAllByRole("button", { name: "Approve question" })[0],
+    ).toBeEnabled(),
+  );
+  for (let i = 0; i < 4; i++) {
+    await user.click(
+      screen.getAllByRole("button", { name: "Approve question" })[i],
+    );
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("button", { name: "Approve question" })[i],
+      ).toBeDisabled(),
+    );
+  }
+  await user.click(
+    screen.getByRole("checkbox", {
+      name: "I have verified the academic content and approve both assessment sets for learners.",
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: publishName })).toBeEnabled(),
+  );
+  await user.click(screen.getByRole("button", { name: publishName }));
+  await screen.findByText(
+    "Published as an immutable snapshot. Assign it to a compatible tutoring session.",
+  );
+  expect(
+    await screen.findByRole("button", { name: "Create new draft revision" }),
+  ).toBeInTheDocument();
+  const workspace = await actualFetch(`${base}/api/studio/workspace`, {
+    headers: { "X-Demo-User-Id": "3" },
+  }).then((r) => r.json());
+  expect(workspace.assessments[0].status).toBe("published");
+  expect(workspace.publications).toHaveLength(1);
+}, 15000);

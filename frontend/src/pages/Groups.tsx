@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CalendarDays, Users, Plus, MapPin } from "lucide-react";
@@ -30,9 +31,9 @@ export function Groups() {
   const subjects = useRemote<Subject[]>("/subjects");
   if (user.role === "professor")
     return (
-      <EmptyState title="Student-organized learning">
+      <EmptyState title={tr("Student-organized learning")}>
         <Link className="text-link" to="/app/actions">
-          Review course support actions
+          {tr("Review course support actions")}
         </Link>
       </EmptyState>
     );
@@ -47,41 +48,46 @@ export function Groups() {
     await mutation.run(
       () => request(`/groups/${gid}/${op}`, user.id, { method: "POST" }),
       op === "join"
-        ? "You have a place. Bring your questions!"
+        ? tr("You have a place. Bring your questions!")
         : op === "leave"
-          ? "You left the group. Your place is available again."
-          : "Group cancelled. Members will see the change in their groups.",
+          ? tr("You left the group. Your place is available again.")
+          : tr("Group cancelled. Members will see the change in their groups."),
     );
   };
   return (
     <>
       <PageTitle
-        eyebrow="LEARN WITH YOUR PEOPLE"
-        title="Different perspectives. Shared progress."
-        description="Student-organized study circles. Everyone can contribute; no tutor approval needed."
+        eyebrow={tr("LEARN WITH YOUR PEOPLE")}
+        title={tr("Different perspectives. Shared progress.")}
+        description={tr(
+          "Student-organized study circles. Everyone can contribute; no tutor approval needed.",
+        )}
       >
         <button className="button primary" onClick={() => setEditing("new")}>
           <Plus size={17} />
-          Create a study group
+          {tr("Create a study group")}
         </button>
       </PageTitle>
       <div className="connected-intro">
         <Users size={25} />
         <p>
-          Study groups are collaborative peer activities, separate from approved
-          tutoring. Online groups use a demo discussion format with no live
-          meeting integration.
+          {tr(
+            "Study groups are collaborative peer activities, separate from approved tutoring. Online groups use a demo discussion format with no live meeting integration.",
+          )}
         </p>
       </div>
       {mutation.feedback}
       {editing && (
         <section className="form-panel">
           <h2>
-            {editing === "new" ? "Start a study circle" : "Edit your group"}
+            {editing === "new"
+              ? tr("Start a study circle")
+              : tr("Edit your group")}
           </h2>
           <p className="fine-print">
-            Once others join, only title, description and capacity can change.
-            The creator holds one place.
+            {tr(
+              "Once others join, only title, description and capacity can change. The creator holds one place.",
+            )}
           </p>
           <RemoteContent remote={topics}>
             {(data) => (
@@ -91,7 +97,9 @@ export function Groups() {
                 busy={mutation.busy}
                 onCancel={() => setEditing(null)}
                 submitLabel={
-                  editing === "new" ? "Publish study group" : "Save group"
+                  editing === "new"
+                    ? tr("Publish study group")
+                    : tr("Save group")
                 }
                 onSave={async (value) => {
                   const { goals: _, ...body } = value;
@@ -105,7 +113,7 @@ export function Groups() {
                           body: JSON.stringify(body),
                         },
                       ),
-                    "Your study group is saved.",
+                    tr("Your study group is saved."),
                   );
                   if (result) setEditing(null);
                 }}
@@ -119,37 +127,37 @@ export function Groups() {
           className={!mine ? "active" : ""}
           onClick={() => filter("mine", "")}
         >
-          Explore groups
+          {tr("Explore groups")}
         </button>
         <button
           className={mine ? "active" : ""}
           onClick={() => filter("mine", "true")}
         >
-          My groups
+          {tr("My groups")}
         </button>
       </div>
       <div className="connected-filters">
         <label>
-          Subject
+          {tr("Subject")}
           <select
             value={params.get("subject_id") ?? ""}
             onChange={(e) => filter("subject_id", e.target.value)}
           >
-            <option value="">All subjects</option>
+            <option value="">{tr("All subjects")}</option>
             {subjects.data?.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name}
+                {tr(s.name)}
               </option>
             ))}
           </select>
         </label>
         <label>
-          Topic
+          {tr("Topic")}
           <select
             value={params.get("topic_id") ?? ""}
             onChange={(e) => filter("topic_id", e.target.value)}
           >
-            <option value="">All topics</option>
+            <option value="">{tr("All topics")}</option>
             {topics.data
               ?.filter(
                 (t) =>
@@ -158,13 +166,13 @@ export function Groups() {
               )
               .map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.name}
+                  {tr(t.name)}
                 </option>
               ))}
           </select>
         </label>
         <label>
-          Date (UTC)
+          {tr("Date (UTC)")}
           <input
             type="date"
             value={params.get("date") ?? ""}
@@ -179,13 +187,13 @@ export function Groups() {
               filter("available", e.target.checked ? "true" : "")
             }
           />
-          Places available
+          {tr("Places available")}
         </label>
         <button
           className="text-link"
           onClick={() => setParams(mine ? { mine: "true" } : {})}
         >
-          Clear filters
+          {tr("Clear filters")}
         </button>
       </div>
       <RemoteContent remote={groups}>
@@ -198,8 +206,8 @@ export function Groups() {
                     <span className="eyebrow">{g.subject_name}</span>
                     <span className="pill neutral">
                       {g.source === "seeded-synthetic"
-                        ? "Synthetic example"
-                        : "Demo interaction"}
+                        ? tr("Synthetic example")
+                        : tr("Demo interaction")}
                     </span>
                   </div>
                   <h2>{g.title}</h2>
@@ -209,7 +217,8 @@ export function Groups() {
                     <span>
                       <CalendarDays size={16} />
                       {dateLabel(g.starts_at)} · {timeLabel(g.starts_at)} ·{" "}
-                      {g.duration_minutes} min
+                      {g.duration_minutes}
+                      {tr(" min")}
                     </span>
                     <span>
                       <MapPin size={16} />
@@ -217,43 +226,47 @@ export function Groups() {
                     </span>
                     <span>
                       <Users size={16} />
-                      {g.available_places} places available · {g.member_count}/
-                      {g.capacity} joined
+                      {g.available_places}
+                      {tr(" places available · ")}
+                      {g.member_count}/{g.capacity}
+                      {tr(" joined")}
                     </span>
                   </div>
                   {g.status === "cancelled" ? (
                     <p className="pill neutral">
-                      Cancelled · no longer meeting
+                      {tr("Cancelled · no longer meeting")}
                     </p>
                   ) : new Date(g.starts_at) <= new Date() ? (
-                    <p>Past study group</p>
+                    <p>{tr("Past study group")}</p>
                   ) : (
                     <div className="action-row">
                       {g.creator_id === user.id ? (
                         <>
-                          <span className="pill sage">You organize this</span>
+                          <span className="pill sage">
+                            {tr("You organize this")}
+                          </span>
                           <button
                             className="button secondary small"
                             onClick={() => setEditing(g)}
                           >
-                            Edit group
+                            {tr("Edit group")}
                           </button>
                           <ConfirmButton
                             disabled={mutation.busy}
                             onConfirm={() => void operation(g.id, "cancel")}
                           >
-                            Cancel group
+                            {tr("Cancel group")}
                           </ConfirmButton>
                         </>
                       ) : g.joined ? (
                         <>
-                          <span className="pill sage">You're in</span>
+                          <span className="pill sage">{tr("You're in")}</span>
                           <button
                             disabled={mutation.busy}
                             className="button secondary small"
                             onClick={() => void operation(g.id, "leave")}
                           >
-                            Leave group
+                            {tr("Leave group")}
                           </button>
                         </>
                       ) : (
@@ -262,7 +275,9 @@ export function Groups() {
                           disabled={!g.available_places || mutation.busy}
                           onClick={() => void operation(g.id, "join")}
                         >
-                          {g.available_places ? "Join group" : "Group full"}
+                          {g.available_places
+                            ? tr("Join group")
+                            : tr("Group full")}
                         </button>
                       )}
                     </div>
@@ -271,8 +286,10 @@ export function Groups() {
               ))}
             </div>
           ) : (
-            <EmptyState title="Make a little space for learning.">
-              No groups match these filters. Clear them or start a new circle.
+            <EmptyState title={tr("Make a little space for learning.")}>
+              {tr(
+                "No groups match these filters. Clear them or start a new circle.",
+              )}
             </EmptyState>
           )
         }

@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { useDemo } from "../lib/demo";
@@ -23,7 +24,7 @@ export function useMutation() {
       refresh();
       return result;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Please try again.");
+      setError(e instanceof Error ? e.message : tr("Please try again."));
       return undefined;
     } finally {
       setBusy(false);
@@ -38,12 +39,12 @@ export function useMutation() {
       <>
         {error && (
           <p role="alert" className="form-error">
-            {error}
+            {tr(error)}
           </p>
         )}
         {message && (
           <p role="status" className="success-note">
-            {message}
+            {tr(message)}
           </p>
         )}
       </>
@@ -63,7 +64,7 @@ export function ConfirmButton({
   const [confirm, setConfirm] = useState(false);
   return confirm ? (
     <span className="action-row">
-      <span>Confirm cancellation?</span>
+      <span>{tr("Confirm cancellation?")}</span>
       <button
         className="button secondary small"
         disabled={disabled}
@@ -72,10 +73,10 @@ export function ConfirmButton({
           setConfirm(false);
         }}
       >
-        Yes, cancel
+        {tr("Yes, cancel")}
       </button>
       <button className="text-link" onClick={() => setConfirm(false)}>
-        Keep it
+        {tr("Keep it")}
       </button>
     </span>
   ) : (
@@ -104,7 +105,7 @@ export function TopicSelect({
   return (
     <div className="form-grid">
       <label>
-        Course
+        {tr("Course")}
         <select
           value={selected?.subject_id ?? ""}
           required
@@ -116,30 +117,33 @@ export function TopicSelect({
           }
         >
           <option value="" disabled>
-            Choose a course
+            {tr("Choose a course")}
           </option>
           {subjectIds.map((id) => (
             <option value={id} key={id}>
-              {subjects.data?.find((s) => s.id === id)?.name ?? `Course ${id}`}
+              {tr(
+                subjects.data?.find((s) => s.id === id)?.name ??
+                  tr("Course {{0}}", { 0: id }),
+              )}
             </option>
           ))}
         </select>
       </label>
       <label>
-        Topic
+        {tr("Topic")}
         <select
           value={value || ""}
           required
           onChange={(e) => onChange(Number(e.target.value))}
         >
           <option value="" disabled>
-            Choose a topic
+            {tr("Choose a topic")}
           </option>
           {topics
             .filter((t) => !selected || t.subject_id === selected.subject_id)
             .map((t) => (
               <option value={t.id} key={t.id}>
-                {t.name}
+                {tr(t.name)}
               </option>
             ))}
         </select>
@@ -155,7 +159,7 @@ export function EventForm({
   onCancel,
   busy,
   session = false,
-  submitLabel = "Publish",
+  submitLabel = tr("Publish"),
   children,
 }: {
   topics: Topic[];
@@ -198,7 +202,7 @@ export function EventForm({
     >
       <TopicSelect topics={topics} value={tid} onChange={setTid} />
       <label>
-        Title
+        {tr("Title")}
         <input
           name="title"
           required
@@ -208,7 +212,7 @@ export function EventForm({
         />
       </label>
       <label>
-        Description
+        {tr("Description")}
         <textarea
           name="description"
           required
@@ -220,7 +224,8 @@ export function EventForm({
       </label>
       {session && (
         <label>
-          Learning objectives <small>One per line; up to five.</small>
+          {tr("Learning objectives ")}
+          <small>{tr("One per line; up to five.")}</small>
           <textarea
             name="goals"
             required
@@ -232,7 +237,7 @@ export function EventForm({
       )}
       <div className="form-grid">
         <label>
-          Date and time{" "}
+          {tr("Date and time")}{" "}
           <small>{Intl.DateTimeFormat().resolvedOptions().timeZone}</small>
           <input
             type="datetime-local"
@@ -243,7 +248,7 @@ export function EventForm({
           />
         </label>
         <label>
-          Duration (minutes)
+          {tr("Duration (minutes)")}
           <input
             type="number"
             name="duration"
@@ -256,7 +261,7 @@ export function EventForm({
       </div>
       <div className="form-grid">
         <label>
-          Maximum participants
+          {tr("Maximum participants")}
           <input
             type="number"
             name="capacity"
@@ -267,17 +272,19 @@ export function EventForm({
           />
         </label>
         <label>
-          Format
+          {tr("Format")}
           <select name="format" defaultValue={initial?.format ?? "In person"}>
-            <option>In person</option>
-            <option>Online</option>
+            <option value="In person">{tr("In person")}</option>
+            <option value="Online">{tr("Online")}</option>
           </select>
         </label>
       </div>
       <label>
-        Location{" "}
+        {tr("Location")}{" "}
         <small>
-          Required in person. Online is a demo format without a meeting service.
+          {tr(
+            "Required in person. Online is a demo format without a meeting service.",
+          )}
         </small>
         <input
           name="location"
@@ -288,7 +295,7 @@ export function EventForm({
       {children}
       <div className="action-row">
         <button className="button primary" disabled={busy || !tid}>
-          {busy ? "Saving…" : submitLabel}
+          {busy ? tr("Saving…") : submitLabel}
         </button>
         <button
           type="button"
@@ -296,7 +303,7 @@ export function EventForm({
           disabled={busy}
           onClick={onCancel}
         >
-          Close form
+          {tr("Close form")}
         </button>
       </div>
     </form>
@@ -316,9 +323,9 @@ export function RemoteContent<T>({
   children: (data: T) => ReactNode;
 }) {
   return remote.loading ? (
-    <Loading label="Loading your learning space" />
+    <Loading label={tr("Loading your learning space")} />
   ) : remote.error ? (
-    <ErrorState message={remote.error} retry={remote.retry} />
+    <ErrorState message={tr(remote.error)} retry={remote.retry} />
   ) : remote.data ? (
     children(remote.data)
   ) : null;

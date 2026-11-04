@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -25,15 +26,15 @@ export function SessionCard({
       <div className={`card-art tone-${session.subject.color}`}>
         <span className="subject-symbol">{session.subject.symbol}</span>
         <span className="card-art-orbit" />
-        <span className="pill card-level">{session.level}</span>
+        <span className="pill card-level">{tr(session.level)}</span>
         <span className="card-art-star">✳</span>
       </div>
       <div className="card-body">
         <div className="card-meta">
           <span className={`subject-label text-${session.subject.color}`}>
-            {session.subject.name}
+            {tr(session.subject.name)}
           </span>
-          <span className="free-label">Free</span>
+          <span className="free-label">{tr("Free")}</span>
         </div>
         <button className="card-title" onClick={() => onSelect(session)}>
           {session.title}
@@ -41,25 +42,28 @@ export function SessionCard({
         </button>
         <span className="offering-label">
           {session.kind === "faculty"
-            ? "Faculty-organized · synthetic TA support"
-            : "Peer tutoring"}{" "}
+            ? tr("Faculty-organized · synthetic TA support")
+            : tr("Peer tutoring")}{" "}
           ·{" "}
           {session.source === "demo-interaction"
-            ? "Demo interaction"
-            : "Synthetic example"}
+            ? tr("Demo interaction")
+            : tr("Synthetic example")}
         </span>
         <p className="card-description">{session.description}</p>
         <div className="tutor-line">
           <Avatar user={session.tutor} small />
           <span>
             <strong>{session.tutor.name}</strong>
-            <small>{session.tutor.year} · Peer tutor</small>
+            <small>
+              {tr(session.tutor.year)}
+              {tr(" · Peer tutor")}
+            </small>
           </span>
           {session.approved && (
             <ShieldCheck
               className="approval-icon"
               size={18}
-              aria-label="Subject approved in demo data"
+              aria-label={tr("Subject approved in demo data")}
             />
           )}
         </div>
@@ -70,13 +74,15 @@ export function SessionCard({
           </span>
           <span>
             <Clock3 size={14} />
-            {session.duration_minutes} min<span className="detail-dot">·</span>
+            {session.duration_minutes}
+            {tr(" min")}
+            <span className="detail-dot">·</span>
             {session.format === "Online" ? (
               <Monitor size={14} />
             ) : (
               <MapPin size={14} />
             )}{" "}
-            {session.format}
+            {tr(session.format)}
           </span>
         </div>
         <div className="card-bottom">
@@ -85,14 +91,17 @@ export function SessionCard({
           >
             <Users size={14} />
             {session.available_seats === 0
-              ? "Session full"
-              : `${session.available_seats} of ${session.capacity} spots left`}
+              ? tr("Session full")
+              : tr("{{0}} of {{1}} spots left", {
+                  0: session.available_seats,
+                  1: session.capacity,
+                })}
           </span>
           <button
             className={`button small ${booked ? "booked-button" : "soft"}`}
             onClick={() => onSelect(session)}
           >
-            {booked ? "Booked ✓" : "View session"}
+            {booked ? tr("Booked ✓") : tr("View session")}
             {!booked && <ArrowUpRight size={14} />}
           </button>
         </div>

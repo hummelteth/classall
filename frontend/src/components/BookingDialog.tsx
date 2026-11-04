@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -63,7 +64,7 @@ export default function BookingDialog({
         setError(
           err instanceof Error
             ? err.message
-            : "Could not book. Please try again.",
+            : tr("Could not book. Please try again."),
         );
         remote.retry();
       }
@@ -88,7 +89,7 @@ export default function BookingDialog({
     >
       <button
         className="icon-button dialog-close"
-        aria-label="Close session details"
+        aria-label={tr("Close session details")}
         onClick={close}
       >
         <X size={21} />
@@ -98,11 +99,12 @@ export default function BookingDialog({
           <span className="success-icon">
             <CheckCircle2 size={42} />
           </span>
-          <span className="eyebrow">ONE STEP CLOSER</span>
-          <h2 id="booking-title">Your seat is saved!</h2>
+          <span className="eyebrow">{tr("ONE STEP CLOSER")}</span>
+          <h2 id="booking-title">{tr("Your seat is saved!")}</h2>
           <p>
-            You’re booked for <strong>{success.session.title}</strong> with{" "}
-            {success.session.tutor.name.split(" ")[0]}.
+            {tr("You’re booked for ")}
+            <strong>{success.session.title}</strong>
+            {tr(" with")} {success.session.tutor.name.split(" ")[0]}.
           </p>
           <div className="confirmation-box">
             <CalendarDays size={21} />
@@ -110,15 +112,18 @@ export default function BookingDialog({
               <strong>{dateLabel(success.session.starts_at)}</strong>
               <span>
                 {timeLabel(success.session.starts_at)} ·{" "}
-                {success.session.duration_minutes} min
+                {success.session.duration_minutes}
+                {tr(" min")}
               </span>
               <span>{success.session.location}</span>
             </div>
           </div>
           <p className="fine-print">
-            Booking #{success.id} · Saved in the local demo database.
+            {tr("Booking #")}
+            {success.id}
+            {tr(" · Saved in the local demo database.")}
             <br />
-            No email or calendar invitation is sent.
+            {tr("No email or calendar invitation is sent.")}
           </p>
           {success.session.learning_check_available && (
             <Link
@@ -126,15 +131,15 @@ export default function BookingDialog({
               to={`/app/checks/${success.id}/pre`}
               onClick={close}
             >
-              Start pre-session Learning Check
+              {tr("Start pre-session Learning Check")}
             </Link>
           )}
           <Link className="button primary" to="/app/sessions" onClick={close}>
-            See my sessions
+            {tr("See my sessions")}
             <ArrowRight size={17} />
           </Link>
           <button className="text-button" onClick={close}>
-            Keep exploring
+            {tr("Keep exploring")}
           </button>
         </div>
       ) : (
@@ -143,26 +148,26 @@ export default function BookingDialog({
             <span className="dialog-symbol">{s?.subject.symbol ?? "✳"}</span>
             <span className="pill neutral">
               {s?.kind === "faculty"
-                ? "Faculty-organized · synthetic TA support"
-                : "Free peer tutoring"}
+                ? tr("Faculty-organized · synthetic TA support")
+                : tr("Free peer tutoring")}
             </span>
           </div>
           <div className="dialog-content">
             {remote.loading ? (
               <>
-                <h2 id="booking-title">Session details</h2>
+                <h2 id="booking-title">{tr("Session details")}</h2>
                 <Loading />
               </>
             ) : remote.error ? (
               <>
-                <h2 id="booking-title">Session details</h2>
-                <ErrorState message={remote.error} retry={remote.retry} />
+                <h2 id="booking-title">{tr("Session details")}</h2>
+                <ErrorState message={tr(remote.error)} retry={remote.retry} />
               </>
             ) : (
               s && (
                 <>
                   <span className="eyebrow">
-                    {s.subject.code} · {s.subject.name}
+                    {s.subject.code} · {tr(s.subject.name)}
                   </span>
                   <h2 id="booking-title">{s.title}</h2>
                   <div className="dialog-tutor">
@@ -170,18 +175,19 @@ export default function BookingDialog({
                     <div>
                       <strong>{s.tutor.name}</strong>
                       <span>
-                        {s.tutor.programme} · {s.tutor.year}
+                        {tr(s.tutor.programme)} · {tr(s.tutor.year)}
                       </span>
                     </div>
                     <span className="approved-note">
                       <ShieldCheck size={15} />
-                      Demo approval
+                      {tr("Demo approval")}
                     </span>
                   </div>
                   {s.kind === "faculty" && (
                     <p className="fine-print">
-                      Faculty-organized synthetic support with an approved demo
-                      tutor. This is not an official university offering.
+                      {tr(
+                        "Faculty-organized synthetic support with an approved demo tutor. This is not an official university offering.",
+                      )}
                     </p>
                   )}
                   <p className="dialog-description">{s.description}</p>
@@ -198,8 +204,12 @@ export default function BookingDialog({
                     <div>
                       <Clock3 size={18} />
                       <span>
-                        {s.duration_minutes} minutes
-                        <small>{s.level} friendly</small>
+                        {s.duration_minutes}
+                        {tr(" minutes")}
+                        <small>
+                          {tr(s.level)}
+                          {tr(" friendly")}
+                        </small>
                       </span>
                     </div>
                     <div>
@@ -208,20 +218,25 @@ export default function BookingDialog({
                         {s.location}
                         <small>
                           {s.format === "Online"
-                            ? "No live meeting is provided"
-                            : "Fictional demo campus location"}
+                            ? tr("No live meeting is provided")
+                            : tr("Fictional demo campus location")}
                         </small>
                       </span>
                     </div>
                     <div>
                       <Users size={18} />
                       <span>
-                        {s.available_seats} spots available
-                        <small>Small group · {s.capacity} seats total</small>
+                        {s.available_seats}
+                        {tr(" spots available")}
+                        <small>
+                          {tr("Small group · ")}
+                          {s.capacity}
+                          {tr(" seats total")}
+                        </small>
                       </span>
                     </div>
                   </div>
-                  <h3>What we’ll work on</h3>
+                  <h3>{tr("What we’ll work on")}</h3>
                   <ul className="goals">
                     {s.goals.map((g) => (
                       <li key={g}>
@@ -231,23 +246,26 @@ export default function BookingDialog({
                     ))}
                   </ul>
                   <p className="demo-disclosure">
-                    Demo booking as <strong>{user.name}</strong>. This reserves
-                    a local demo seat only.
+                    {tr("Demo booking as ")}
+                    <strong>{user.name}</strong>
+                    {tr(". This reserves a local demo seat only.")}
                   </p>
                   {error && (
                     <p role="alert" className="form-error">
-                      {error}
+                      {tr(error)}
                     </p>
                   )}
                   {user.role === "professor" ? (
                     <p className="info-box">
-                      Switch to the Learner or Tutor demo role to book a
-                      session.
+                      {tr(
+                        "Switch to the Learner or Tutor demo role to book a session.",
+                      )}
                     </p>
                   ) : s.tutor.id === user.id ? (
                     <p className="info-box">
-                      You’re hosting this session. Find it in your teaching
-                      schedule.
+                      {tr(
+                        "You’re hosting this session. Find it in your teaching schedule.",
+                      )}
                     </p>
                   ) : (
                     <button
@@ -262,14 +280,14 @@ export default function BookingDialog({
                       }
                     >
                       {pending
-                        ? "Saving your seat…"
+                        ? tr("Saving your seat…")
                         : booked
-                          ? "You’re already booked ✓"
+                          ? tr("You’re already booked ✓")
                           : s.status !== "upcoming" || !upcoming(s.starts_at)
-                            ? "This session has ended"
+                            ? tr("This session has ended")
                             : s.available_seats === 0
-                              ? "This session is full"
-                              : "Book a free seat"}
+                              ? tr("This session is full")
+                              : tr("Book a free seat")}
                       {!pending && !booked && s.available_seats > 0 && (
                         <ArrowRight size={17} />
                       )}

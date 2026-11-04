@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { LearningProgress } from "../components/LearningProgress";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
@@ -24,12 +25,14 @@ export function Impact() {
     return (
       <>
         <PageTitle
-          eyebrow="MY LEARNING & IMPACT"
-          title="Your contribution has a story."
-          description="A private starting point for a future competency portfolio."
+          eyebrow={tr("MY LEARNING & IMPACT")}
+          title={tr("Your contribution has a story.")}
+          description={tr(
+            "A private starting point for a future competency portfolio.",
+          )}
         />
         {tutor.loading ? (
-          <Loading label="Loading your impact" />
+          <Loading label={tr("Loading your impact")} />
         ) : tutor.error ? (
           <ErrorState message={tutor.error} retry={tutor.retry} />
         ) : (
@@ -37,65 +40,70 @@ export function Impact() {
             <>
               <TutorStats data={tutor.data} />
               <section className="portfolio-card">
-                <span className="pill neutral">Synthetic portfolio</span>
-                <h2>Learning facilitator</h2>
+                <span className="pill neutral">
+                  {tr("Synthetic portfolio")}
+                </span>
+                <h2>{tr("Learning facilitator")}</h2>
                 <p>
-                  Demonstration experience in{" "}
+                  {tr("Demonstration experience in")}{" "}
                   {tutor.data.approved_subjects
                     .map((s) => s.name)
                     .join(" and ")}
                   .
                 </p>
                 <div className="portfolio-tags">
-                  <span>Peer explanation</span>
-                  <span>Small-group facilitation</span>
-                  <span>Subject communication</span>
+                  <span>{tr("Peer explanation")}</span>
+                  <span>{tr("Small-group facilitation")}</span>
+                  <span>{tr("Subject communication")}</span>
                 </div>
                 <p className="fine-print">
-                  Illustrative competencies only. These have not been assessed
-                  or endorsed by a university.
+                  {tr(
+                    "Illustrative competencies only. These have not been assessed or endorsed by a university.",
+                  )}
                 </p>
               </section>
             </>
           )
         )}
         <LearningProgress />
-        <ComingSoon title="Recognition that means something">
-          Attendance verification, reviewed competencies and an exportable
-          portfolio are planned. Engagement points are illustrative and cannot
-          be exchanged for credit or rewards.
+        <ComingSoon title={tr("Recognition that means something")}>
+          {tr(
+            "Attendance verification, reviewed competencies and an exportable portfolio are planned. Engagement points are illustrative and cannot be exchanged for credit or rewards.",
+          )}
         </ComingSoon>
       </>
     );
   return (
     <>
       <PageTitle
-        eyebrow="MY LEARNING & IMPACT"
-        title="Every small step counts."
-        description="Your own space to see how you’re making time for learning."
+        eyebrow={tr("MY LEARNING & IMPACT")}
+        title={tr("Every small step counts.")}
+        description={tr(
+          "Your own space to see how you’re making time for learning.",
+        )}
       />
       {bookings.loading ? (
-        <Loading label="Loading your learning" />
+        <Loading label={tr("Loading your learning")} />
       ) : bookings.error ? (
         <ErrorState message={bookings.error} retry={bookings.retry} />
       ) : (
         <div className="stats-grid">
           <article>
-            <span className="stat-label">Upcoming sessions</span>
+            <span className="stat-label">{tr("Upcoming sessions")}</span>
             <strong>{bookings.data?.filter(activeBooking).length ?? 0}</strong>
-            <p>Time set aside for your next breakthrough</p>
+            <p>{tr("Time set aside for your next breakthrough")}</p>
           </article>
           <article>
-            <span className="stat-label">Past sessions</span>
+            <span className="stat-label">{tr("Past sessions")}</span>
             <strong>
               {bookings.data?.filter(
                 (b) => b.status === "confirmed" && !activeBooking(b),
               ).length ?? 0}
             </strong>
-            <p>Booked in the synthetic dataset</p>
+            <p>{tr("Booked in the synthetic dataset")}</p>
           </article>
           <article>
-            <span className="stat-label">Subjects explored</span>
+            <span className="stat-label">{tr("Subjects explored")}</span>
             <strong>
               {
                 new Set(
@@ -105,19 +113,20 @@ export function Impact() {
                 ).size
               }
             </strong>
-            <p>Across your confirmed bookings</p>
+            <p>{tr("Across your confirmed bookings")}</p>
           </article>
         </div>
       )}
       <LearningProgress />
       <div className="future-grid">
-        <ComingSoon title="Share your strengths">
-          Future subject-specific tutor applications will help you contribute.
-          For now, switch to the Tutor demo to explore the workspace.
+        <ComingSoon title={tr("Share your strengths")}>
+          {tr(
+            "Future subject-specific tutor applications will help you contribute. For now, switch to the Tutor demo to explore the workspace.",
+          )}
         </ComingSoon>
       </div>
       <Link className="button primary" to="/app/explore">
-        Keep exploring
+        {tr("Keep exploring")}
         <ArrowRight size={16} />
       </Link>
     </>

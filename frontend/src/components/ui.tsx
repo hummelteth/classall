@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import {
   ArrowRight,
   AlertCircle,
@@ -14,12 +15,13 @@ export function Brand({ light = false }: { light?: boolean }) {
     <Link
       to="/"
       className={`brand ${light ? "brand-light" : ""}`}
-      aria-label="ClassAll home"
+      aria-label={tr("ClassAll home")}
     >
       <span className="brand-icon">
         <BookOpen size={23} strokeWidth={2.3} />
       </span>
-      ClassAll<span className="brand-dot">.</span>
+      {tr("ClassAll")}
+      <span className="brand-dot">.</span>
     </Link>
   );
 }
@@ -50,21 +52,25 @@ export function ErrorState({
     <div className="error-state" role="alert">
       <AlertCircle size={24} />
       <div>
-        <strong>We couldn’t load this just yet.</strong>
-        <p>{message}</p>
+        <strong>{tr("We couldn’t load this just yet.")}</strong>
+        <p>{tr(message)}</p>
       </div>
       <button className="button secondary small" onClick={retry}>
         <RefreshCw size={14} />
-        Try again
+        {tr("Try again")}
       </button>
     </div>
   );
 }
-export function Loading({ label = "Loading sessions" }: { label?: string }) {
+export function Loading({
+  label = tr("Loading sessions"),
+}: {
+  label?: string;
+}) {
   return (
     <div className="loading" role="status">
       <span className="spinner" />
-      {label}…
+      {tr(label)}…
     </div>
   );
 }
@@ -124,7 +130,7 @@ export function ComingSoon({
 }) {
   return (
     <div className="future-note">
-      <span className="pill neutral">On the roadmap</span>
+      <span className="pill neutral">{tr("On the roadmap")}</span>
       <h3>{title}</h3>
       <p>{children}</p>
     </div>

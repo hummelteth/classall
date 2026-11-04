@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Plus, CalendarPlus } from "lucide-react";
@@ -44,37 +45,42 @@ export function SupportActions() {
     ) ?? [];
   if (user.role !== "professor")
     return (
-      <EmptyState title="Support decisions belong to the responsible professor.">
+      <EmptyState
+        title={tr("Support decisions belong to the responsible professor.")}
+      >
         <Link className="text-link" to="/app/pulse">
-          Request learning support
+          {tr("Request learning support")}
         </Link>
       </EmptyState>
     );
   return (
     <>
       <PageTitle
-        eyebrow="HUMAN-LED SUPPORT"
-        title="Turn an observation into an opportunity."
-        description="Review the evidence, choose an action and follow up. Every decision stays with you."
+        eyebrow={tr("HUMAN-LED SUPPORT")}
+        title={tr("Turn an observation into an opportunity.")}
+        description={tr(
+          "Review the evidence, choose an action and follow up. Every decision stays with you.",
+        )}
       >
         <button className="button primary" onClick={() => setCreate(!create)}>
           <Plus size={17} />
-          Create support action
+          {tr("Create support action")}
         </button>
       </PageTitle>
       <div className="connected-intro">
         <p>
-          All people, evidence and faculty-organized offerings are synthetic.
-          These are demo support opportunities without university endorsement.
+          {tr(
+            "All people, evidence and faculty-organized offerings are synthetic. These are demo support opportunities without university endorsement.",
+          )}
         </p>
         <Link className="text-link" to="/app/insights">
-          Review learning insights
+          {tr("Review learning insights")}
         </Link>
       </div>
       {mutation.feedback}
       {create && (
         <section className="form-panel">
-          <h2>Plan a support action</h2>
+          <h2>{tr("Plan a support action")}</h2>
           <form
             className="connected-form"
             onSubmit={async (e) => {
@@ -93,61 +99,71 @@ export function SupportActions() {
                       human_confirmed: true,
                     }),
                   }),
-                "Support action recorded with a snapshot of current aggregate evidence.",
+                tr(
+                  "Support action recorded with a snapshot of current aggregate evidence.",
+                ),
               );
               if (result) setCreate(false);
             }}
           >
             <TopicSelect topics={allowed} value={tid} onChange={setTid} />
             <label>
-              Action
+              {tr("Action")}
               <select name="action_type">
-                <option value="review">Review a topic-level need</option>
+                <option value="review">
+                  {tr("Review a topic-level need")}
+                </option>
                 <option value="practice">
-                  Recommend additional practice materials
+                  {tr("Recommend additional practice materials")}
                 </option>
                 <option value="ta_session">
-                  Organize a TA-led support session
+                  {tr("Organize a TA-led support session")}
                 </option>
-                <option value="follow_up">Record a follow-up review</option>
+                <option value="follow_up">
+                  {tr("Record a follow-up review")}
+                </option>
               </select>
             </label>
             <label>
-              Rationale from observable evidence
+              {tr("Rationale from observable evidence")}
               <textarea
                 name="rationale"
                 required
                 minLength={10}
                 maxLength={1000}
                 rows={3}
-                placeholder="What did you observe, and why is this action appropriate?"
+                placeholder={tr(
+                  "What did you observe, and why is this action appropriate?",
+                )}
               />
             </label>
             <label>
-              Follow-up date (optional)
+              {tr("Follow-up date (optional)")}
               <input type="date" name="follow_up_date" />
             </label>
             <label>
-              Notes or practice instructions (optional)
+              {tr("Notes or practice instructions (optional)")}
               <textarea name="notes" maxLength={1000} rows={2} />
             </label>
             <label className="check-label">
-              <input type="checkbox" required />I reviewed the available
-              evidence and its limitations. I confirm this support action.
+              <input type="checkbox" required />
+              {tr(
+                "I reviewed the available evidence and its limitations. I confirm this support action.",
+              )}
             </label>
             <div className="action-row">
               <button
                 disabled={mutation.busy || !allowed.some((t) => t.id === tid)}
                 className="button primary"
               >
-                Save confirmed action
+                {tr("Save confirmed action")}
               </button>
               <button
                 type="button"
                 className="button secondary"
                 onClick={() => setCreate(false)}
               >
-                Close form
+                {tr("Close form")}
               </button>
             </div>
           </form>
@@ -170,59 +186,80 @@ export function SupportActions() {
                     <span className="eyebrow">
                       {a.subject_name} · {a.topic_name}
                     </span>
-                    <span className="pill neutral">{a.status}</span>
+                    <span className="pill neutral">{tr(a.status)}</span>
                   </div>
                   <h2>
                     {
                       (
                         {
-                          practice: "Practice materials",
-                          ta_session: "TA-led support session",
-                          review: "Topic review",
-                          follow_up: "Follow-up review",
+                          practice: tr("Practice materials"),
+                          ta_session: tr("TA-led support session"),
+                          review: tr("Topic review"),
+                          follow_up: tr("Follow-up review"),
                         } as Record<string, string>
                       )[a.action_type]
                     }
                   </h2>
                   <p>{a.rationale}</p>
                   <small>
-                    Created {dateLabel(a.created_at)} · Human-confirmed demo
-                    action
-                    {a.follow_up_date ? ` · Follow up ${a.follow_up_date}` : ""}
+                    {tr("Created ")}
+                    {dateLabel(a.created_at)}
+                    {tr(" · Human-confirmed demo action")}
+                    {a.follow_up_date
+                      ? tr(" · Follow up {{0}}", {
+                          0: dateLabel(a.follow_up_date + "T12:00:00", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }),
+                        })
+                      : ""}
                   </small>
                   <details className="evidence-details">
-                    <summary>Evidence at the time of this decision</summary>
+                    <summary>
+                      {tr("Evidence at the time of this decision")}
+                    </summary>
                     <p>
-                      {a.evidence.participants} voluntary participants ·{" "}
-                      {a.evidence.open_requests ?? "Suppressed (<3)"} open
-                      requests · {a.evidence.tutoring_places} tutoring places ·{" "}
-                      {a.evidence.study_group_places} study group places.
+                      {a.evidence.participants}
+                      {tr(" voluntary participants ·")}{" "}
+                      {a.evidence.open_requests ?? tr("Suppressed (<3)")}
+                      {tr(" open requests · ")}
+                      {a.evidence.tutoring_places}
+                      {tr(" tutoring places ·")} {a.evidence.study_group_places}
+                      {tr(" study group places.")}
                     </p>
-                    <p>{a.evidence.rule}</p>
-                    <p>{a.evidence.missing_data}</p>
+                    <p>{tr(a.evidence.rule)}</p>
+                    <p>{tr(a.evidence.missing_data)}</p>
                     {a.evidence.learning_checks && (
                       <p>
-                        Learning Check snapshot: pre n=
+                        {tr("Learning Check snapshot: pre n=")}
                         {a.evidence.learning_checks.pre.n},{" "}
                         {a.evidence.learning_checks.pre.suppressed
-                          ? "mean suppressed"
-                          : `${a.evidence.learning_checks.pre.mean_percent}% mean`}
-                        ; post n={a.evidence.learning_checks.post.n},{" "}
+                          ? tr("mean suppressed")
+                          : tr("{{0}}% mean", {
+                              0: a.evidence.learning_checks.pre.mean_percent,
+                            })}
+                        {tr("; post n=")}
+                        {a.evidence.learning_checks.post.n},{" "}
                         {a.evidence.learning_checks.post.suppressed
-                          ? "mean suppressed"
-                          : `${a.evidence.learning_checks.post.mean_percent}% mean`}
-                        . Missing checks are excluded; differences do not
-                        establish a tutoring effect.
+                          ? tr("mean suppressed")
+                          : tr("{{0}}% mean", {
+                              0: a.evidence.learning_checks.post.mean_percent,
+                            })}
+                        {tr(
+                          ". Missing checks are excluded; differences do not establish a tutoring effect.",
+                        )}
                       </p>
                     )}
                     <p>
-                      Snapshot: {dateLabel(a.evidence.captured_at)}. Learning
-                      Check details are retained in the aggregate snapshot;
-                      review current results in Learning insights. No individual
-                      responses or histories are included.
+                      {tr("Snapshot: ")}
+                      {dateLabel(a.evidence.captured_at)}
+                      {tr(
+                        ". Learning Check details are retained in the aggregate snapshot; review current results in Learning insights. No individual responses or histories are included.",
+                      )}
                     </p>
                     <Link className="text-link" to="/app/insights">
-                      Review current insights
+                      {tr("Review current insights")}
                     </Link>
                   </details>
                   {a.session_id ? (
@@ -235,7 +272,7 @@ export function SupportActions() {
                         onClick={() => setPublish(a)}
                       >
                         <CalendarPlus size={16} />
-                        Organize synthetic TA session
+                        {tr("Organize synthetic TA session")}
                       </button>
                     )
                   )}
@@ -247,8 +284,14 @@ export function SupportActions() {
               ))}
             </div>
           ) : (
-            <EmptyState title="Your next support opportunity starts with a decision.">
-              Review the topic signals and record a human-confirmed action.
+            <EmptyState
+              title={tr(
+                "Your next support opportunity starts with a decision.",
+              )}
+            >
+              {tr(
+                "Review the topic signals and record a human-confirmed action.",
+              )}
             </EmptyState>
           )
         }
@@ -274,11 +317,11 @@ function FacultyForm({
   );
   return (
     <section className="form-panel">
-      <h2>Organize faculty-supported tutoring</h2>
+      <h2>{tr("Organize faculty-supported tutoring")}</h2>
       <p>
-        Publish under your own professor identity with an approved synthetic
-        tutor as host. The session uses ordinary reservations and appears on the
-        host’s teaching schedule.
+        {tr(
+          "Publish under your own professor identity with an approved synthetic tutor as host. The session uses ordinary reservations and appears on the host’s teaching schedule.",
+        )}
       </p>
       {mutation.feedback}
       <RemoteContent remote={hosts}>
@@ -299,20 +342,22 @@ function FacultyForm({
                       host_id: host || data[0]?.id,
                     }),
                   }),
-                "The faculty-organized session is published. Learners can now book it.",
+                tr(
+                  "The faculty-organized session is published. Learners can now book it.",
+                ),
               );
               if (result) close();
             }}
           >
             <label>
-              Approved synthetic host
+              {tr("Approved synthetic host")}
               <select
                 required
                 value={host || data[0]?.id || ""}
                 onChange={(e) => setHost(Number(e.target.value))}
               >
                 {!data.length && (
-                  <option value="">No approved host available</option>
+                  <option value="">{tr("No approved host available")}</option>
                 )}
                 {data.map((h) => (
                   <option key={h.id} value={h.id}>
@@ -322,8 +367,10 @@ function FacultyForm({
               </select>
             </label>
             <label className="check-label">
-              <input type="checkbox" required />I confirm this synthetic
-              faculty-organized support offering.
+              <input type="checkbox" required />
+              {tr(
+                "I confirm this synthetic faculty-organized support offering.",
+              )}
             </label>
           </EventForm>
         )}
@@ -337,12 +384,12 @@ function ActionFollowUp({ action: a }: { action: SupportAction }) {
   if (["completed", "cancelled"].includes(a.status))
     return (
       <p className="fine-print">
-        {a.notes || "No additional follow-up notes."}
+        {a.notes || tr("No additional follow-up notes.")}
       </p>
     );
   return (
     <details className="evidence-details">
-      <summary>Update status & follow-up</summary>
+      <summary>{tr("Update status & follow-up")}</summary>
       {mutation.feedback}
       <form
         className="connected-form"
@@ -359,21 +406,23 @@ function ActionFollowUp({ action: a }: { action: SupportAction }) {
                   follow_up_date: f.get("follow_up_date") || null,
                 }),
               }),
-            "Follow-up saved.",
+            tr("Follow-up saved."),
           );
         }}
       >
         <label>
-          Status
-          <select name="status" defaultValue={a.status}>
-            <option value="planned">Planned</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            {!a.session_id && <option value="cancelled">Cancelled</option>}
+          {tr("Status")}
+          <select name="status" defaultValue={tr(a.status)}>
+            <option value="planned">{tr("Planned")}</option>
+            <option value="active">{tr("Active")}</option>
+            <option value="completed">{tr("Completed")}</option>
+            {!a.session_id && (
+              <option value="cancelled">{tr("Cancelled")}</option>
+            )}
           </select>
         </label>
         <label>
-          Follow-up date
+          {tr("Follow-up date")}
           <input
             type="date"
             name="follow_up_date"
@@ -381,11 +430,11 @@ function ActionFollowUp({ action: a }: { action: SupportAction }) {
           />
         </label>
         <label>
-          Notes
+          {tr("Notes")}
           <textarea name="notes" defaultValue={a.notes} maxLength={1000} />
         </label>
         <button className="button secondary small" disabled={mutation.busy}>
-          Save follow-up
+          {tr("Save follow-up")}
         </button>
       </form>
     </details>
@@ -399,17 +448,17 @@ function LinkedSession({ id }: { id: number }) {
     <RemoteContent remote={remote}>
       {(s) => (
         <div className="linked-session">
-          <span className="eyebrow">FACULTY-ORGANIZED · SYNTHETIC</span>
+          <span className="eyebrow">{tr("FACULTY-ORGANIZED · SYNTHETIC")}</span>
           <h3>{s.title}</h3>
           <p>
-            {dateLabel(s.starts_at)} · {s.booked_seats}/{s.capacity} booked ·{" "}
-            {s.status}
+            {dateLabel(s.starts_at)} · {s.booked_seats}/{s.capacity}
+            {tr(" booked ·")} {tr(s.status)}
           </p>
           <Link
             className="text-link"
             to={`/app/explore?topic=${s.topics?.[0]?.id ?? ""}`}
           >
-            View in shared catalog
+            {tr("View in shared catalog")}
           </Link>
           {mutation.feedback}
           {s.status === "upcoming" && new Date(s.starts_at) > new Date() && (
@@ -421,11 +470,11 @@ function LinkedSession({ id }: { id: number }) {
                     request(`/sessions/${s.id}/cancel`, user.id, {
                       method: "POST",
                     }),
-                  "Faculty session and its reservations cancelled.",
+                  tr("Faculty session and its reservations cancelled."),
                 )
               }
             >
-              Cancel faculty session & reservations
+              {tr("Cancel faculty session & reservations")}
             </ConfirmButton>
           )}
         </div>

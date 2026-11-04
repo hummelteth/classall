@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { LearningConnections } from "../components/LearningConnections";
 import { Link } from "react-router-dom";
 import {
@@ -35,9 +36,11 @@ function LearnerHome() {
   return (
     <>
       <PageTitle
-        eyebrow="YOUR LEARNING SPACE"
-        title={`A good day to grow, ${user.name.split(" ")[0]}.`}
-        description="A little support can make all the difference. Let’s find yours."
+        eyebrow={tr("YOUR LEARNING SPACE")}
+        title={tr("A good day to grow, {{0}}.", { 0: user.name.split(" ")[0] })}
+        description={tr(
+          "A little support can make all the difference. Let’s find yours.",
+        )}
       >
         <span className="greeting-spark">✳</span>
       </PageTitle>
@@ -45,65 +48,71 @@ function LearnerHome() {
         <div>
           <span className="pill banner-pill">
             <Sparkles size={13} />
-            BETTER, TOGETHER
+            {tr("BETTER, TOGETHER")}
           </span>
           <h2>
-            You don’t have to
+            {tr("You don’t have to")}
             <br />
-            figure it out alone.
+            {tr("figure it out alone.")}
           </h2>
           <p>
-            Friendly faces. Fresh perspectives.
+            {tr("Friendly faces. Fresh perspectives.")}
             <br />
-            Find free peer tutoring for your next breakthrough.
+            {tr("Find free peer tutoring for your next breakthrough.")}
           </p>
           <Link to="/app/explore" className="button dark">
-            Find a session
+            {tr("Find a session")}
             <ArrowUpRight size={17} />
           </Link>
         </div>
         <StudyArt compact />
         <span className="banner-scribble" aria-hidden="true">
-          learn.
+          {tr("learn.")}
           <br />
-          connect.
+          {tr("connect.")}
           <br />
-          grow.
+          {tr("grow.")}
         </span>
       </section>
       <LearningConnections />
       <div className="home-columns">
         <div className="home-left">
-          <SectionHeading title="A little direction" />
+          <SectionHeading title={tr("A little direction")} />
           <div className="quick-grid">
             <Link to="/app/explore" className="quick-card">
               <span className="quick-icon tone-violet">
                 <Compass size={22} />
               </span>
-              <strong>Find your next session</strong>
-              <p>Get support in your subjects.</p>
+              <strong>{tr("Find your next session")}</strong>
+              <p>{tr("Get support in your subjects.")}</p>
               <ArrowUpRight size={18} />
             </Link>
             <Link to="/app/sessions" className="quick-card">
               <span className="quick-icon tone-peach">
                 <CalendarDays size={22} />
               </span>
-              <strong>Your learning, planned</strong>
+              <strong>{tr("Your learning, planned")}</strong>
               <p>
                 {bookings.data
-                  ? `${bookings.data.filter(activeBooking).length} upcoming ${bookings.data.filter(activeBooking).length === 1 ? "session" : "sessions"} in your calendar.`
-                  : "See your booked sessions."}
+                  ? tr("{{0}} upcoming {{1}} in your calendar.", {
+                      0: bookings.data.filter(activeBooking).length,
+                      1:
+                        bookings.data.filter(activeBooking).length === 1
+                          ? tr("session")
+                          : tr("sessions"),
+                    })
+                  : tr("See your booked sessions.")}
               </p>
               <ArrowUpRight size={18} />
             </Link>
           </div>
           <SectionHeading
-            title="Explore your subjects"
-            link={{ to: "/app/explore", label: "View all" }}
+            title={tr("Explore your subjects")}
+            link={{ to: "/app/explore", label: tr("View all") }}
           />
           <div className="subject-mini-grid">
             {subjects.loading ? (
-              <Loading label="Loading subjects" />
+              <Loading label={tr("Loading subjects")} />
             ) : subjects.error ? (
               <ErrorState message={subjects.error} retry={subjects.retry} />
             ) : (
@@ -116,7 +125,7 @@ function LearnerHome() {
                   <span className={`subject-mini-symbol tone-${s.color}`}>
                     {s.symbol}
                   </span>
-                  <strong>{s.name}</strong>
+                  <strong>{tr(s.name)}</strong>
                   <ArrowUpRight size={15} />
                 </Link>
               ))
@@ -125,11 +134,11 @@ function LearnerHome() {
         </div>
         <aside className="next-card">
           <div className="mini-heading">
-            <span className="eyebrow">UP NEXT</span>
+            <span className="eyebrow">{tr("UP NEXT")}</span>
             <CalendarDays size={17} />
           </div>
           {bookings.loading ? (
-            <Loading label="Loading your schedule" />
+            <Loading label={tr("Loading your schedule")} />
           ) : bookings.error ? (
             <ErrorState message={bookings.error} retry={bookings.retry} />
           ) : next ? (
@@ -140,14 +149,18 @@ function LearnerHome() {
               <h3>{next.session.title}</h3>
               <p>
                 {timeLabel(next.session.starts_at)} ·{" "}
-                {next.session.duration_minutes} min
+                {next.session.duration_minutes}
+                {tr(" min")}
               </p>
               <div className="next-tutor">
                 <Avatar user={next.session.tutor} small />
-                <span>with {next.session.tutor.name}</span>
+                <span>
+                  {tr("with ")}
+                  {next.session.tutor.name}
+                </span>
               </div>
               <Link className="text-link" to="/app/sessions">
-                View my sessions
+                {tr("View my sessions")}
                 <ArrowRight size={15} />
               </Link>
             </>
@@ -157,13 +170,14 @@ function LearnerHome() {
                 <CalendarDays size={42} />
                 <span>✳</span>
               </div>
-              <h3>Make room for an “aha!”</h3>
+              <h3>{tr("Make room for an “aha!”")}</h3>
               <p>
-                Your first session is waiting to happen. Find a topic you’d love
-                a hand with.
+                {tr(
+                  "Your first session is waiting to happen. Find a topic you’d love a hand with.",
+                )}
               </p>
               <Link to="/app/explore" className="text-link">
-                Explore sessions
+                {tr("Explore sessions")}
                 <ArrowRight size={15} />
               </Link>
             </>
@@ -171,11 +185,11 @@ function LearnerHome() {
         </aside>
       </div>
       <SectionHeading
-        eyebrow="A GOOD PLACE TO START"
-        title="Find your next breakthrough"
-        link={{ to: "/app/explore", label: "Explore all sessions" }}
+        eyebrow={tr("A GOOD PLACE TO START")}
+        title={tr("Find your next breakthrough")}
+        link={{ to: "/app/explore", label: tr("Explore all sessions") }}
       >
-        Upcoming peer sessions, open to a curious mind.
+        {tr("Upcoming peer sessions, open to a curious mind.")}
       </SectionHeading>
       {sessions.loading ? (
         <Loading />
@@ -190,8 +204,8 @@ function LearnerHome() {
       )}
       <div className="community-line">
         <HeartHandshake size={21} />
-        <span>You belong here, questions and all.</span>
-        <span>Every session is free. Every question matters.</span>
+        <span>{tr("You belong here, questions and all.")}</span>
+        <span>{tr("Every session is free. Every question matters.")}</span>
       </div>
     </>
   );

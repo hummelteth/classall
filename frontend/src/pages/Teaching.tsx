@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
@@ -31,9 +32,9 @@ export function Teaching({
   const topics = useRemote<Topic[]>("/learning/topics");
   if (user.role !== "tutor")
     return (
-      <EmptyState title="An approved subject is the starting point.">
+      <EmptyState title={tr("An approved subject is the starting point.")}>
         <Link className="text-link" to="/app">
-          Back to my workspace
+          {tr("Back to my workspace")}
         </Link>
       </EmptyState>
     );
@@ -50,9 +51,11 @@ export function Teaching({
   return (
     <>
       <PageTitle
-        eyebrow="MY TEACHING"
-        title="Make space for someone’s next breakthrough."
-        description="Publish free tutoring in your approved subjects. You can still find support for your own learning."
+        eyebrow={tr("MY TEACHING")}
+        title={tr("Make space for someone’s next breakthrough.")}
+        description={tr(
+          "Publish free tutoring in your approved subjects. You can still find support for your own learning.",
+        )}
       >
         <button
           className="button primary"
@@ -62,7 +65,7 @@ export function Teaching({
           }}
         >
           <Plus size={17} />
-          Create a session
+          {tr("Create a session")}
         </button>
       </PageTitle>
       {mutation.feedback}
@@ -70,13 +73,13 @@ export function Teaching({
         <section className="form-panel">
           <h2>
             {editing
-              ? "Edit your tutoring session"
-              : "Publish a tutoring session"}
+              ? tr("Edit your tutoring session")
+              : tr("Publish a tutoring session")}
           </h2>
           <p className="fine-print">
-            With bookings, only text, objectives and increased capacity may
-            change. Cancellation releases all reservations and remains visible
-            in booking history.
+            {tr(
+              "With bookings, only text, objectives and increased capacity may change. Cancellation releases all reservations and remains visible in booking history.",
+            )}
           </p>
           {allowed.length ? (
             <EventForm
@@ -105,13 +108,15 @@ export function Teaching({
                         body: JSON.stringify(value),
                       },
                     ),
-                  "Your tutoring session is saved and visible in the catalog.",
+                  tr(
+                    "Your tutoring session is saved and visible in the catalog.",
+                  ),
                 );
                 if (result) closeForm();
               }}
             />
           ) : (
-            <p>Loading your approved topics…</p>
+            <p>{tr("Loading your approved topics…")}</p>
           )}
         </section>
       )}
@@ -123,18 +128,21 @@ export function Teaching({
                 <article className="teaching-management" key={s.id}>
                   <div>
                     <span className="eyebrow">
-                      {s.subject.name} ·{" "}
+                      {tr(s.subject.name)} ·{" "}
                       {s.kind === "faculty"
-                        ? "Faculty-organized synthetic support"
-                        : "Peer tutoring"}
+                        ? tr("Faculty-organized synthetic support")
+                        : tr("Peer tutoring")}
                     </span>
                     <h2>{s.title}</h2>
                     <p>
                       {dateLabel(s.starts_at)} · {timeLabel(s.starts_at)} ·{" "}
-                      {s.duration_minutes} min
+                      {s.duration_minutes}
+                      {tr(" min")}
                     </p>
                     <p>
-                      {s.booked_seats}/{s.capacity} booked · {s.location}
+                      {s.booked_seats}/{s.capacity}
+                      {tr(" booked · ")}
+                      {s.location}
                     </p>
                   </div>
                   <div className="action-row">
@@ -147,7 +155,7 @@ export function Teaching({
                             setParams({});
                           }}
                         >
-                          Edit session
+                          {tr("Edit session")}
                         </button>
                         <ConfirmButton
                           disabled={mutation.busy}
@@ -157,11 +165,13 @@ export function Teaching({
                                 request(`/sessions/${s.id}/cancel`, user.id, {
                                   method: "POST",
                                 }),
-                              "Session cancelled. All confirmed reservations have been cancelled.",
+                              tr(
+                                "Session cancelled. All confirmed reservations have been cancelled.",
+                              ),
                             )
                           }
                         >
-                          Cancel session
+                          {tr("Cancel session")}
                         </ConfirmButton>
                       </>
                     )}
@@ -169,16 +179,19 @@ export function Teaching({
                   </div>
                   {s.kind === "faculty" && (
                     <small>
-                      Organized by faculty. The professor manages changes to
-                      this offering.
+                      {tr(
+                        "Organized by faculty. The professor manages changes to this offering.",
+                      )}
                     </small>
                   )}
                 </article>
               ))}
             </div>
           ) : (
-            <EmptyState title="Your next teaching opportunity starts here.">
-              Create a session in one of your approved subjects.
+            <EmptyState
+              title={tr("Your next teaching opportunity starts here.")}
+            >
+              {tr("Create a session in one of your approved subjects.")}
             </EmptyState>
           )
         }
@@ -199,7 +212,7 @@ function Attendees({ sessionId }: { sessionId: number }) {
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        {open ? "Hide attendees" : "View bookings"}
+        {open ? tr("Hide attendees") : tr("View bookings")}
       </button>
       {open && (
         <RemoteContent remote={remote}>
@@ -208,12 +221,14 @@ function Attendees({ sessionId }: { sessionId: number }) {
               <ul>
                 {data.map((a) => (
                   <li key={a.reservation_id}>
-                    {a.name} · reservation #{a.reservation_id}
+                    {a.name}
+                    {tr(" · reservation #")}
+                    {a.reservation_id}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p>No confirmed bookings yet.</p>
+              <p>{tr("No confirmed bookings yet.")}</p>
             )
           }
         </RemoteContent>
