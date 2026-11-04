@@ -3,6 +3,8 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from .db import connect, database_path, initialize
 from . import repository as repo
+from . import learning
+from .schemas import LearningSubmission
 from .booking_service import create_booking, cancel_booking
 from .schemas import Booking, BookingCreate, DemoUser, Session, Subject
 
@@ -103,7 +105,11 @@ def create_app(db_path: str | None = None):
             )
         # Assigned demo subjects only. No individual academic records or risk labels.
         results = []
-        for subject_id in (1, 5):
+        for assignment in db.execute(
+            "SELECT subject_id FROM professor_subjects WHERE professor_id=? ORDER BY subject_id",
+            (actor["id"],),
+        ).fetchall():
+            subject_id = assignment["subject_id"]
             subject = dict(
                 db.execute(
                     "SELECT * FROM subjects WHERE id=?", (subject_id,)
@@ -113,6 +119,7 @@ def create_app(db_path: str | None = None):
             results.append(
                 {
                     "subject": subject,
+                    "topics": learning.topic_insights(db, actor["id"], subject_id),
                     "sessions": len(offerings),
                     "bookings": sum(s["booked_seats"] for s in offerings),
                     "capacity": sum(s["capacity"] for s in offerings),
@@ -121,8 +128,57 @@ def create_app(db_path: str | None = None):
             )
         return {
             "courses": results,
-            "note": "Counts reflect confirmed bookings for future demo sessions in assigned courses. Booking demand is not evidence of academic difficulty. No learning checks or early-warning model are active.",
+            "note": "Counts reflect confirmed bookings for future demo sessions in assigned courses. Booking demand is not evidence of academic difficulty. Learning Check means use the latest confirmed booking per distinct learner and topic, including past sessions. Groups below n=3 are suppressed separately for pre, post and matched pairs. Missing checks are excluded, never scored zero. Differences are descriptive, not validated learning gains. All records are synthetic; two seeded chain-rule examples are included. Recommendations are advisory and require human review.",
         }
+
+    @app.get("/api/learning/topics")
+    def learning_topics(db=Depends(get_db)):
+        return [
+            {
+                **dict(t),
+                "objectives": [
+                    dict(o)
+                    for o in db.execute(
+                        "SELECT * FROM learning_objectives WHERE topic_id=? ORDER BY id",
+                        (t["id"],),
+                    )
+                ],
+            }
+            for t in db.execute("SELECT * FROM topics ORDER BY id")
+        ]
+
+    @app.get("/api/learning/history")
+    def learning_history(actor=Depends(demo_actor), db=Depends(get_db)):
+        if actor["role"] == "professor":
+            raise HTTPException(
+                403, "Use aggregated course insights in the Professor demo."
+            )
+        return learning.history(db, actor)
+
+    @app.get("/api/bookings/{booking_id}/learning-checks/{stage}")
+    def learning_check(
+        booking_id: int,
+        stage: Literal["pre", "post"],
+        actor=Depends(demo_actor),
+        db=Depends(get_db),
+    ):
+        return learning.check_payload(db, actor, booking_id, stage)
+
+    @app.post("/api/bookings/{booking_id}/learning-checks/{stage}", status_code=201)
+    def submit_check(
+        booking_id: int,
+        stage: Literal["pre", "post"],
+        body: LearningSubmission,
+        actor=Depends(demo_actor),
+        db=Depends(get_db),
+    ):
+        return learning.submit(db, actor, booking_id, stage, body.answers)
+
+    @app.post("/api/bookings/{booking_id}/simulate-completion")
+    def simulate_completion(
+        booking_id: int, actor=Depends(demo_actor), db=Depends(get_db)
+    ):
+        return learning.simulate(db, actor, booking_id)
 
     return app
 

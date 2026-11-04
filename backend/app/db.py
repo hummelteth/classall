@@ -32,7 +32,8 @@ def initialize(path: str):
 
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as db:
-        db.executescript("""
+        db.executescript(
+            """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY, name TEXT NOT NULL, role TEXT NOT NULL,
             programme TEXT NOT NULL, initials TEXT NOT NULL, color TEXT NOT NULL,
@@ -65,5 +66,9 @@ def initialize(path: str):
             ON bookings(session_id, learner_id) WHERE status = 'confirmed';
         CREATE INDEX IF NOT EXISTS booking_session ON bookings(session_id, status);
         CREATE INDEX IF NOT EXISTS booking_learner ON bookings(learner_id, status);
-        """)
+        """
+        )
         seed(db)
+        from .learning import migrate
+
+        migrate(db)

@@ -120,6 +120,15 @@ export default function BookingDialog({
             <br />
             No email or calendar invitation is sent.
           </p>
+          {success.session.learning_check_available && (
+            <Link
+              className="button secondary"
+              to={`/app/checks/${success.id}/pre`}
+              onClick={close}
+            >
+              Start pre-session Learning Check
+            </Link>
+          )}
           <Link className="button primary" to="/app/sessions" onClick={close}>
             See my sessions
             <ArrowRight size={17} />

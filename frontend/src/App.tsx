@@ -6,6 +6,7 @@ import { Catalog } from "./pages/Catalog";
 import { Groups } from "./pages/Groups";
 import { Impact } from "./pages/Impact";
 import { MySessions } from "./pages/MySessions";
+import { LearningCheck } from "./pages/LearningCheck";
 import { Overview } from "./pages/Overview";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="explore" element={<Catalog />} />
         <Route path="sessions" element={<MySessions />} />
         <Route path="impact" element={<Impact />} />
+        <Route path="checks/:bookingId/:stage" element={<LearningCheck />} />
         <Route path="groups" element={<Groups />} />
       </Route>
       <Route

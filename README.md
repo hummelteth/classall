@@ -2,7 +2,7 @@
 
 **Learning is a shared strength.** A local Hack4Edu 2026 MVP built with React, TypeScript, Vite, Tailwind CSS, Python/FastAPI and SQLite.
 
-The supplied *ClassAll — Complete Product & Experience Concept* was read before development. The repository initially contained only `# classall` in this README; there was no application to preserve. The user's requested technology and initial MVP scope take precedence over the document's proposed future features.
+Phase 2 builds on the merged MVP (`90cbeb1`) and preserves the existing design, demo roles, booking/cancellation APIs and stored bookings. All learning content and identities are fictional; nothing is deployed publicly.
 
 ## What works
 
@@ -13,7 +13,9 @@ The supplied *ClassAll — Complete Product & Experience Concept* was read befor
 - Real REST booking, persistent SQLite storage, confirmation, upcoming/past/cancelled booking views and cancellation with seat restoration.
 - Backend protection against duplicate bookings, overbooking, overlaps with learning or teaching, host self-booking, expired/completed sessions and unapproved subjects. Capacity checks run inside a SQLite write transaction.
 - Tutor schedule and illustrative engagement points from two **seeded completed sessions**. Tutors can also book someone else's tutoring.
-- Professor view of current booking counts and capacity for the two assigned synthetic courses. New bookings and cancellations change these aggregates.
+- Professor view of current booking counts and capacity for the two assigned synthetic courses, plus topic demand, Learning Check participation, suppressed assessment means and advisory teaching recommendations.
+- Curated pre- and post-session Learning Checks for all six upcoming demo sessions: two multiple-choice questions per check, different questions for the same two objectives, backend scoring, saved answers and explanations.
+- Private learning progress with pending/completed checks, practiced topics, side-by-side results and supportive next steps. A labeled demo completion mechanism unlocks future sessions' follow-up checks without recording attendance or changing tutor points.
 - Loading, retry, empty and booking-error states. The public landing page works with the API stopped.
 
 ## Requirements
@@ -72,7 +74,7 @@ Open **http://127.0.0.1:5173**. If Vite prints a different port because 5173 is 
 - API health: `http://127.0.0.1:8000/api/health`
 - Interactive API documentation: `http://127.0.0.1:8000/docs`
 
-The SQLite database is created and seeded automatically at **`backend/data/classall.sqlite3`** during API startup. Restarting the API preserves bookings and does not duplicate seed data. Dates are seeded relative to the first initialization: six future sessions, two completed sessions, five subjects and eight fictional people. Session timestamps are stored in UTC and displayed in the browser's time zone.
+The SQLite database is created and seeded automatically at **`backend/data/classall.sqlite3`** during API startup. Restarting the API preserves bookings and does not duplicate seed data. Phase 2 automatically adds its schema and versioned synthetic question bank to existing MVP databases; **do not delete an existing database to upgrade**. A compatibility test opens the frozen MVP schema and verifies original records remain unchanged after repeated upgrades. Dates are seeded relative to the first initialization: six future sessions, two completed sessions, five subjects and eight fictional people. Session timestamps are stored in UTC and displayed in the browser's time zone.
 
 Both services bind to loopback. No public deployment is configured. Stop each service with **Ctrl+C**.
 
@@ -87,16 +89,20 @@ npm run preview --prefix frontend
 
 Open the URL printed by Vite (normally `http://127.0.0.1:4173`). The preview configuration also proxies `/api` to the Python API. Opening `dist/index.html` as a file will not work; use a server.
 
-## Two-minute demonstration
+## Learning Checks demonstration
 
-1. Open the landing page and choose **Find your learning community**.
-2. Leave **Demo access → Learner** selected; this is fictional Laura Martín.
-3. Open **Find tutoring**, try the Mathematics filter and open **Make sense of the chain rule**.
-4. Choose **Book a free seat**. The success screen appears only after the API confirms the database write.
-5. Choose **See my sessions**. Refresh the page to demonstrate persistence.
-6. Switch to **Professor**. Mathematics' confirmed booking count includes Laura's new booking; no learner names are shown.
-7. Switch to **Tutor**. David's schedule shows the new seat count. His 40 illustrative points are from seeded completed sessions, not this new booking.
-8. Switch back to **Learner**, open **My sessions**, choose **Cancel booking**, and confirm. The seat becomes available again; the booking moves to **Cancelled**.
+1. Open the workspace as **Learner (Laura)**, find **Make sense of the chain rule**, and book a free seat.
+2. From confirmation choose **Start pre-session Learning Check** (also available in **My sessions**). Answer both questions and submit. Backend scoring saves the result; explanations and correct answers become visible only after submission.
+3. Open **My learning & impact**. Review the before result, practiced topic and pending follow-up. Choose **Demo: simulate completed session**, whose disclosure explains that no attendance or tutor points are recorded.
+4. Complete the different post-session questions and review the comparison. A difference in percentage points describes these short checks; it is not a validated learning gain or evidence of tutoring effectiveness. Lower results lead to constructive practice suggestions.
+5. Reload the page and reopen either completed check to demonstrate persistent answers and explanations. Each booking permits one submission per stage. Partial selections are local drafts, lost when leaving the page; they never create a score.
+6. Switch to **Professor**. Only assigned Mathematics and Statistics appear. Chain-rule groups start with two seeded fictional learners and are suppressed; Laura's submitted pre/post checks bring the respective groups to three. Missing checks stay missing. For an example practice-material recommendation, let Laura answer both follow-up questions incorrectly.
+7. Inspect each recommendation's observable demand and assessment signals and **Human review required** label. TA scheduling remains a clearly labeled future action; nobody is contacted.
+8. Return to **Learner**, open **My sessions**, cancel the future booking and confirm. The seat is restored, saved results stay private, and professor aggregates exclude the cancelled booking and suppress groups that fall below three.
+
+The **Tutor** demo still shows 40 illustrative points from the original two completed sessions. Tutors can book others' sessions and use the same private Learning Checks. Checks also cover Python loops/functions, forces/motion, supply/demand, confidence intervals and stacks/queues. Older completed sessions (IDs 7–8) have no curated checks.
+
+See [docs/LEARNING_INTELLIGENCE.md](docs/LEARNING_INTELLIGENCE.md) for the schema, indicators, deterministic rules and demo limitations.
 
 ## Test
 
@@ -117,7 +123,7 @@ npm run build --prefix frontend
 
 The frontend integration test launches its own temporary FastAPI subprocess on a free **loopback** port, drives the React UI in JSDOM, verifies persisted bookings and professor counts, cancels through the UI, and stops the subprocess. It does not touch your demo database. It uses `.venv/bin/python` on macOS/Linux and `.venv/Scripts/python.exe` on Windows. For a different virtual environment, set `CLASSALL_PYTHON` to its absolute Python executable path before testing.
 
-See [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for exact results and verification limits. Browser screenshots, responsive visual inspection and native dialog focus/keyboard behavior still require manual browser checks; JSDOM cannot establish those.
+See [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for exact results and verification limits. Phase 2 also received a Chromium end-to-end smoke check and responsive overflow checks at 390/768/1440px. A full keyboard, screen-reader and accessibility audit remains manual; JSDOM cannot establish those.
 
 ## Reset the demo
 
@@ -180,7 +186,12 @@ The frontend uses relative `/api` requests. Vite forwards them to `http://127.0.
 | POST | `/api/bookings` | Reserve a seat; JSON `{"session_id": 1}` |
 | POST | `/api/bookings/{id}/cancel` | Cancel own upcoming booking; idempotent |
 | GET | `/api/tutor/overview` | Tutor's upcoming teaching, approvals and seeded contribution metrics |
-| GET | `/api/insights` | Professor's assigned-course booking/capacity aggregates |
+| GET | `/api/insights` | Assigned-course capacity, topic demand, participation, suppressed means and advisory recommendations |
+| GET | `/api/learning/topics` | Curated topics and objectives; no question keys |
+| GET | `/api/learning/history` | Selected learner/tutor's private results and suggestions |
+| GET | `/api/bookings/{id}/learning-checks/{stage}` | Own `pre`/`post` check, readiness, or saved result and explanations |
+| POST | `/api/bookings/{id}/learning-checks/{stage}` | Submit all answers once; JSON `{"answers":{"100":1000,"101":1011}}` |
+| POST | `/api/bookings/{id}/simulate-completion` | Explicit demo-only follow-up unlock; requires own confirmed booking and completed pre-check |
 
 Persona-specific endpoints require `X-Demo-User-Id`: `1` (Laura), `2` (David), or `3` (professor). This is an intentionally forgeable local demo selector, **not identity verification or production authorization**. Role and ownership checks demonstrate business rules only.
 
@@ -195,7 +206,7 @@ curl -X POST http://127.0.0.1:8000/api/bookings -H 'Content-Type: application/js
 
 - Real sign-in, verified university membership, production access control and multi-university support.
 - Session publishing/editing, real tutor applications, instructor approval decisions and attendance verification. Approval badges refer only to the seeded fictional dataset.
-- AI qualification, learning checks, recommendations, early-warning models or individual academic alerts. Booking counts are not evidence of learning difficulty.
+- AI qualification, validated assessment instruments, early-warning models and individual academic alerts. The implemented curated checks and deterministic recommendations are demo-only; booking counts are not evidence of learning difficulty.
 - Working study groups, messaging, moderation, faculty TA scheduling and calendar/email invitations.
 - Assessed competencies, verified new contribution points, certificates, credit, rewards or portfolio export. The tutor portfolio is illustrative.
 - Online meeting links, real campus reservations, payments, LMS integrations and offline support.

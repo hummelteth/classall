@@ -211,6 +211,14 @@ export function MySessions() {
                         {b.session.location}
                       </span>
                     </div>
+                    {b.session.learning_check_available && (
+                      <Link
+                        className="text-link"
+                        to={`/app/checks/${b.id}/pre`}
+                      >
+                        Open Learning Check & saved result
+                      </Link>
+                    )}
                     <div className="booking-host">
                       <Avatar user={b.session.tutor} small />
                       <span>with {b.session.tutor.name}</span>

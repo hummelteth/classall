@@ -1,3 +1,4 @@
+import { LearningProgress } from "../components/LearningProgress";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
@@ -58,6 +59,7 @@ export function Impact() {
             </>
           )
         )}
+        <LearningProgress />
         <ComingSoon title="Recognition that means something">
           Attendance verification, reviewed competencies and an exportable
           portfolio are planned. Engagement points are illustrative and cannot
@@ -107,12 +109,8 @@ export function Impact() {
           </article>
         </div>
       )}
+      <LearningProgress />
       <div className="future-grid">
-        <ComingSoon title="Your learning, reflected">
-          Optional pre- and post-session checks and personal practice
-          suggestions are planned. No learning improvement is measured in this
-          version.
-        </ComingSoon>
         <ComingSoon title="Share your strengths">
           Future subject-specific tutor applications will help you contribute.
           For now, switch to the Tutor demo to explore the workspace.
