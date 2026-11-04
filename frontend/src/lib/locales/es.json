@@ -622,7 +622,7 @@
   "{{0}} upcoming {{1}} in your calendar.": "Próximas sesiones en tu agenda: {{0}}.",
   "{{0}} seats booked": "{{0}} plazas reservadas",
   " · Follow up {{0}}": " · Seguimiento {{0}}",
-  "Matched comparison: {{0}} · n={{1}}.": "Comparación emparejada: datos insuficientes · n={{1}}.",
+  "Matched comparison: {{0}} · n={{1}}.": "Comparación emparejada: {{0}} · n={{1}}.",
   "Matched comparison · n={{0}}: {{1}}% before → {{2}}% after; difference {{3}}{{4}} percentage points.": "Comparación emparejada · n={{0}}: {{1}} % antes → {{2}} % después; diferencia de {{3}}{{4}} puntos porcentuales.",
   "Chain rule": "Regla de la cadena",
   "Python loops and functions": "Bucles y funciones en Python",
