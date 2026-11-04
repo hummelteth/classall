@@ -58,7 +58,7 @@ export function Pulse() {
   if (user.role === "professor")
     return (
       <EmptyState title={tr("Private reflection belongs to learners.")}>
-        <Link className="text-link" to="/app/insights">
+        <Link className="button secondary small" to="/app/insights">
           {tr("Open aggregated learning insights")}
         </Link>
       </EmptyState>
@@ -119,7 +119,7 @@ export function Pulse() {
                   : tr("Demo interaction")}
               </small>
               <button
-                className="text-link"
+                className="button secondary small"
                 disabled={mutation.busy}
                 onClick={() =>
                   void mutation.run(
@@ -159,7 +159,7 @@ export function Pulse() {
               </p>
               <button
                 disabled={mutation.busy}
-                className="text-link"
+                className="button secondary small"
                 onClick={() =>
                   void mutation.run(
                     () =>
@@ -196,7 +196,7 @@ export function Pulse() {
           {requests.error && (
             <p role="alert">
               {tr(requests.error)}
-              <button className="text-link" onClick={requests.retry}>
+              <button className="button secondary small" onClick={requests.retry}>
                 {tr("Try again")}
               </button>
             </p>
@@ -235,7 +235,7 @@ export function Pulse() {
                     )}
                   </p>
                 )}
-                <Link className="text-link" to={`/app/explore?topic=${tid}`}>
+                <Link className="button secondary small" to={`/app/explore?topic=${tid}`}>
                   {tr("Find tutoring ")}
                   <ArrowUpRight size={15} />
                 </Link>
@@ -267,7 +267,7 @@ export function Pulse() {
                     )}
                   </p>
                 )}
-                <Link className="text-link" to={`/app/groups?topic_id=${tid}`}>
+                <Link className="button secondary small" to={`/app/groups?topic_id=${tid}`}>
                   {tr("Explore study groups ")}
                   <ArrowUpRight size={15} />
                 </Link>
@@ -287,7 +287,7 @@ export function Pulse() {
                     "Use these objectives to guide practice. Curated Learning Checks are available through relevant tutoring bookings.",
                   )}
                 </p>
-                <Link className="text-link" to="/app/impact">
+                <Link className="button secondary small" to="/app/impact">
                   {tr("Review my Learning Checks ")}
                   <ArrowUpRight size={15} />
                 </Link>

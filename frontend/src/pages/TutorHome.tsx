@@ -101,7 +101,7 @@ export function TutorHome() {
                     <Check size={16} />
                   </div>
                 ))}
-                <Link to="/app/applications" className="text-link">
+                <Link to="/app/applications" className="button secondary small">
                   {tr(
                     "Apply for another subject or review your current applications.",
                   )}
@@ -121,7 +121,7 @@ export function TutorHome() {
             )}
           </p>
         </div>
-        <Link className="text-link" to="/app/explore">
+        <Link className="button secondary small" to="/app/explore">
           {tr("Find tutoring")}
           <ArrowRight size={16} />
         </Link>

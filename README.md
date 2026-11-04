@@ -2,6 +2,8 @@
 
 **Learning is a shared strength.** A local, synthetic Hack4Edu 2026 connected learning ecosystem using React/TypeScript/Vite, FastAPI and SQLite.
 
+**V6 experience design** builds on merged V5: three visible learning pillars, grouped role navigation, accessible primary actions, guided applications and faculty review, a visual contribution portfolio, topic-grouped learning history and a simpler six-stage Studio. EN/ES layouts were inspected at 1440, 768 and 390px. See the [design report and screenshots](docs/V6_DESIGN_REPORT.md), [bilingual 6–7 minute demo guide](docs/V6_DEMO.md) and [QA report](docs/V6_QA_REPORT.md). The optional guided demo navigates real application screens; it does not complete actions.
+
 Version 5 extends V4 (`0f0a8d2`) with subject-specific tutor applications, human approval, explicitly synthetic two-party attendance, an idempotent contribution ledger, constructive feedback and a private portfolio. V4 bilingual learning, local AI Studio, professor publications, groups and faculty support actions remain. Existing SQLite records and David’s 40 historical synthetic points are preserved.
 
 ## What works
@@ -62,11 +64,11 @@ The default database is `backend/data/classall.sqlite3`. Startup performs additi
 
 ### Update an existing Windows installation
 
-Stop both local servers and back up `backend/data/classall.sqlite3` while stopped. Commit/stash your own source changes, fetch, and switch to `feature/classall-core-experience-v5` (after PR merge, use the updated `main`). From the project root:
+Stop both local servers and back up `backend/data/classall.sqlite3` while stopped. Commit/stash your own source changes, fetch, and switch to `feature/classall-v6-experience-design` (after PR merge, use the updated `main`). From the project root:
 
 ```powershell
 git fetch origin
-git switch feature/classall-core-experience-v5
+git switch feature/classall-v6-experience-design
 git pull --ff-only
 .venv\Scripts\Activate.ps1
 python -m pip install -r backend/requirements.lock.txt

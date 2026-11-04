@@ -113,7 +113,7 @@ export function SectionHeading({
         {children && <p>{children}</p>}
       </div>
       {link && (
-        <Link className="text-link" to={link.to}>
+        <Link className="button secondary small" to={link.to}>
           {link.label}
           <ArrowRight size={16} />
         </Link>

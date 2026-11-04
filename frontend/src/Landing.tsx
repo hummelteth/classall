@@ -1,17 +1,10 @@
 import { t as tr } from "./lib/i18n";
 import { LanguageSelector } from "./lib/i18n";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  GraduationCap,
-  HeartHandshake,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ShieldCheck } from "lucide-react";
 import { Brand } from "./components/ui";
 import StudyArt from "./components/StudyArt";
+import { Pillars, FlowSteps } from "./components/ExperienceUI";
 
 export default function Landing() {
   return (
@@ -36,7 +29,7 @@ export default function Landing() {
           <div className="landing-hero-copy">
             <span className="pill hero-pill">
               <span className="dot violet" />
-              {tr("A campus full of possibility")}
+              {tr("Learn together. Recognize strengths. Support in time.")}
             </span>
             <h1>
               {tr("Great minds")}
@@ -56,16 +49,18 @@ export default function Landing() {
               </span>
             </h1>
             <p>
-              {tr("Find a little guidance. Share what you know.")}
+              {tr("Your university’s needs and strengths, connected.")}
               <br />
-              {tr("Free peer tutoring that brings your university together.")}
+              {tr(
+                "Free peer support. Recognized contributions. Human decisions.",
+              )}
             </p>
             <div className="hero-actions">
               <Link className="button primary" to="/app">
                 {tr("Find your learning community")}
                 <ArrowRight size={18} />
               </Link>
-              <a className="text-link" href="#how-it-works">
+              <a className="button secondary" href="#how-it-works">
                 {tr("See how it works")}
                 <ArrowUpRight size={17} />
               </a>
@@ -84,63 +79,38 @@ export default function Landing() {
           <StudyArt />
         </section>
         <div className="landing-ribbon">
-          <span>{tr("EVERY QUESTION BELONGS HERE")}</span>
+          <span>{tr("Learn together")}</span>
           <span className="ribbon-star">✳</span>
-          <span>{tr("KNOWLEDGE GROWS WHEN IT’S SHARED")}</span>
+          <span>{tr("Recognize strengths")}</span>
           <span className="ribbon-star">✳</span>
-          <span>{tr("A LITTLE SUPPORT GOES A LONG WAY")}</span>
+          <span>{tr("Support in time")}</span>
         </div>
         <section className="landing-section" id="how-it-works">
           <div className="landing-section-heading">
             <span className="eyebrow">
               {tr("SMALL STEPS. SHARED PROGRESS.")}
             </span>
-            <h2>{tr("Your next “aha!” is closer than you think.")}</h2>
+            <h2>{tr("One community. Three ways to grow.")}</h2>
             <p>
               {tr(
                 "No pressure. No price tag. Just people helping people learn.",
               )}
             </p>
           </div>
-          <div className="how-grid">
-            {[
-              {
-                n: "01",
-                icon: GraduationCap,
-                title: tr("Find your subject"),
-                text: tr(
-                  "Explore focused sessions in your university subjects, from calculus to coding.",
-                ),
-                color: "violet",
-              },
-              {
-                n: "02",
-                icon: HeartHandshake,
-                title: tr("Save yourself a seat"),
-                text: tr(
-                  "Choose a peer tutor, find a time that works and book a free spot.",
-                ),
-                color: "peach",
-              },
-              {
-                n: "03",
-                icon: Sparkles,
-                title: tr("Make progress, together"),
-                text: tr(
-                  "Ask that question, untangle that problem and build your confidence.",
-                ),
-                color: "sage",
-              },
-            ].map(({ n, icon: Icon, title, text, color }) => (
-              <article key={n}>
-                <div className={`how-icon tone-${color}`}>
-                  <Icon size={27} />
-                  <span>{n}</span>
-                </div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
+          <Pillars linked />
+          <div className="learning-story">
+            <span className="eyebrow">{tr("A SHARED LEARNING CIRCLE")}</span>
+            <FlowSteps
+              label="The ClassAll learning circle"
+              steps={[
+                "A learner asks",
+                "A peer shares",
+                "A professor supports",
+              ]}
+            />
+            <p>
+              {tr("Today you ask a question. Tomorrow you share a strength.")}
+            </p>
           </div>
         </section>
         <section className="everyone-section" id="for-everyone">
@@ -156,7 +126,7 @@ export default function Landing() {
             <p>
               {tr("You don’t have to have all the answers to belong here.")}
             </p>
-            <Link className="text-link" to="/app">
+            <Link className="button secondary" to="/app">
               {tr("Try the three demo roles")}
               <ArrowRight size={17} />
             </Link>
@@ -206,7 +176,7 @@ export default function Landing() {
             {tr("This Hack4Edu prototype uses fictional people and subjects.")}
             <br />
             {tr(
-              "Bookings persist locally. AI checks and study groups are on the roadmap.",
+              "Bookings, study groups and reviewed Learning Checks work with local demo data.",
             )}
           </p>
           <Link to="/app" className="button primary">

@@ -27,7 +27,7 @@ export function LearningConnections() {
             "A quick, optional topic check-in can help you find your next step.",
           )}
         </p>
-        <Link className="text-link" to="/app/pulse">
+        <Link className="button secondary small" to="/app/pulse">
           {tr("Check in with Learning Pulse ")}
           <ArrowUpRight size={15} />
         </Link>
@@ -63,7 +63,7 @@ export function LearningConnections() {
             {g.title} · {dateLabel(g.starts_at)}
           </small>
         ))}
-        <Link className="text-link" to="/app/groups?mine=true">
+        <Link className="button secondary small" to="/app/groups?mine=true">
           {tr("View my groups ")}
           <ArrowUpRight size={15} />
         </Link>

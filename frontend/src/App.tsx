@@ -1,7 +1,7 @@
 import { t as tr } from "./lib/i18n";
 import { useLanguage, useLocalizedValidation } from "./lib/i18n";
-import { Applications } from "./pages/Applications";
-import { Studio } from "./pages/Studio";
+import { lazy, Suspense } from "react";
+import { Loading } from "./components/ui";
 import { Link, Route, Routes } from "react-router-dom";
 import { DemoProvider, useDemo } from "./lib/demo";
 import Shell from "./components/Shell";
@@ -16,6 +16,15 @@ import { Teaching } from "./pages/Teaching";
 import { ProfessorHome } from "./pages/ProfessorHome";
 import { SupportActions } from "./pages/SupportActions";
 import { Overview } from "./pages/Overview";
+
+const Studio = lazy(() =>
+  import("./pages/Studio").then((module) => ({ default: module.Studio })),
+);
+const Applications = lazy(() =>
+  import("./pages/Applications").then((module) => ({
+    default: module.Applications,
+  })),
+);
 
 export default function App() {
   useLanguage();
@@ -40,8 +49,24 @@ export default function App() {
         <Route path="pulse" element={<Pulse />} />
         <Route path="teaching" element={<Teaching />} />
         <Route path="publish" element={<Teaching initialCreate />} />
-        <Route path="applications" element={<Applications />} />
-        <Route path="studio" element={<Studio />} />
+        <Route
+          path="applications"
+          element={
+            <Suspense fallback={<Loading label={tr("Loading…")} />}>
+              <Applications />
+            </Suspense>
+          }
+        />
+        <Route
+          path="studio"
+          element={
+            <Suspense
+              fallback={<Loading label={tr("Opening AI Learning Studio")} />}
+            >
+              <Studio />
+            </Suspense>
+          }
+        />
         <Route path="courses" element={<FacultyPage mode="courses" />} />
         <Route path="insights" element={<FacultyPage mode="insights" />} />
         <Route path="actions" element={<SupportActions />} />

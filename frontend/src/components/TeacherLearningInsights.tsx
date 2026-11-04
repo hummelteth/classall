@@ -67,6 +67,18 @@ export function TeacherLearningInsights({
             {tr(" available ·")} {t.capacity}
             {tr(" total in upcoming topic sessions.")}
           </p>
+          <div className="topic-capacity">
+            <span>{tr("Capacity and demand")}</span>
+            <progress
+              aria-label={tr("Booked places")}
+              max={Math.max(1, t.capacity)}
+              value={t.booked_places}
+            />
+            <small>
+              {tr("Booked places")}: {t.booked_places} · {tr("Open places")}:{" "}
+              {t.available_places}
+            </small>
+          </div>
           <Aggregate
             label={tr("Pre-session checks")}
             data={t.pre}
@@ -80,10 +92,11 @@ export function TeacherLearningInsights({
           <p>
             {t.paired.suppressed
               ? tr("Matched comparison: {{0}} · n={{1}}.", {
-                  0:
+                  0: tr(
                     t.paired.n === 0
                       ? "no complete pairs"
                       : "suppressed (fewer than 3 learners)",
+                  ),
                   1: t.paired.n,
                 })
               : tr(
@@ -113,7 +126,10 @@ export function TeacherLearningInsights({
                 <li key={s}>{tr(s)}</li>
               ))}
             </ul>
-            <Link className="text-link" to={`/app/actions?topic=${t.topic.id}`}>
+            <Link
+              className="button primary"
+              to={`/app/actions?topic=${t.topic.id}`}
+            >
               {tr("Create a human-reviewed support action")}
             </Link>
             <p className="fine-print">

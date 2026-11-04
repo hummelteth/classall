@@ -49,7 +49,7 @@ export function SessionCard({
             ? tr("Demo interaction")
             : tr("Synthetic example")}
         </span>
-        <p className="card-description">{session.description}</p>
+        <details className="session-description"><summary>{tr("About this session")}</summary><p>{session.description}</p></details>
         <div className="tutor-line">
           <Avatar user={session.tutor} small />
           <span>
@@ -98,7 +98,7 @@ export function SessionCard({
                 })}
           </span>
           <button
-            className={`button small ${booked ? "booked-button" : "soft"}`}
+            className={`button ${booked ? "booked-button" : "primary"}`}
             onClick={() => onSelect(session)}
           >
             {booked ? tr("Booked ✓") : tr("View session")}

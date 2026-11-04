@@ -695,8 +695,12 @@ it("connects learner qualification, faculty approval, two-party attendance and p
     "Your constructive feedback is saved. Your private comment is visible only to you.",
   );
   await user.selectOptions(screen.getByLabelText("Demo role"), "1");
-  await user.click(screen.getByRole("link", { name: "My progress" }));
-  await screen.findByRole("heading", { name: "Private competency portfolio" });
+  await user.click(
+    screen.getByRole("link", { name: "My learning and impact" }),
+  );
+  await screen.findByRole("heading", {
+    name: "Small acts. Lasting contribution.",
+  });
   await screen.findByText(
     "Summaries require at least 3 distinct learners. Individual ratings and private comments are hidden.",
   );

@@ -1,3 +1,4 @@
+import { FlowSteps } from "../components/ExperienceUI";
 import { SyntheticAttendance } from "../components/CoreExperience";
 import { t as tr } from "../lib/i18n";
 import { useState } from "react";
@@ -75,9 +76,42 @@ export function Teaching({
           {tr("Create a session")}
         </button>
       </PageTitle>
+      <FlowSteps
+        label="Synthetic attendance pathway"
+        steps={[
+          "Session published",
+          "Learner booked",
+          "Tutor proposes attendance",
+          "Learner confirms",
+          "Contribution recorded",
+        ]}
+      />
+      <p className="fine-print">
+        {tr(
+          "Process guide only. A booking is not attendance; recognition follows two-party synthetic confirmation.",
+        )}
+      </p>
       {mutation.feedback}
+      {tutor.data && (
+        <div className="teaching-subjects">
+          <h2>{tr("Your approved subjects")}</h2>
+          <div className="chip-list">
+            {tutor.data.approved_subjects.map((subject) => (
+              <span className="pill sage" key={subject.id}>
+                {tr(subject.name)}
+              </span>
+            ))}
+            {!tutor.data.approved_subjects.length && (
+              <p>{tr("Apply for subject approval before publishing.")}</p>
+            )}
+          </div>
+        </div>
+      )}
       <p>
-        <Link className="text-link application-link" to="/app/applications">
+        <Link
+          className="button secondary application-link"
+          to="/app/applications"
+        >
           {tr("Apply for subject approval or view your applications")}
         </Link>
       </p>
@@ -151,6 +185,16 @@ export function Teaching({
                         : tr("Peer tutoring")}
                     </span>
                     <h2>{s.title}</h2>
+                    <span className="pill neutral">
+                      {tr(
+                        records.data?.find((record) => record.id === s.id)
+                          ?.attendance_proposed
+                          ? "Waiting for learner confirmation"
+                          : s.booked_seats > 0
+                            ? "Learner booked"
+                            : "Session published",
+                      )}
+                    </span>
                     <p>
                       {dateLabel(s.starts_at)} · {timeLabel(s.starts_at)} ·{" "}
                       {s.duration_minutes}
@@ -264,7 +308,7 @@ function Attendees({ sessionId }: { sessionId: number }) {
   return (
     <div className="attendance-panel">
       <button
-        className="text-link"
+        className="button secondary small"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >

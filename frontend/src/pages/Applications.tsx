@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { t as tr, useLanguage } from "../lib/i18n";
 import { useDemo } from "../lib/demo";
 import { request, useRemote, dateLabel } from "../lib/api";
+import { FlowSteps } from "../components/ExperienceUI";
 import { PageTitle } from "../components/PageTitle";
 import {
   RemoteContent,
@@ -51,7 +52,7 @@ export function Applications() {
         eyebrow={tr("STUDENTS HELPING STUDENTS")}
         title={tr(faculty ? "Tutor application review" : "Become a Tutor")}
         description={tr(
-          "Share what you know. Subject approval is a human decision, supported by a short knowledge check and your teaching ideas.",
+          "Share your knowledge. A professor reviews your teaching ideas and subject responses.",
         )}
       >
         {!faculty && (
@@ -66,6 +67,10 @@ export function Applications() {
           </button>
         )}
       </PageTitle>
+      <FlowSteps
+        label="Tutor approval pathway"
+        steps={["Apply", "Professor review", "Start teaching"]}
+      />
       <p className="page-note">
         {tr(
           "Prepared qualification example from the V4 curated bank. Illustrative reviewed answers; not a validated qualification or university endorsement.",
@@ -112,13 +117,23 @@ export function Applications() {
       </RemoteContent>
       {!faculty && (
         <p>
-          <Link className="text-link" to="/app/teaching">
+          <Link className="button secondary" to="/app/teaching">
             {tr("Open my teaching workspace")}
           </Link>
         </p>
       )}
     </>
   );
+}
+
+function nextSection(event: React.MouseEvent<HTMLButtonElement>) {
+  const section = event.currentTarget.closest("details");
+  const next = section?.nextElementSibling;
+  if (next instanceof HTMLDetailsElement) {
+    next.open = true;
+    next.querySelector<HTMLElement>("summary")?.focus();
+    next.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function ApplicationForm({
@@ -143,6 +158,7 @@ function ApplicationForm({
   const [answers, setAnswers] = useState<number[]>(
     initial?.answers ?? [-1, -1],
   );
+  const [review, setReview] = useState<Record<string, string>>({});
   return (
     <section className="form-panel">
       <h2>
@@ -154,7 +170,21 @@ function ApplicationForm({
       </h2>
       {mutation.feedback}
       <form
-        className="connected-form"
+        className="connected-form application-form"
+        onChange={(event) =>
+          setReview(
+            Object.fromEntries(
+              [...new FormData(event.currentTarget)].map(([key, value]) => [
+                key,
+                String(value),
+              ]),
+            ),
+          )
+        }
+        onInvalidCapture={(event) => {
+          const section = (event.target as HTMLElement).closest("details");
+          if (section) section.open = true;
+        }}
         onSubmit={async (e) => {
           e.preventDefault();
           const data = new FormData(e.currentTarget);
@@ -184,93 +214,199 @@ function ApplicationForm({
           if (result) close();
         }}
       >
-        {initial ? (
-          <p>
-            {tr("Qualification topic")}:{" "}
-            {tr(topics.find((t) => t.id === tid)?.name)}
-          </p>
-        ) : (
-          <TopicSelect
-            topics={topics}
-            value={tid}
-            onChange={(id) => {
-              setTid(id);
-              setAnswers([-1, -1]);
-            }}
-          />
-        )}
-        <div className="form-grid">
-          {fields.map(([key, label]) => (
-            <label key={key}>
-              {tr(label)}
-              <textarea
-                name={key}
-                required
-                minLength={key === "proposed_topic" ? 5 : 10}
-                maxLength={
-                  key === "teaching_plan"
-                    ? 1500
-                    : key === "proposed_topic"
-                      ? 200
-                      : 1000
-                }
-                rows={2}
-                defaultValue={initial?.content[key]}
-              />
-            </label>
-          ))}
-        </div>
-        <RemoteContent remote={q}>
-          {(qualification) => (
-            <>
-              <h3>{tr("Subject knowledge check")}</h3>
-              {qualification.questions.map((question, index) => (
-                <fieldset key={question.id} className="core-question">
-                  <legend>{question.prompt}</legend>
-                  {question.options.map((option, i) => (
-                    <label key={i}>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        required
-                        checked={answers[index] === i}
-                        onChange={() =>
-                          setAnswers((prev) =>
-                            prev.map((v, n) => (n === index ? i : v)),
-                          )
-                        }
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </fieldset>
-              ))}
-              <label>
-                {tr("Teaching explanation")}
-                <p>{qualification.explanation_task}</p>
-                <textarea
-                  name="explanation"
-                  required
-                  minLength={20}
-                  maxLength={2000}
-                  rows={4}
-                  defaultValue={initial?.content.explanation}
-                />
-              </label>
-              <details>
-                <summary>{tr("Assessment rubric")}</summary>
-                <ul>
-                  {Object.entries(qualification.rubric).map(([key, value]) => (
-                    <li key={key}>
-                      <strong>{tr(criteria[key])}: </strong>
-                      {tr(value)}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            </>
+        <details className="application-stage" open>
+          <summary>
+            <span>1</span>
+            {tr("Choose your subject and topic")}
+          </summary>
+          {initial ? (
+            <p>
+              {tr("Qualification topic")}:{" "}
+              {tr(topics.find((t) => t.id === tid)?.name)}
+            </p>
+          ) : (
+            <TopicSelect
+              topics={topics}
+              value={tid}
+              onChange={(id) => {
+                setTid(id);
+                setAnswers([-1, -1]);
+              }}
+            />
           )}
-        </RemoteContent>
+          <label>
+            {tr("Proposed tutoring topic")}
+            <textarea
+              name="proposed_topic"
+              required
+              minLength={5}
+              maxLength={200}
+              rows={2}
+              defaultValue={initial?.content.proposed_topic}
+            />
+          </label>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={nextSection}
+          >
+            {tr("Continue to teaching ideas")}
+          </button>
+        </details>
+        <details className="application-stage">
+          <summary>
+            <span>2</span>
+            {tr("Your teaching ideas")}
+          </summary>
+          <p className="fine-print">
+            {tr(
+              "Short, concrete answers are enough. Your work stays in this form as you move between sections.",
+            )}
+          </p>
+          <div className="form-grid">
+            {fields
+              .filter(([key]) => key !== "proposed_topic")
+              .map(([key, label]) => (
+                <label key={key}>
+                  {tr(label)}
+                  <textarea
+                    name={key}
+                    required
+                    minLength={10}
+                    maxLength={key === "teaching_plan" ? 1500 : 1000}
+                    rows={2}
+                    defaultValue={initial?.content[key]}
+                  />
+                </label>
+              ))}
+          </div>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={nextSection}
+          >
+            {tr("Continue to subject tasks")}
+          </button>
+        </details>
+        <details className="application-stage">
+          <summary>
+            <span>3</span>
+            {tr("Knowledge and explanation")}
+          </summary>
+          <RemoteContent remote={q}>
+            {(qualification) => (
+              <>
+                <h3>{tr("Subject knowledge check")}</h3>
+                {qualification.questions.map((question, index) => (
+                  <fieldset key={question.id} className="core-question">
+                    <legend>{question.prompt}</legend>
+                    {question.options.map((option, i) => (
+                      <label key={i}>
+                        <input
+                          type="radio"
+                          name={`question-${index}`}
+                          required
+                          checked={answers[index] === i}
+                          onChange={() =>
+                            setAnswers((prev) =>
+                              prev.map((v, n) => (n === index ? i : v)),
+                            )
+                          }
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </fieldset>
+                ))}
+                <label>
+                  {tr("Teaching explanation")}
+                  <p>{qualification.explanation_task}</p>
+                  <textarea
+                    name="explanation"
+                    required
+                    minLength={20}
+                    maxLength={2000}
+                    rows={4}
+                    defaultValue={initial?.content.explanation}
+                  />
+                </label>
+                <details>
+                  <summary>{tr("Assessment rubric")}</summary>
+                  <ul>
+                    {Object.entries(qualification.rubric).map(
+                      ([key, value]) => (
+                        <li key={key}>
+                          <strong>{tr(criteria[key])}: </strong>
+                          {tr(value)}
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </details>
+              </>
+            )}
+          </RemoteContent>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={nextSection}
+          >
+            {tr("Continue to review")}
+          </button>
+        </details>
+        <details
+          className="application-stage"
+          onToggle={(event) => {
+            if (!event.currentTarget.open) return;
+            const form = event.currentTarget.closest("form");
+            if (form)
+              setReview(
+                Object.fromEntries(
+                  [...new FormData(form)].map(([key, value]) => [
+                    key,
+                    String(value),
+                  ]),
+                ),
+              );
+          }}
+        >
+          <summary>
+            <span>4</span>
+            {tr("Review and submit")}
+          </summary>
+          <p>
+            {tr(
+              "Reopen any section to check your answers. Submit sends the complete application to your subject’s professor.",
+            )}
+          </p>
+          <dl className="application-preview">
+            {[...fields, ["explanation", "Teaching explanation"]].map(
+              ([key, label]) => (
+                <div key={key}>
+                  <dt>{tr(label)}</dt>
+                  <dd>{review[key] || tr("Not completed")}</dd>
+                </div>
+              ),
+            )}
+          </dl>
+          {q.data?.questions.map((question, index) => (
+            <p key={question.id}>
+              <strong>{question.prompt}</strong>
+              <br />
+              {question.options[answers[index]] ?? tr("Not completed")}
+            </p>
+          ))}
+          <p className="fine-print">
+            {tr(
+              "Responses are saved after submission. Leaving this page before submitting discards this draft.",
+            )}
+          </p>
+        </details>
+        {answers.some((a) => a < 0) && (
+          <p className="fine-print">
+            {tr("Answer both knowledge questions to enable submission.")}
+          </p>
+        )}
         <div className="action-row">
           <button
             className="button primary"
@@ -304,7 +440,9 @@ function ApplicationCard({
   const faculty = user.role === "professor";
   return (
     <article className="form-panel application-card">
-      <span className="pill neutral">{tr(statuses[a.status])}</span>
+      <span className={`pill application-status status-${a.status}`}>
+        {tr(statuses[a.status])}
+      </span>
       <h2>
         {a.applicant_name} · {tr(a.subject_name)}
       </h2>
@@ -322,28 +460,36 @@ function ApplicationCard({
       )}
       <details open={faculty}>
         <summary>{tr("Application and qualification responses")}</summary>
-        <dl>
-          {[...fields, ["explanation", "Teaching explanation"]].map(
-            ([key, label]) => (
+        <details open={faculty}>
+          <summary>{tr("Teaching plan and experience")}</summary>
+          <dl>
+            {fields.map(([key, label]) => (
               <div key={key}>
                 <dt>{tr(label)}</dt>
                 <dd>{a.content[key]}</dd>
               </div>
-            ),
-          )}
-        </dl>
-        {a.qualification.questions.map((q, i) => (
-          <div className="core-question" key={q.id}>
-            <p>{q.prompt}</p>
-            <p>
-              {tr("Applicant response")}: {q.options[a.answers[i]]}
-            </p>
-            <p>
-              {tr("Prepared reference answer")}: {q.options[q.correct ?? 0]}
-            </p>
-            <small>{q.explanation}</small>
-          </div>
-        ))}
+            ))}
+          </dl>
+        </details>
+        <details>
+          <summary>{tr("Knowledge responses")}</summary>
+          {a.qualification.questions.map((q, i) => (
+            <div className="core-question" key={q.id}>
+              <p>{q.prompt}</p>
+              <p>
+                {tr("Applicant response")}: {q.options[a.answers[i]]}
+              </p>
+              <p>
+                {tr("Prepared reference answer")}: {q.options[q.correct ?? 0]}
+              </p>
+              <small>{q.explanation}</small>
+            </div>
+          ))}
+        </details>
+        <details>
+          <summary>{tr("Teaching explanation")}</summary>
+          <blockquote>{a.content.explanation}</blockquote>
+        </details>
       </details>
       {a.advisory && (
         <section className="core-advisory">
@@ -431,6 +577,12 @@ function ApplicationCard({
             );
           }}
         >
+          <h3>{tr("Professor decision")}</h3>
+          <p className="fine-print">
+            {tr(
+              "AI feedback is advisory. You decide whether to authorize this subject.",
+            )}
+          </p>
           <label>
             {tr("Comments for the applicant")}
             <textarea name="comments" required minLength={5} maxLength={1500} />
