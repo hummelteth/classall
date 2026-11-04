@@ -421,37 +421,33 @@ def check_host_schedule(db, host_id, data, exclude=None):
 
 
 def attach_checks(db, sid, tid):
-    # Reuse the curated topic questions, never fabricate an assessment or score.
-    template = db.execute(
-        """SELECT c.session_id FROM learning_checks c JOIN session_topics st ON st.session_id=c.session_id WHERE st.topic_id=? ORDER BY c.session_id LIMIT 1""",
-        (tid,),
-    ).fetchone()
+    # A session can now hold an assigned professor publication. Never use another
+    # session as a mutable question template or silently lose its provenance.
+    from .learning import BANK
+
     db.execute("INSERT INTO session_topics VALUES (?,?)", (sid, tid))
-    if template is None:
+    bank = BANK.get(tid)
+    objectives = db.execute(
+        "SELECT id FROM learning_objectives WHERE topic_id=? ORDER BY id LIMIT 2",
+        (tid,),
+    ).fetchall()
+    if bank is None or len(objectives) < 2:
         return
-    for check in db.execute(
-        "SELECT * FROM learning_checks WHERE session_id=?", (template[0],)
-    ).fetchall():
+    for stage, offset in (("pre", 0), ("post", 2)):
         cid = db.execute(
             "INSERT INTO learning_checks(session_id,stage) VALUES (?,?)",
-            (sid, check["stage"]),
+            (sid, stage),
         ).lastrowid
-        for q in db.execute(
-            "SELECT * FROM assessment_questions WHERE check_id=?", (check["id"],)
-        ).fetchall():
+        for i, (prompt, options, correct, explanation) in enumerate(
+            bank[1][offset : offset + 2]
+        ):
             qid = db.execute(
                 "INSERT INTO assessment_questions(check_id,objective_id,prompt,explanation) VALUES (?,?,?,?)",
-                (cid, q["objective_id"], q["prompt"], q["explanation"]),
+                (cid, objectives[i]["id"], prompt, explanation),
             ).lastrowid
             db.executemany(
                 "INSERT INTO answer_options(question_id,label,is_correct) VALUES (?,?,?)",
-                [
-                    (qid, o["label"], o["is_correct"])
-                    for o in db.execute(
-                        "SELECT * FROM answer_options WHERE question_id=? ORDER BY id",
-                        (q["id"],),
-                    ).fetchall()
-                ],
+                [(qid, label, int(j == correct)) for j, label in enumerate(options)],
             )
 
 

@@ -1,3 +1,6 @@
+import { t as tr } from "./lib/i18n";
+import { useLanguage, useLocalizedValidation } from "./lib/i18n";
+import { Studio } from "./pages/Studio";
 import { Link, Route, Routes } from "react-router-dom";
 import { DemoProvider, useDemo } from "./lib/demo";
 import Shell from "./components/Shell";
@@ -14,6 +17,8 @@ import { SupportActions } from "./pages/SupportActions";
 import { Overview } from "./pages/Overview";
 
 export default function App() {
+  useLanguage();
+  useLocalizedValidation();
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
@@ -34,6 +39,7 @@ export default function App() {
         <Route path="pulse" element={<Pulse />} />
         <Route path="teaching" element={<Teaching />} />
         <Route path="publish" element={<Teaching initialCreate />} />
+        <Route path="studio" element={<Studio />} />
         <Route path="courses" element={<FacultyPage mode="courses" />} />
         <Route path="insights" element={<FacultyPage mode="insights" />} />
         <Route path="actions" element={<SupportActions />} />
@@ -42,13 +48,15 @@ export default function App() {
         path="*"
         element={
           <main className="connection-screen">
-            <span className="eyebrow">A SMALL DETOUR</span>
-            <h1>Let’s find your way back.</h1>
+            <span className="eyebrow">{tr("A SMALL DETOUR")}</span>
+            <h1>{tr("Let’s find your way back.")}</h1>
             <p>
-              This page doesn’t exist. Your learning community is right here.
+              {tr(
+                "This page doesn’t exist. Your learning community is right here.",
+              )}
             </p>
             <Link to="/" className="button primary">
-              Back to ClassAll
+              {tr("Back to ClassAll")}
             </Link>
           </main>
         }

@@ -27,7 +27,7 @@ def create_app(db_path: str | None = None):
 
     app = FastAPI(
         title="ClassAll Demo API",
-        version="0.3.0",
+        version="0.4.0",
         lifespan=lifespan,
         description="Synthetic data only. X-Demo-User-Id is a demo selector, NOT authentication. Do not expose this API publicly.",
     )
@@ -165,20 +165,30 @@ def create_app(db_path: str | None = None):
     def learning_check(
         booking_id: int,
         stage: Literal["pre", "post"],
+        language: Literal["en", "es"] = "en",
         actor=Depends(demo_actor),
         db=Depends(get_db),
     ):
-        return learning.check_payload(db, actor, booking_id, stage)
+        from .content_i18n import localize_check
+
+        return localize_check(
+            db, learning.check_payload(db, actor, booking_id, stage), language
+        )
 
     @app.post("/api/bookings/{booking_id}/learning-checks/{stage}", status_code=201)
     def submit_check(
         booking_id: int,
         stage: Literal["pre", "post"],
         body: LearningSubmission,
+        language: Literal["en", "es"] = "en",
         actor=Depends(demo_actor),
         db=Depends(get_db),
     ):
-        return learning.submit(db, actor, booking_id, stage, body.answers)
+        from .content_i18n import localize_check
+
+        return localize_check(
+            db, learning.submit(db, actor, booking_id, stage, body.answers), language
+        )
 
     @app.post("/api/bookings/{booking_id}/simulate-completion")
     def simulate_completion(
@@ -189,6 +199,9 @@ def create_app(db_path: str | None = None):
     from .connected_routes import register
 
     register(app, get_db, demo_actor)
+    from .studio_routes import register as register_studio
+
+    register_studio(app, get_db, demo_actor)
     return app
 
 

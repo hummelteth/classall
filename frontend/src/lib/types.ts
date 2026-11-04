@@ -95,6 +95,11 @@ export interface LearningHistory {
   note: string;
 }
 export interface CheckPayload extends CheckState {
+  course?: string;
+  topics?: string[];
+  content_language?: string;
+  provenance?: string;
+  professor_reviewed?: boolean;
   booking_id: number;
   stage: "pre" | "post";
   questions: {

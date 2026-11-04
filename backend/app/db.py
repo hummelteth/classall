@@ -76,3 +76,7 @@ def initialize(path: str):
         from .connected import migrate as connected_migrate
 
         connected_migrate(db)
+
+        from .studio import migrate as studio_migrate
+
+        studio_migrate(db)

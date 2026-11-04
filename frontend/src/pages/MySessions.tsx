@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Clock3, MapPin } from "lucide-react";
@@ -37,7 +38,9 @@ function CancelAction({ booking }: { booking: Booking }) {
       refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Could not cancel this booking.",
+        err instanceof Error
+          ? err.message
+          : tr("Could not cancel this booking."),
       );
     } finally {
       setPending(false);
@@ -47,30 +50,30 @@ function CancelAction({ booking }: { booking: Booking }) {
     <div className="cancel-action">
       {confirm ? (
         <>
-          <span>Release your seat?</span>
+          <span>{tr("Release your seat?")}</span>
           <button
             className="text-button danger"
             onClick={cancel}
             disabled={pending}
           >
-            {pending ? "Cancelling…" : "Yes, cancel"}
+            {pending ? tr("Cancelling…") : tr("Yes, cancel")}
           </button>
           <button
             className="text-button"
             onClick={() => setConfirm(false)}
             disabled={pending}
           >
-            Keep it
+            {tr("Keep it")}
           </button>
         </>
       ) : (
         <button className="text-button muted" onClick={() => setConfirm(true)}>
-          Cancel booking
+          {tr("Cancel booking")}
         </button>
       )}
       {error && (
         <p className="form-error" role="alert">
-          {error}
+          {tr(error)}
         </p>
       )}
     </div>
@@ -99,42 +102,46 @@ export function MySessions() {
   return (
     <>
       <PageTitle
-        eyebrow="YOUR TIME TO LEARN"
+        eyebrow={tr("YOUR TIME TO LEARN")}
         title={
           user.role === "tutor"
-            ? "Your learning. Your teaching."
-            : "Good things on your calendar."
+            ? tr("Your learning. Your teaching.")
+            : tr("Good things on your calendar.")
         }
-        description="Your booked sessions, all in one place. Times follow your device’s time zone."
+        description={tr(
+          "Your booked sessions, all in one place. Times follow your device’s time zone.",
+        )}
       >
         <Link className="button secondary" to="/app/explore">
-          Find tutoring
+          {tr("Find tutoring")}
           <ArrowUpRight size={16} />
         </Link>
       </PageTitle>
       {user.role === "professor" ? (
         <EmptyState
-          title="Explore the learner experience."
+          title={tr("Explore the learner experience.")}
           action={
             <Link className="button secondary" to="/app/impact">
-              View course insights
+              {tr("View course insights")}
               <ArrowRight size={16} />
             </Link>
           }
         >
-          Professor demo access has no learner bookings. Use the role switcher
-          to try booking as Laura or David.
+          {tr(
+            "Professor demo access has no learner bookings. Use the role switcher to try booking as Laura or David.",
+          )}
         </EmptyState>
       ) : (
         <>
           {user.role === "tutor" && (
             <section className="teaching-section">
-              <SectionHeading title="Your teaching schedule">
-                Demo sessions you’re hosting. Attendance and session editing are
-                planned.
+              <SectionHeading title={tr("Your teaching schedule")}>
+                {tr(
+                  "Demo sessions you’re hosting. Attendance and session editing are planned.",
+                )}
               </SectionHeading>
               {teaching.loading ? (
-                <Loading label="Loading teaching schedule" />
+                <Loading label={tr("Loading teaching schedule")} />
               ) : teaching.error ? (
                 <ErrorState message={teaching.error} retry={teaching.retry} />
               ) : (
@@ -147,9 +154,9 @@ export function MySessions() {
             </section>
           )}
           {user.role === "tutor" && (
-            <SectionHeading title="Your learner bookings" />
+            <SectionHeading title={tr("Your learner bookings")} />
           )}
-          <div className="tabs" role="group" aria-label="Booking status">
+          <div className="tabs" role="group" aria-label={tr("Booking status")}>
             {["upcoming", "past", "cancelled"].map((t) => (
               <button
                 key={t}
@@ -157,7 +164,7 @@ export function MySessions() {
                 aria-pressed={tab === t}
                 onClick={() => setTab(t)}
               >
-                {t.charAt(0).toUpperCase() + t.slice(1)}
+                {tr(t.charAt(0).toUpperCase() + t.slice(1))}
                 {t === "upcoming" && (
                   <span>
                     {bookings.data?.filter(activeBooking).length ?? 0}
@@ -167,7 +174,7 @@ export function MySessions() {
             ))}
           </div>
           {bookings.loading ? (
-            <Loading label="Loading your bookings" />
+            <Loading label={tr("Loading your bookings")} />
           ) : bookings.error ? (
             <ErrorState message={bookings.error} retry={bookings.retry} />
           ) : filtered.length ? (
@@ -186,12 +193,12 @@ export function MySessions() {
                   </div>
                   <div className="booking-row-main">
                     <span className="eyebrow">
-                      {b.session.subject.name} ·{" "}
+                      {tr(b.session.subject.name)} ·{" "}
                       {b.status === "cancelled"
                         ? "CANCELLED"
                         : activeBooking(b)
                           ? "CONFIRMED"
-                          : "PAST DEMO SESSION"}
+                          : tr("PAST DEMO SESSION")}
                     </span>
                     <button
                       className="row-title"
@@ -204,7 +211,8 @@ export function MySessions() {
                       <span>
                         <Clock3 size={14} />
                         {timeLabel(b.session.starts_at)} ·{" "}
-                        {b.session.duration_minutes} min
+                        {b.session.duration_minutes}
+                        {tr(" min")}
                       </span>
                       <span>
                         <MapPin size={14} />
@@ -216,13 +224,19 @@ export function MySessions() {
                         className="text-link"
                         to={`/app/checks/${b.id}/pre`}
                       >
-                        Open Learning Check & saved result
+                        {tr("Open Learning Check & saved result")}
                       </Link>
                     )}
                     <div className="booking-host">
                       <Avatar user={b.session.tutor} small />
-                      <span>with {b.session.tutor.name}</span>
-                      <small>Booking #{b.id}</small>
+                      <span>
+                        {tr("with ")}
+                        {b.session.tutor.name}
+                      </span>
+                      <small>
+                        {tr("Booking #")}
+                        {b.id}
+                      </small>
                     </div>
                   </div>
                   {activeBooking(b) && <CancelAction booking={b} />}
@@ -233,25 +247,27 @@ export function MySessions() {
             <EmptyState
               title={
                 tab === "upcoming"
-                  ? "Your next chapter is open."
+                  ? tr("Your next chapter is open.")
                   : tab === "cancelled"
-                    ? "No cancelled bookings."
-                    : "Your learning story starts here."
+                    ? tr("No cancelled bookings.")
+                    : tr("Your learning story starts here.")
               }
               action={
                 tab === "upcoming" ? (
                   <Link className="button primary" to="/app/explore">
-                    Find your first session
+                    {tr("Find your first session")}
                     <ArrowRight size={17} />
                   </Link>
                 ) : undefined
               }
             >
               {tab === "upcoming"
-                ? "Find a friendly peer tutor and save a free seat. Your upcoming sessions will appear here."
+                ? tr(
+                    "Find a friendly peer tutor and save a free seat. Your upcoming sessions will appear here.",
+                  )
                 : tab === "cancelled"
-                  ? "Any bookings you cancel will be listed here."
-                  : "Completed and past bookings will appear here."}
+                  ? tr("Any bookings you cancel will be listed here.")
+                  : tr("Completed and past bookings will appear here.")}
             </EmptyState>
           )}
         </>
@@ -269,8 +285,10 @@ export function MySessions() {
         />
       )}
       <p className="page-note">
-        {timezoneLabel} · Online sessions have no live meeting link in this
-        local demonstration.
+        {timezoneLabel}
+        {tr(
+          " · Online sessions have no live meeting link in this local demonstration.",
+        )}
       </p>
     </>
   );

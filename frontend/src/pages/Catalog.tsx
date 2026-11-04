@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -68,28 +69,34 @@ export function Catalog() {
   return (
     <>
       <PageTitle
-        eyebrow="A LITTLE HELP GOES A LONG WAY"
-        title="Find your next breakthrough."
-        description="Learn from someone who’s been there. All sessions are free, always."
+        eyebrow={tr("A LITTLE HELP GOES A LONG WAY")}
+        title={tr("Find your next breakthrough.")}
+        description={tr(
+          "Learn from someone who’s been there. All sessions are free, always.",
+        )}
       />
       <div className="catalog-intro">
         <div className="catalog-intro-icon">
           <HeartHandshake size={25} />
         </div>
         <p>
-          <strong>Peer support, with a human touch.</strong>
+          <strong>{tr("Peer support, with a human touch.")}</strong>
           <span>
-            Small groups. Course-focused topics. Space for every question.
+            {tr(
+              "Small groups. Course-focused topics. Space for every question.",
+            )}
           </span>
         </p>
         <span className="pill approved-pill">
           <ShieldCheck size={14} />
-          Subject-approved demo tutors
+          {tr("Subject-approved demo tutors")}
         </span>
       </div>
       {topicId && (
         <div className="action-row">
-          <span className="pill neutral">Showing your selected topic</span>
+          <span className="pill neutral">
+            {tr("Showing your selected topic")}
+          </span>
           <button
             className="text-link"
             onClick={() => {
@@ -98,10 +105,10 @@ export function Catalog() {
               setSearchParams(next);
             }}
           >
-            Show all topics
+            {tr("Show all topics")}
           </button>
           <Link className="text-link" to={`/app/pulse?topic=${topicId}`}>
-            Request more support for this topic
+            {tr("Request more support for this topic")}
           </Link>
         </div>
       )}
@@ -109,8 +116,8 @@ export function Catalog() {
         <div className="search-field">
           <Search size={19} />
           <input
-            aria-label="Search tutoring sessions"
-            placeholder="Try a subject, topic or tutor…"
+            aria-label={tr("Search tutoring sessions")}
+            placeholder={tr("Try a subject, topic or tutor…")}
             value={query}
             maxLength={100}
             onChange={(e) => setQuery(e.target.value)}
@@ -118,7 +125,7 @@ export function Catalog() {
           {query && (
             <button
               className="icon-button"
-              aria-label="Clear search"
+              aria-label={tr("Clear search")}
               onClick={() => setQuery("")}
             >
               <X size={15} />
@@ -128,25 +135,29 @@ export function Catalog() {
         <div className="select-field">
           <SlidersHorizontal size={16} />
           <select
-            aria-label="Session format"
+            aria-label={tr("Session format")}
             value={delivery}
             onChange={(e) => setDelivery(e.target.value)}
           >
-            <option value="">All formats</option>
-            <option>In person</option>
-            <option>Online</option>
+            <option value="">{tr("All formats")}</option>
+            <option value="In person">{tr("In person")}</option>
+            <option value="Online">{tr("Online")}</option>
           </select>
           <ChevronDown size={14} />
         </div>
       </div>
-      <div className="filter-chips" role="group" aria-label="Filter by subject">
+      <div
+        className="filter-chips"
+        role="group"
+        aria-label={tr("Filter by subject")}
+      >
         <button
           className={`filter-chip ${!subject ? "selected" : ""}`}
           aria-pressed={!subject}
           onClick={() => setSubject("")}
         >
           <Layers3 size={14} />
-          All subjects
+          {tr("All subjects")}
         </button>
         {subjects.data?.map((s) => (
           <button
@@ -155,7 +166,7 @@ export function Catalog() {
             className={`filter-chip ${subject === String(s.id) ? "selected" : ""}`}
             onClick={() => setSubject(String(s.id))}
           >
-            {s.name}
+            {tr(s.name)}
           </button>
         ))}
       </div>
@@ -165,9 +176,12 @@ export function Catalog() {
       <div className="catalog-results">
         <span>
           <strong>{sessions.loading ? "…" : filtered.length}</strong>{" "}
-          {filtered.length === 1 ? "session" : "sessions"} to explore{" "}
-          <span className="results-dot">·</span>{" "}
-          <small>Times in {timezoneLabel}</small>
+          {filtered.length === 1 ? tr("session") : tr("sessions")}
+          {tr(" to explore")} <span className="results-dot">·</span>{" "}
+          <small>
+            {tr("Times in ")}
+            {timezoneLabel}
+          </small>
         </span>
         <div>
           <label className="checkbox-label">
@@ -176,17 +190,17 @@ export function Catalog() {
               checked={availableOnly}
               onChange={(e) => setAvailableOnly(e.target.checked)}
             />
-            Open spots only
+            {tr("Open spots only")}
           </label>
           <label className="sort-label">
-            Sort by
+            {tr("Sort by")}
             <select
-              aria-label="Sort sessions"
+              aria-label={tr("Sort sessions")}
               value={sort}
               onChange={(e) => setSort(e.target.value)}
             >
-              <option value="soonest">Soonest first</option>
-              <option value="seats">Most open spots</option>
+              <option value="soonest">{tr("Soonest first")}</option>
+              <option value="seats">{tr("Most open spots")}</option>
             </select>
           </label>
         </div>
@@ -202,21 +216,22 @@ export function Catalog() {
         <SessionCollection sessions={filtered} bookings={bookings.data ?? []} />
       ) : (
         <EmptyState
-          title="Let’s try a different direction."
+          title={tr("Let’s try a different direction.")}
           action={
             <button className="button secondary" onClick={reset}>
-              Clear all filters
+              {tr("Clear all filters")}
             </button>
           }
         >
-          No sessions match these filters. Try another topic or format.
+          {tr("No sessions match these filters. Try another topic or format.")}
         </EmptyState>
       )}
       <div className="catalog-footer-note">
         <ShieldCheck size={18} />
         <p>
-          Tutor approvals are part of the synthetic dataset. Real qualification
-          review and AI-assisted checks are planned.
+          {tr(
+            "Tutor approvals are part of the synthetic dataset. Real qualification review and AI-assisted checks are planned.",
+          )}
         </p>
       </div>
     </>

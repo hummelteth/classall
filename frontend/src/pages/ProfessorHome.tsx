@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n";
 import type { SupportAction, SupportSignal } from "../lib/types";
 import { PulseInsights } from "../components/PulseInsights";
 import { TeacherLearningInsights } from "../components/TeacherLearningInsights";
@@ -29,66 +30,72 @@ export function ProfessorHome({
   return (
     <>
       <PageTitle
-        eyebrow="YOUR FACULTY WORKSPACE"
+        eyebrow={tr("YOUR FACULTY WORKSPACE")}
         title={
           mode === "overview"
-            ? "See where support can begin."
+            ? tr("See where support can begin.")
             : mode === "courses"
-              ? "Your courses, connected."
-              : "Understand the need. Choose the next step."
+              ? tr("Your courses, connected.")
+              : tr("Understand the need. Choose the next step.")
         }
-        description="Notice support needs, review the evidence and create opportunities in your assigned courses."
+        description={tr(
+          "Notice support needs, review the evidence and create opportunities in your assigned courses.",
+        )}
       />
       <div className="faculty-banner">
         <span className="faculty-icon">
           <Sprout size={33} />
         </span>
         <div>
-          <h2>Notice the need. Keep it human.</h2>
+          <h2>{tr("Notice the need. Keep it human.")}</h2>
           <p>
-            Explore booking counts and available support. You decide what they
-            mean.
+            {tr(
+              "Explore booking counts and available support. You decide what they mean.",
+            )}
           </p>
         </div>
-        <span className="pill neutral">Synthetic data only</span>
+        <span className="pill neutral">{tr("Synthetic data only")}</span>
       </div>
       {remote.loading ? (
-        <Loading label="Loading course insights" />
+        <Loading label={tr("Loading course insights")} />
       ) : remote.error ? (
-        <ErrorState message={remote.error} retry={remote.retry} />
+        <ErrorState message={tr(remote.error)} retry={remote.retry} />
       ) : (
         remote.data && (
           <>
             <div className="stats-grid">
               <article>
-                <span className="stat-label">Assigned courses</span>
+                <span className="stat-label">{tr("Assigned courses")}</span>
                 <strong>{remote.data.courses.length}</strong>
-                <p>Mathematics & Statistics</p>
+                <p>{tr("Mathematics & Statistics")}</p>
               </article>
               <article>
-                <span className="stat-label">Confirmed bookings</span>
+                <span className="stat-label">{tr("Confirmed bookings")}</span>
                 <strong>
                   {remote.data.courses.reduce((n, c) => n + c.bookings, 0)}
                 </strong>
-                <p>Across upcoming course sessions</p>
+                <p>{tr("Across upcoming course sessions")}</p>
               </article>
               <article>
-                <span className="stat-label">Seats still available</span>
+                <span className="stat-label">
+                  {tr("Seats still available")}
+                </span>
                 <strong>
                   {remote.data.courses.reduce(
                     (n, c) => n + c.available_seats,
                     0,
                   )}
                 </strong>
-                <p>Capacity in upcoming sessions</p>
+                <p>{tr("Capacity in upcoming sessions")}</p>
               </article>
             </div>
             <SectionHeading
-              eyebrow="AGGREGATED, COURSE-LEVEL VIEW"
-              title="A snapshot of peer support"
+              eyebrow={tr("AGGREGATED, COURSE-LEVEL VIEW")}
+              title={tr("A snapshot of peer support")}
             >
-              Live local counts from the demo database. No individual learning
-              records.
+              {tr(
+                "Live local counts from the demo database. No individual learning records.",
+              )}
             </SectionHeading>
             <div className="insight-grid">
               {remote.data.courses.map((c) => (
@@ -101,21 +108,27 @@ export function ProfessorHome({
                     </span>
                     <span className="pill neutral">{c.subject.code}</span>
                   </div>
-                  <h3>{c.subject.name}</h3>
+                  <h3>{tr(c.subject.name)}</h3>
                   <p>
-                    {c.sessions} upcoming{" "}
-                    {c.sessions === 1 ? "session" : "sessions"} · {c.capacity}{" "}
-                    total seats
+                    {c.sessions}
+                    {tr(" upcoming")}{" "}
+                    {c.sessions === 1 ? tr("session") : tr("sessions")} ·{" "}
+                    {c.capacity} {tr("total seats")}
                   </p>
                   <div className="insight-value">
                     <strong>{c.bookings}</strong>
-                    <span>confirmed bookings</span>
-                    <small>{c.available_seats} seats open</small>
+                    <span>{tr("confirmed bookings")}</span>
+                    <small>
+                      {c.available_seats}
+                      {tr(" seats open")}
+                    </small>
                   </div>
                   <div
                     className="capacity-track"
                     role="meter"
-                    aria-label={`${c.subject.name} seats booked`}
+                    aria-label={tr("{{0}} seats booked", {
+                      0: tr(c.subject.name),
+                    })}
                     aria-valuenow={c.bookings}
                     aria-valuemin={0}
                     aria-valuemax={c.capacity || 1}
@@ -129,18 +142,18 @@ export function ProfessorHome({
                   <div className="bar-key">
                     <span>
                       <i />
-                      Booked
+                      {tr("Booked")}
                     </span>
                     <span>
                       <i />
-                      Available
+                      {tr("Available")}
                     </span>
                   </div>
                   <Link
                     to={`/app/explore?subject=${c.subject.id}`}
                     className="text-link"
                   >
-                    Explore course sessions
+                    {tr("Explore course sessions")}
                     <ArrowRight size={15} />
                   </Link>
                   {mode === "insights" && (
@@ -154,17 +167,17 @@ export function ProfessorHome({
                   )}
                   {mode !== "insights" && (
                     <Link className="text-link" to="/app/insights">
-                      Review topic evidence & voluntary demand
+                      {tr("Review topic evidence & voluntary demand")}
                     </Link>
                   )}
                 </article>
               ))}
             </div>
             <details className="evidence-details">
-              <summary>How to interpret these signals</summary>
+              <summary>{tr("How to interpret these signals")}</summary>
               <p className="insight-note">
                 <ShieldCheck size={20} />
-                {remote.data.note}
+                {tr(remote.data.note)}
               </p>
             </details>
           </>
@@ -172,12 +185,13 @@ export function ProfessorHome({
       )}
       <div className="connections-strip">
         <div>
-          <h2>What needs human review?</h2>
+          <h2>{tr("What needs human review?")}</h2>
           <p>
-            Check topic evidence before deciding what additional support could
-            help.
+            {tr(
+              "Check topic evidence before deciding what additional support could help.",
+            )}
           </p>
-          {signals.loading && <Loading label="Loading topic demand" />}
+          {signals.loading && <Loading label={tr("Loading topic demand")} />}
           {signals.error && (
             <ErrorState message={signals.error} retry={signals.retry} />
           )}
@@ -185,35 +199,37 @@ export function ProfessorHome({
             ?.filter((s) => s.open_requests !== null)
             .map((s) => (
               <small key={s.topic.id}>
-                {s.topic.name}: {s.open_requests} open requests · review
-                suggested.
+                {tr(s.topic.name)}: {s.open_requests}
+                {tr(" open requests · review suggested.")}
               </small>
             ))}
           <Link className="text-link" to="/app/insights">
-            Review learning insights
+            {tr("Review learning insights")}
           </Link>
         </div>
         <div>
-          <h2>From evidence to action</h2>
+          <h2>{tr("From evidence to action")}</h2>
           <p>
-            Plan practice, a follow-up review or synthetic faculty-supported
-            tutoring.
+            {tr(
+              "Plan practice, a follow-up review or synthetic faculty-supported tutoring.",
+            )}
           </p>
-          {actions.loading && <Loading label="Loading support actions" />}
+          {actions.loading && <Loading label={tr("Loading support actions")} />}
           {actions.error && (
             <ErrorState message={actions.error} retry={actions.retry} />
           )}
           {actions.data && (
             <small>
               {actions.data.filter((a) => a.status === "planned").length}{" "}
-              planned ·{" "}
-              {actions.data.filter((a) => a.status === "active").length} active
-              · {actions.data.filter((a) => a.status === "completed").length}{" "}
-              completed
+              {tr("planned ·")}{" "}
+              {actions.data.filter((a) => a.status === "active").length}
+              {tr(" active · ")}
+              {actions.data.filter((a) => a.status === "completed").length}{" "}
+              {tr("completed")}
             </small>
           )}
           <Link className="text-link" to="/app/actions">
-            Manage support actions
+            {tr("Manage support actions")}
           </Link>
         </div>
       </div>

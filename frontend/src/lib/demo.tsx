@@ -1,3 +1,4 @@
+import { t as tr } from "./i18n";
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { useRemote } from "./api";
@@ -28,26 +29,29 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     return (
       <main className="connection-screen">
         <div className="brand">
-          ClassAll<span>✳</span>
+          {tr("ClassAll")}
+          <span>✳</span>
         </div>
         <AlertCircle size={36} />
-        <h1>Let’s get connected.</h1>
-        <p>{remote.error}</p>
-        <p>Run the backend on port 8000, then retry.</p>
+        <h1>{tr("Let’s get connected.")}</h1>
+        <p>{tr(remote.error)}</p>
+        <p>{tr("Run the backend on port 8000, then retry.")}</p>
         <button className="button primary" onClick={remote.retry}>
-          <RefreshCw size={16} /> Retry connection
+          <RefreshCw size={16} />
+          {tr(" Retry connection")}
         </button>
-        <a href="/">Back to ClassAll</a>
+        <a href="/">{tr("Back to ClassAll")}</a>
       </main>
     );
   if (!user || !remote.data)
     return (
       <main className="connection-screen" aria-live="polite">
         <div className="brand">
-          ClassAll<span>✳</span>
+          {tr("ClassAll")}
+          <span>✳</span>
         </div>
         <span className="spinner" />
-        <p>Opening your demo campus…</p>
+        <p>{tr("Opening your demo campus…")}</p>
       </main>
     );
   const selectUser = (id: number) => {
@@ -74,6 +78,6 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 }
 export function useDemo() {
   const state = useContext(DemoContext);
-  if (!state) throw new Error("DemoProvider is required");
+  if (!state) throw new Error(tr("DemoProvider is required"));
   return state;
 }
