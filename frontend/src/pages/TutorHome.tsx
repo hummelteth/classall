@@ -101,11 +101,11 @@ export function TutorHome() {
                     <Check size={16} />
                   </div>
                 ))}
-                <span className="fine-print">
+                <Link to="/app/applications" className="text-link">
                   {tr(
-                    "Real application reviews and AI-assisted qualification are not active.",
+                    "Apply for another subject or review your current applications.",
                   )}
-                </span>
+                </Link>
               </aside>
             </div>
           </>

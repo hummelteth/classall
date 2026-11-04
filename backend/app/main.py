@@ -27,7 +27,7 @@ def create_app(db_path: str | None = None):
 
     app = FastAPI(
         title="ClassAll Demo API",
-        version="0.4.0",
+        version="0.5.0",
         lifespan=lifespan,
         description="Synthetic data only. X-Demo-User-Id is a demo selector, NOT authentication. Do not expose this API publicly.",
     )
@@ -82,25 +82,15 @@ def create_app(db_path: str | None = None):
 
     @app.get("/api/tutor/overview")
     def tutor_overview(actor=Depends(demo_actor), db=Depends(get_db)):
-        if actor["role"] != "tutor":
-            raise HTTPException(
-                403, "Choose the Tutor demo role to view this workspace."
-            )
-        completed = db.execute(
-            "SELECT COUNT(*) AS count, COALESCE(SUM(duration_minutes),0) AS minutes FROM sessions WHERE tutor_id=? AND status='completed'",
-            (actor["id"],),
-        ).fetchone()
-        approved = db.execute(
-            "SELECT s.* FROM subjects s JOIN tutor_approvals a ON a.subject_id=s.id WHERE a.tutor_id=?",
-            (actor["id"],),
-        ).fetchall()
+        from .core import portfolio
+        data = portfolio(db, actor)
         return {
             "sessions": repo.sessions(db, tutor_id=actor["id"]),
-            "completed_sessions": completed["count"],
-            "teaching_minutes": completed["minutes"],
-            "engagement_points": completed["count"] * 20,
-            "approved_subjects": [dict(r) for r in approved],
-            "recognition_note": "Synthetic completed-session history. 20 illustrative points per completed session; no official credential.",
+            "completed_sessions": data["confirmed_sessions"],
+            "teaching_minutes": data["teaching_minutes"],
+            "engagement_points": data["points"],
+            "approved_subjects": data["approved_subjects"],
+            "recognition_note": "Documented synthetic contributions. No official credential or academic credit.",
         }
 
     @app.get("/api/insights")
@@ -202,6 +192,9 @@ def create_app(db_path: str | None = None):
     from .studio_routes import register as register_studio
 
     register_studio(app, get_db, demo_actor)
+    from .core_routes import register as register_core
+
+    register_core(app, get_db, demo_actor)
     return app
 
 

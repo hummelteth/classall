@@ -518,3 +518,192 @@ it("reviews and publishes a prepared Studio pair through React and SQLite", asyn
   expect(workspace.assessments[0].status).toBe("published");
   expect(workspace.publications).toHaveLength(1);
 }, 15000);
+
+it("connects learner qualification, faculty approval, two-party attendance and private feedback through React and SQLite", async () => {
+  const user = userEvent.setup();
+  localStorage.setItem("classall-demo-user", "1");
+  render(
+    <MemoryRouter initialEntries={["/app/applications"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Start an application" }),
+  );
+  const values: Record<string, string> = {
+    "Why would you like to help?": "Help fellow students feel welcome.",
+    "Relevant knowledge or experience": "Two years of calculus study.",
+    "Proposed tutoring topic": "Chain rule practice",
+    "Learning objectives": "Apply inner and outer derivatives.",
+    "Brief teaching plan": "Diagram first, practise, then reflect.",
+    "Teaching approach or activities": "Use a diagram and paired practice.",
+  };
+  for (const [name, value] of Object.entries(values))
+    await user.type(await screen.findByRole("textbox", { name }), value);
+  const qualification = await screen.findAllByRole("group");
+  const questions = qualification.filter(
+    (f) => within(f).queryAllByRole("radio").length === 3,
+  );
+  expect(questions).toHaveLength(2);
+  for (const q of questions)
+    await user.click(within(q).getAllByRole("radio")[0]);
+  await user.type(
+    document.querySelector('textarea[name="explanation"]')!,
+    "First explain that both rates change. Multiply the outer derivative by the inner derivative and work through an example.",
+  );
+  await user.click(screen.getByRole("button", { name: "Submit application" }));
+  await screen.findByText("Pending", { exact: true });
+  await user.click(
+    screen.getByRole("button", { name: "Open prepared review checklist" }),
+  );
+  await screen.findByRole("heading", {
+    name: "Prepared review checklist — no live AI evaluation",
+  });
+  await user.selectOptions(screen.getByLabelText("Demo role"), "3");
+  await user.click(screen.getByRole("link", { name: "Tutor applications" }));
+  await user.type(
+    await screen.findByLabelText("Comments for the applicant"),
+    "Add a short learner activity.",
+  );
+  await user.click(
+    screen.getByLabelText(
+      "I have reviewed the responses and teaching plan. This is my human decision.",
+    ),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Save professor decision" }),
+  );
+  await screen.findByText("Changes requested", { exact: true });
+  await user.selectOptions(screen.getByLabelText("Demo role"), "1");
+  await user.click(screen.getByRole("link", { name: "Become a Tutor" }));
+  await user.click(
+    await screen.findByRole("button", { name: "Revise and resubmit" }),
+  );
+  const approach = screen.getByRole("textbox", {
+    name: "Teaching approach or activities",
+  });
+  await user.clear(approach);
+  await user.type(
+    approach,
+    "Use a diagram and invite the learner to solve a new example.",
+  );
+  await user.click(screen.getByRole("button", { name: "Submit application" }));
+  await screen.findByText("Pending", { exact: true });
+  await user.selectOptions(screen.getByLabelText("Demo role"), "3");
+  await user.click(screen.getByRole("link", { name: "Tutor applications" }));
+  await user.type(
+    await screen.findByLabelText("Comments for the applicant"),
+    "Reviewed revised plan; approved.",
+  );
+  await user.selectOptions(screen.getByLabelText("Decision"), "approved");
+  await user.click(
+    screen.getByLabelText(
+      "I have reviewed the responses and teaching plan. This is my human decision.",
+    ),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Save professor decision" }),
+  );
+  await screen.findByText("Approved", { exact: true });
+  await user.selectOptions(screen.getByLabelText("Demo role"), "1");
+  await user.click(screen.getByRole("link", { name: "Create a session" }));
+  const title = "Learner to tutor V5 integration";
+  await user.type(await screen.findByRole("textbox", { name: "Title" }), title);
+  await user.type(
+    screen.getByRole("textbox", { name: "Description" }),
+    "A friendly synthetic session for new derivatives.",
+  );
+  await user.type(
+    document.querySelector('textarea[name="goals"]')!,
+    "Apply the chain rule",
+  );
+  const date = document.querySelector<HTMLInputElement>(
+    'input[name="starts_at"]',
+  )!;
+  const { fireEvent } = await import("@testing-library/react");
+  fireEvent.change(date, {
+    target: {
+      value: new Date(Date.now() + 31 * 86400000).toISOString().slice(0, 16),
+    },
+  });
+  await user.type(
+    document.querySelector('input[name="location"]')!,
+    "Fictional library",
+  );
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  await screen.findByRole("heading", { name: title });
+  await user.selectOptions(screen.getByLabelText("Demo role"), "2");
+  await user.click(screen.getByRole("link", { name: "Find support" }));
+  await user.click(
+    await screen.findByRole("button", { name: new RegExp(title) }),
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Book a free seat" }),
+  );
+  await screen.findByRole("heading", { name: "Your seat is saved!" });
+  await user.click(
+    screen.getByRole("button", { name: "Close session details" }),
+  );
+  await user.selectOptions(screen.getByLabelText("Demo role"), "1");
+  await user.click(screen.getByRole("link", { name: "My teaching" }));
+  const card = (await screen.findByRole("heading", { name: title })).closest(
+    "article",
+  )!;
+  await user.click(
+    within(card).getByRole("button", {
+      name: "Synthetic attendance confirmation",
+    }),
+  );
+  await waitFor(() =>
+    expect(within(card).getAllByRole("checkbox")).toHaveLength(2),
+  );
+  for (const c of within(card).getAllByRole("checkbox")) await user.click(c);
+  await user.click(
+    within(card).getByRole("button", { name: "Propose synthetic attendance" }),
+  );
+  await screen.findByText(
+    "Synthetic attendance proposed. Participants must confirm separately; points are awarded once after the first confirmation.",
+  );
+  const before = await actualFetch(`${base}/api/portfolio`, {
+    headers: { "X-Demo-User-Id": "1" },
+  }).then((r) => r.json());
+  expect(before.points).toBe(0);
+  await user.selectOptions(screen.getByLabelText("Demo role"), "2");
+  await user.click(screen.getByRole("link", { name: "My sessions" }));
+  await user.click(
+    await screen.findByLabelText(
+      "I confirm my fictional participation in this synthetic demonstration.",
+    ),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Confirm my synthetic attendance" }),
+  );
+  for (const name of [
+    "Clarity of explanations",
+    "Preparation and organization",
+    "Supportive learning atmosphere",
+  ])
+    await user.selectOptions(await screen.findByLabelText(name), "3");
+  await user.type(
+    screen.getByLabelText("Optional private reflection"),
+    "Keep this private.",
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Send constructive feedback" }),
+  );
+  await screen.findByText(
+    "Your constructive feedback is saved. Your private comment is visible only to you.",
+  );
+  await user.selectOptions(screen.getByLabelText("Demo role"), "1");
+  await user.click(screen.getByRole("link", { name: "My progress" }));
+  await screen.findByRole("heading", { name: "Private competency portfolio" });
+  await screen.findByText(
+    "Summaries require at least 3 distinct learners. Individual ratings and private comments are hidden.",
+  );
+  const after = await actualFetch(`${base}/api/portfolio`, {
+    headers: { "X-Demo-User-Id": "1" },
+  }).then((r) => r.json());
+  expect(after.points).toBe(20);
+  expect(after.confirmed_sessions).toBe(1);
+  expect(screen.queryByText("Keep this private.")).not.toBeInTheDocument();
+}, 30000);

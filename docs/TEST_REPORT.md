@@ -42,3 +42,10 @@ Use README installation/tests. Browser runner selects free loopback ports, uses 
 Sandboxed environments must allow loopback sockets for FastAPI/TestClient, Vite and Chromium. Initial runs without that capability failed or stalled; the reported successful runs used the supported network-enabled execution profile. No external notification, paid service or public deployment was enabled.
 
 pytest reports one upstream Starlette/AnyIO `BlockingPortal` deprecation warning. It does not fail tests. Windows execution, Firefox/Safari, full keyboard/screen-reader coverage, WCAG contrast audit, real-device low-resource performance, institutional load and production privacy/security verification remain **manual or future work**. See DEMO_CHECKLIST.md. Passing local demo tests does not establish production identity protection or privacy.
+
+
+## V5 regression and complete core experience (4 November 2026)
+
+V5 adds 9 backend journey/integrity tests (107 backend tests total) and a fifth React/HTTP/SQLite integration journey (22 frontend tests total). TypeScript and production build pass. The original Chromium connected-learning and Spanish Studio suites pass, as do complete English and Spanish V5 journeys at 1440, 768 and 390px. Tests include migration preservation of every V4 record, an immutable publication and user-created group; duplicate/concurrent attendance; subject/faculty ownership; and private feedback suppression.
+
+See [V5_IMPLEMENTATION_REPORT.md](V5_IMPLEMENTATION_REPORT.md) for exact commands, results, warnings and limits. Live Ollama is mocked where needed; Windows/GPU inference was not retested. No public deployment or normal database reset was performed.

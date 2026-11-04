@@ -15,7 +15,7 @@ export function TutorStats({ data }: { data: TutorOverview }) {
             {data.engagement_points}
             <small>{tr("pts")}</small>
           </strong>
-          <p>{tr("20 per completed demo session")}</p>
+          <p>{tr("Stored contribution ledger")}</p>
         </article>
         <article>
           <span className="stat-icon tone-peach">

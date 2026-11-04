@@ -108,7 +108,7 @@ def test_demo_role_guards_and_ownership(client):
         == 404
     )
     assert book(client, session_id=2, user_id=2).status_code == 201  # tutors may learn
-    assert client.get("/api/tutor/overview", headers=actor()).status_code == 403
+    assert client.get("/api/tutor/overview", headers=actor()).json()["approved_subjects"] == []  # Students may apply and teach without changing their learner role.
     assert client.get("/api/insights", headers=actor()).status_code == 403
     assert (
         client.get("/api/tutor/overview", headers=actor(2)).json()["engagement_points"]

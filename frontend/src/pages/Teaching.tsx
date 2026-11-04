@@ -1,3 +1,4 @@
+import { SyntheticAttendance } from "../components/CoreExperience";
 import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
@@ -27,10 +28,16 @@ export function Teaching({
     "/tutor/overview",
     user.id,
     version,
-    user.role === "tutor",
+    user.role !== "professor",
+  );
+  const records = useRemote<(Session & { attendance_proposed: boolean })[]>(
+    "/teaching/records",
+    user.id,
+    version,
+    user.role !== "professor",
   );
   const topics = useRemote<Topic[]>("/learning/topics");
-  if (user.role !== "tutor")
+  if (user.role === "professor")
     return (
       <EmptyState title={tr("An approved subject is the starting point.")}>
         <Link className="text-link" to="/app">
@@ -69,6 +76,11 @@ export function Teaching({
         </button>
       </PageTitle>
       {mutation.feedback}
+      <p>
+        <Link className="text-link application-link" to="/app/applications">
+          {tr("Apply for subject approval or view your applications")}
+        </Link>
+      </p>
       {show && (
         <section className="form-panel">
           <h2>
@@ -116,10 +128,15 @@ export function Teaching({
               }}
             />
           ) : (
-            <p>{tr("Loading your approved topics…")}</p>
+            <p>
+              {tutor.loading
+                ? tr("Loading your approved topics…")
+                : tr("Apply for subject approval before publishing.")}
+            </p>
           )}
         </section>
       )}
+
       <RemoteContent remote={tutor}>
         {(data) =>
           data.sessions.length ? (
@@ -176,6 +193,13 @@ export function Teaching({
                       </>
                     )}
                     <Attendees sessionId={s.id} />
+                    <SyntheticAttendance
+                      sessionId={s.id}
+                      proposed={
+                        records.data?.find((r) => r.id === s.id)
+                          ?.attendance_proposed ?? false
+                      }
+                    />
                   </div>
                   {s.kind === "faculty" && (
                     <small>
@@ -195,6 +219,38 @@ export function Teaching({
             </EmptyState>
           )
         }
+      </RemoteContent>
+      <RemoteContent remote={records}>
+        {(data) => (
+          <section className="core-stack">
+            <h2>{tr("Teaching history")}</h2>
+            {data
+              .filter((s) => s.status !== "upcoming")
+              .map((s) => (
+                <article className="form-panel" key={s.id}>
+                  <span className="pill neutral">
+                    {tr(s.status === "completed" ? "Completed" : "Cancelled")}
+                  </span>
+                  <h3>{s.title}</h3>
+                  <p>
+                    {dateLabel(s.starts_at)} · {s.duration_minutes} {tr("min")}
+                  </p>
+                  <p>
+                    {tr(
+                      s.status === "cancelled"
+                        ? "Cancelled session — no contribution awarded"
+                        : s.attendance_proposed
+                          ? "Two-party synthetic confirmation"
+                          : "Original synthetic history",
+                    )}
+                  </p>
+                  <Link className="text-link" to="/app/impact">
+                    {tr("View private portfolio")}
+                  </Link>
+                </article>
+              ))}
+          </section>
+        )}
       </RemoteContent>
     </>
   );

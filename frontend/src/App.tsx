@@ -1,5 +1,6 @@
 import { t as tr } from "./lib/i18n";
 import { useLanguage, useLocalizedValidation } from "./lib/i18n";
+import { Applications } from "./pages/Applications";
 import { Studio } from "./pages/Studio";
 import { Link, Route, Routes } from "react-router-dom";
 import { DemoProvider, useDemo } from "./lib/demo";
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="pulse" element={<Pulse />} />
         <Route path="teaching" element={<Teaching />} />
         <Route path="publish" element={<Teaching initialCreate />} />
+        <Route path="applications" element={<Applications />} />
         <Route path="studio" element={<Studio />} />
         <Route path="courses" element={<FacultyPage mode="courses" />} />
         <Route path="insights" element={<FacultyPage mode="insights" />} />

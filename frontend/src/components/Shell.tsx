@@ -31,6 +31,11 @@ export default function Shell() {
             icon: LayoutDashboard,
             end: true,
           },
+          {
+            to: "/app/applications",
+            label: tr("Tutor applications"),
+            icon: GraduationCap,
+          },
           { to: "/app/studio", label: tr("AI Learning Studio"), icon: Sprout },
           { to: "/app/courses", label: tr("My courses"), icon: GraduationCap },
           { to: "/app/insights", label: tr("Learning insights"), icon: Sprout },
@@ -50,20 +55,23 @@ export default function Shell() {
             icon: LayoutDashboard,
             end: true,
           },
-          ...(user.role === "tutor"
-            ? [
-                {
-                  to: "/app/teaching",
-                  label: tr("My teaching"),
-                  icon: GraduationCap,
-                },
-                {
-                  to: "/app/publish",
-                  label: tr("Create a session"),
-                  icon: CalendarDays,
-                },
-              ]
-            : []),
+
+          {
+            to: "/app/teaching",
+            label: tr("My teaching"),
+            icon: GraduationCap,
+          },
+          {
+            to: "/app/publish",
+            label: tr("Create a session"),
+            icon: CalendarDays,
+          },
+
+          {
+            to: "/app/applications",
+            label: tr("Become a Tutor"),
+            icon: HeartHandshake,
+          },
           { to: "/app/explore", label: tr("Find support"), icon: Compass },
           {
             to: "/app/pulse",

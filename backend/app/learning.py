@@ -353,7 +353,11 @@ def readiness(db, booking, stage):
             "SELECT 1 FROM demo_session_completions WHERE booking_id=?",
             (booking["id"],),
         ).fetchone()
-        if not ended and not simulated:
+        attended = db.execute(
+            "SELECT 1 FROM session_attendance WHERE booking_id=? AND confirmed_at IS NOT NULL",
+            (booking["id"],),
+        ).fetchone()
+        if not ended and not simulated and not attended:
             return (
                 "Available after the session ends, or use the labeled demo simulation."
             )
