@@ -80,3 +80,7 @@ def initialize(path: str):
         from .studio import migrate as studio_migrate
 
         studio_migrate(db)
+
+        from .core import migrate as core_migrate
+
+        core_migrate(db)

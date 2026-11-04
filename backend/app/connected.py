@@ -455,7 +455,7 @@ def publish_session(db, actor, body, action_id=None):
     db.execute("BEGIN IMMEDIATE")
     t, data = validate_event(db, body)
     if action_id is None:
-        if actor["role"] != "tutor":
+        if actor["role"] == "professor":
             raise HTTPException(
                 403, "Only an approved tutor can publish peer tutoring."
             )
@@ -479,7 +479,7 @@ def publish_session(db, actor, body, action_id=None):
         kind = "faculty"
         organizer = actor["id"]
     if (
-        repo.user(db, host)["role"] != "tutor"
+        repo.user(db, host)["role"] == "professor"
         or not db.execute(
             "SELECT 1 FROM tutor_approvals WHERE tutor_id=? AND subject_id=?",
             (host, t["subject_id"]),
@@ -537,7 +537,7 @@ def manage_session(db, actor, sid, body=None):
             ).fetchone()[0]
             assigned(db, actor, tid)
     else:
-        permitted = actor["role"] == "tutor" and current["tutor"]["id"] == actor["id"]
+        permitted = actor["role"] != "professor" and current["tutor"]["id"] == actor["id"]
     if not permitted:
         raise HTTPException(403, "Only the session publisher can manage this offering.")
     if current["status"] != "upcoming" or current["starts_at"] <= now():

@@ -107,6 +107,7 @@ export function TopicSelect({
       <label>
         {tr("Course")}
         <select
+          aria-label={tr("Course")}
           value={selected?.subject_id ?? ""}
           required
           onChange={(e) =>
@@ -132,6 +133,7 @@ export function TopicSelect({
       <label>
         {tr("Topic")}
         <select
+          aria-label={tr("Topic")}
           value={value || ""}
           required
           onChange={(e) => onChange(Number(e.target.value))}

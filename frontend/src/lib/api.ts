@@ -28,7 +28,11 @@ export async function request<T>(
     } catch {
       /* Non-JSON proxy error. */
     }
-    if (response.status >= 500 && !path.startsWith("/studio"))
+    if (
+      response.status >= 500 &&
+      !path.startsWith("/studio") &&
+      !path.includes("/advisory")
+    )
       message = tr(
         "The API is unavailable. Start the Python backend and try again.",
       );

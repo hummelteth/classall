@@ -230,7 +230,7 @@ export function Catalog() {
         <ShieldCheck size={18} />
         <p>
           {tr(
-            "Tutor approvals are part of the synthetic dataset. Real qualification review and AI-assisted checks are planned.",
+            "Tutor approvals are subject-specific. Students can apply and professors review their knowledge responses and teaching plan.",
           )}
         </p>
       </div>

@@ -366,6 +366,7 @@ async function runJourney(base, artifacts) {
     await page
       .getByRole("button", { name: "Browser tutoring " + stamp, exact: false })
       .click();
+    await page.getByRole("button", { name: "Book a free seat" }).waitFor();
     await page.keyboard.press("Tab");
     assert(
       await page
@@ -643,6 +644,7 @@ async function stop(child) {
   const directory = mkdtempSync(join(tmpdir(), "classall-browser-"));
   const artifacts = join(root, "work", "browser-qa");
   mkdirSync(artifacts, { recursive: true });
+  const core = process.argv.includes("--core");
   const apiPort = await port(),
     frontPort = await port();
   let api, frontend;
@@ -655,6 +657,23 @@ async function stop(child) {
         ".venv",
         process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
       );
+    const database = join(
+      directory,
+      core ? "classall-v5-presentation.sqlite3" : "test.sqlite3",
+    );
+    if (core) {
+      const result = require("node:child_process").spawnSync(
+        python,
+        ["-m", "app.presentation", "--database", database],
+        {
+          cwd: root,
+          env: { ...process.env, PYTHONPATH: join(root, "backend") },
+          encoding: "utf8",
+        },
+      );
+      if (result.status !== 0)
+        throw Error(result.stderr || String(result.error));
+    }
     api = spawn(
       python,
       [
@@ -672,7 +691,7 @@ async function stop(child) {
         cwd: root,
         env: {
           ...process.env,
-          CLASSALL_DB_PATH: join(directory, "test.sqlite3"),
+          CLASSALL_DB_PATH: database,
         },
         stdio: ["ignore", "pipe", "pipe"],
       },
@@ -704,6 +723,14 @@ async function stop(child) {
     frontend.stdout.on("data", (s) => (logs += s));
     frontend.stderr.on("data", (s) => (logs += s));
     await waitReady(`http://127.0.0.1:${frontPort}`, frontend);
+    if (core) {
+      await require("./core-journey.cjs")(
+        `http://127.0.0.1:${frontPort}`,
+        artifacts,
+        process.argv.includes("--spanish"),
+      );
+      return;
+    }
     if (!process.env.CLASSALL_STUDIO_ONLY)
       await runJourney(`http://127.0.0.1:${frontPort}`, artifacts);
     await runStudioJourney(`http://127.0.0.1:${frontPort}`, artifacts);

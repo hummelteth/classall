@@ -1,3 +1,4 @@
+import { LearnerAttendance } from "../components/CoreExperience";
 import { t as tr } from "../lib/i18n";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -117,6 +118,7 @@ export function MySessions() {
           <ArrowUpRight size={16} />
         </Link>
       </PageTitle>
+      <LearnerAttendance />
       {user.role === "professor" ? (
         <EmptyState
           title={tr("Explore the learner experience.")}
@@ -137,7 +139,7 @@ export function MySessions() {
             <section className="teaching-section">
               <SectionHeading title={tr("Your teaching schedule")}>
                 {tr(
-                  "Demo sessions you’re hosting. Attendance and session editing are planned.",
+                  "Demo sessions you’re hosting. Manage attendance and edits in My teaching.",
                 )}
               </SectionHeading>
               {teaching.loading ? (

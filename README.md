@@ -2,9 +2,15 @@
 
 **Learning is a shared strength.** A local, synthetic Hack4Edu 2026 connected learning ecosystem using React/TypeScript/Vite, FastAPI and SQLite.
 
-Version 4 extends merged connected learning (`91e1a10`) with a bilingual interface and a local professor AI Learning Studio, without rebuilding the project or resetting its database. Peer tutoring, bookings/cancellation, curated Learning Checks, private progress, professor aggregates and David’s original contribution rules remain.
+Version 5 extends V4 (`0f0a8d2`) with subject-specific tutor applications, human approval, explicitly synthetic two-party attendance, an idempotent contribution ledger, constructive feedback and a private portfolio. V4 bilingual learning, local AI Studio, professor publications, groups and faculty support actions remain. Existing SQLite records and David’s 40 historical synthetic points are preserved.
 
 ## What works
+
+- **Become a Tutor / Hazte tutor** for every student: subject/topic selection, motivation, experience, teaching plan, prepared bilingual knowledge questions and an explanation task. Students remain learners while gaining subject-specific teaching permissions.
+- **Professor review**: assigned subjects only, saved responses, advisory prepared checklist or optional local AI draft, comments, request changes, revision/resubmission, approval or rejection with an audit history. Approval grants backend publishing permission for that subject.
+- **Attendance → recognition**: host proposes attendance against actual confirmed bookings; each learner separately confirms fictional participation. The first eligible confirmation completes the session and adds one durable award (20 points by default). Refreshes and repeated confirmations do not duplicate awards. The older Learning Check simulation never awards points.
+- **Constructive feedback and private portfolio**: three short teaching-experience ratings, learner-only private comments, tutor summaries after three distinct learners, labeled historical and new synthetic contributions, documented hours/topics and carefully qualified suggested strengths. No leaderboard, credits or certificates.
+- **Separate presentation database**: an exclusive-create initializer starts David without current Mathematics approval while preserving the normal database. Repeat in a new rehearsal directory. Follow [the 6–7 minute English/Spanish guide](docs/V5_DEMO.md).
 
 - **English/Spanish UI**: instant EN/ES switching in both headers, locally saved preference, localized dates, translated navigation, forms and explanations. Original user-authored content retains its language.
 - **Professor AI Learning Studio**: local PDF upload → source analysis → small pre/post question batches → individual review → immutable publication → assignment to tutoring sessions.
@@ -56,11 +62,11 @@ The default database is `backend/data/classall.sqlite3`. Startup performs additi
 
 ### Update an existing Windows installation
 
-Stop both local servers and back up `backend/data/classall.sqlite3` while stopped. Commit/stash your own source changes, fetch, and switch to `feature/classall-multilingual-ai-studio` (after PR merge, use the updated `main`). From the project root:
+Stop both local servers and back up `backend/data/classall.sqlite3` while stopped. Commit/stash your own source changes, fetch, and switch to `feature/classall-core-experience-v5` (after PR merge, use the updated `main`). From the project root:
 
 ```powershell
 git fetch origin
-git switch feature/classall-multilingual-ai-studio
+git switch feature/classall-core-experience-v5
 git pull --ff-only
 .venv\Scripts\Activate.ps1
 python -m pip install -r backend/requirements.lock.txt
@@ -139,6 +145,8 @@ Open Vite’s printed URL (normally port 4173). Do not open `dist/index.html` di
 
 ## Documentation
 
+- [V5 implementation and test report](docs/V5_IMPLEMENTATION_REPORT.md)
+- [V5 guided presentation in English and Spanish](docs/V5_DEMO.md)
 - [Architecture, initial audit, migrations, tables and new APIs](docs/CONNECTED_LEARNING.md)
 - [Hack4Edu demonstration sequence](docs/HACK4EDU_DEMO.md)
 - [Pilot and transferability](docs/PILOT_AND_TRANSFER.md)
@@ -151,9 +159,27 @@ Original API routes remain compatible, including `/api/bookings`, checks/history
 
 ## Prototype limits and future work
 
-Real identity, institutional authorization, multi-institution boundaries, tutor applications/professor approval reviews, moderation, production privacy, reviewed assessment instruments, attendance verification, backup operations and load testing are future work. The existing fictional tutor approvals are enforced now. There is no real early-warning model, grade ingestion, official accreditation, university endorsement, live video/chat, notifications, payments, LMS/calendar integration or offline synchronization. Faculty snapshot retention and differencing-resistant privacy need institutional review before any real-data pilot. Discovery and aggregation are optimized for a small local dataset, not measured institutional scale.
+Real identity, institutional authorization, multi-institution boundaries, moderation, production privacy, validated assessment instruments, independent attendance verification, backup operations and load testing are future work. V5 application review and explicitly synthetic attendance are functional local demonstrations. The existing fictional tutor approvals are enforced now. There is no real early-warning model, grade ingestion, official accreditation, university endorsement, live video/chat, notifications, payments, LMS/calendar integration or offline synchronization. Faculty snapshot retention and differencing-resistant privacy need institutional review before any real-data pilot. Discovery and aggregation are optimized for a small local dataset, not measured institutional scale.
 
 No real student data, public deployment, automated messages or paid integrations are used.
+
+## V5 presentation and validation
+
+The normal database upgrades automatically with additive tables. Do not reset it. To demonstrate David applying for Mathematics, create a **new dedicated database** with `python -m app.presentation --database work/rehearsal-01/classall-v5-presentation.sqlite3` (set `PYTHONPATH=backend` first), then start the API with `CLASSALL_DB_PATH` pointing to that file. The initializer refuses existing files and the normal database. Use a new directory for each replay; there is no destructive reset command.
+
+`CLASSALL_CONTRIBUTION_POINTS` configures future synthetic session awards (default 20, bounded 1–1000). Existing awards retain their stored values. Scores, publishing, bookings, the Learning Check simulation and feedback never award points.
+
+In addition to the existing backend/frontend/build checks, run:
+
+```sh
+npm run test:browser:v5 --prefix frontend
+npm run test:browser:v5:es --prefix frontend
+```
+
+Both use a new isolated presentation database, real HTTP and Chromium. The original `test:browser` suite still checks V4 connected learning and Studio. To use installed Chromium, set `CLASSALL_CHROMIUM`; otherwise install it through Playwright as above.
+
+See [V5 implementation, tests and remaining limits](docs/V5_IMPLEMENTATION_REPORT.md) and [V5 bilingual guided presentation](docs/V5_DEMO.md). Actual Windows/GPU/Ollama inference was not retested in Cloud.
+
 
 
 ## Version 4: Windows + Ollama

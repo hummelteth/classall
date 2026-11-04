@@ -135,7 +135,7 @@ def register(app, get_db, demo_actor):
     @router.get("/sessions/{session_id}/attendees", response_model=list[Attendee])
     def attendees(session_id: int, actor=Depends(demo_actor), db=Depends(get_db)):
         s = repo.session(db, session_id)
-        if actor["role"] != "tutor" or s["tutor"]["id"] != actor["id"]:
+        if actor["role"] == "professor" or s["tutor"]["id"] != actor["id"]:
             raise HTTPException(
                 403, "Only the host may view the confirmed attendance list."
             )
@@ -157,7 +157,7 @@ def register(app, get_db, demo_actor):
         return [
             dict(r)
             for r in db.execute(
-                "SELECT u.id,u.name FROM users u JOIN tutor_approvals a ON a.tutor_id=u.id WHERE a.subject_id=? AND u.role='tutor'",
+                "SELECT u.id,u.name FROM users u JOIN tutor_approvals a ON a.tutor_id=u.id WHERE a.subject_id=? AND u.role!='professor'",
                 (t["subject_id"],),
             )
         ]
