@@ -190,14 +190,21 @@ function CheckForm({
                     </p>
                   </div>
                 ) : (
-                  <p aria-live="polite">
-                    {Object.keys(answers).length}
-                    {tr(" of ")}
-                    {check.questions.length}{" "}
-                    {tr(
-                      "answered · Answer every question, then submit once. Your draft remains here until you leave this page; only submitted checks are saved.",
-                    )}
-                  </p>
+                  <div className="check-completion">
+                    <progress
+                      aria-label={tr("Your answers")}
+                      max={check.questions.length}
+                      value={Object.keys(answers).length}
+                    />
+                    <p aria-live="polite">
+                      {Object.keys(answers).length}
+                      {tr(" of ")}
+                      {check.questions.length}{" "}
+                      {tr(
+                        "answered · Answer every question, then submit once. Your draft remains here until you leave this page; only submitted checks are saved.",
+                      )}
+                    </p>
+                  </div>
                 )}
                 <form onSubmit={submit}>
                   {check.questions.map((q, index) => (

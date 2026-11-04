@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Plus, CalendarPlus } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
+import { FlowSteps } from "../components/ExperienceUI";
 import {
   EventForm,
   TopicSelect,
@@ -67,6 +68,7 @@ export function SupportActions() {
           {tr("Create support action")}
         </button>
       </PageTitle>
+      <FlowSteps label="Evidence to support" steps={["Observation", "Interpretation", "Human action"]} />
       <div className="connected-intro">
         <p>
           {tr(

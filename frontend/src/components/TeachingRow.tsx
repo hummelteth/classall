@@ -19,8 +19,10 @@ export function TeachingRow({ session: s }: { session: Session }) {
         </p>
       </div>
       <span className="teaching-attendance">
-        <Users size={16} />
-        {s.booked_seats}/{s.capacity}
+        <Users size={18} aria-hidden="true" />
+        <strong>
+          {s.booked_seats}/{s.capacity}
+        </strong>
         <small>{tr("seats booked")}</small>
       </span>
     </article>

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:browser": "node scripts/browser-qa.cjs",
     "test:browser:v5": "node scripts/browser-qa.cjs --core",
-    "test:browser:v5:es": "node scripts/browser-qa.cjs --core --spanish"
+    "test:browser:v5:es": "node scripts/browser-qa.cjs --core --spanish",
+    "test:browser:design": "node scripts/browser-qa.cjs --design"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.0",

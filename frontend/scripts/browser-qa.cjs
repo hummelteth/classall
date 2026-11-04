@@ -642,9 +642,11 @@ async function stop(child) {
 (async () => {
   const root = resolve(__dirname, "../..");
   const directory = mkdtempSync(join(tmpdir(), "classall-browser-"));
-  const artifacts = join(root, "work", "browser-qa");
+  const artifacts =
+    process.env.CLASSALL_ARTIFACTS || join(root, "work", "browser-qa");
   mkdirSync(artifacts, { recursive: true });
-  const core = process.argv.includes("--core");
+  const design = process.argv.includes("--design");
+  const core = process.argv.includes("--core") || design;
   const apiPort = await port(),
     frontPort = await port();
   let api, frontend;
@@ -729,6 +731,11 @@ async function stop(child) {
         artifacts,
         process.argv.includes("--spanish"),
       );
+      if (design)
+        await require("./design-qa.cjs")(
+          `http://127.0.0.1:${frontPort}`,
+          artifacts,
+        );
       return;
     }
     if (!process.env.CLASSALL_STUDIO_ONLY)

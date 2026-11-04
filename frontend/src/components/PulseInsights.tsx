@@ -72,7 +72,7 @@ export function PulseInsights({ subjectId }: { subjectId: number }) {
                     </p>
                   </details>
                   <Link
-                    className="text-link"
+                    className="button primary"
                     to={`/app/actions?topic=${s.topic.id}`}
                   >
                     {tr("Plan a support action")}

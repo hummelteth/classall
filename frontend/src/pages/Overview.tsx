@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Compass,
   HeartHandshake,
+  Sprout,
   Sparkles,
 } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
@@ -42,7 +43,10 @@ function LearnerHome() {
           "A little support can make all the difference. Let’s find yours.",
         )}
       >
-        <span className="greeting-spark">✳</span>
+        <Link className="button primary" to="/app/pulse">
+          {tr("Request support")}
+          <ArrowUpRight size={18} />
+        </Link>
       </PageTitle>
       <section className="welcome-banner">
         <div>
@@ -74,7 +78,6 @@ function LearnerHome() {
           {tr("grow.")}
         </span>
       </section>
-      <LearningConnections />
       <div className="home-columns">
         <div className="home-left">
           <SectionHeading title={tr("A little direction")} />
@@ -103,6 +106,22 @@ function LearnerHome() {
                     })
                   : tr("See your booked sessions.")}
               </p>
+              <ArrowUpRight size={18} />
+            </Link>
+            <Link to="/app/applications" className="quick-card pillar-apricot">
+              <span className="quick-icon tone-peach">
+                <HeartHandshake size={22} />
+              </span>
+              <strong>{tr("Become a Tutor")}</strong>
+              <p>{tr("Share a strength in your subject.")}</p>
+              <ArrowUpRight size={18} />
+            </Link>
+            <Link to="/app/impact" className="quick-card pillar-teal">
+              <span className="quick-icon tone-sage">
+                <Sprout size={22} />
+              </span>
+              <strong>{tr("My learning and impact")}</strong>
+              <p>{tr("Your practice and contributions, in one place.")}</p>
               <ArrowUpRight size={18} />
             </Link>
           </div>
@@ -184,6 +203,7 @@ function LearnerHome() {
           )}
         </aside>
       </div>
+      <LearningConnections />
       <SectionHeading
         eyebrow={tr("A GOOD PLACE TO START")}
         title={tr("Find your next breakthrough")}

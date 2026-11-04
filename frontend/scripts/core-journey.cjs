@@ -71,6 +71,11 @@ module.exports = async function runCoreJourney(
     await link("Become a Tutor", "Hazte tutor").click();
     await button("Start an application", "Iniciar una solicitud").click();
     const form = page.locator("form").first();
+    // Progressive sections keep every response mounted; open them for this complete journey.
+    for (const section of await form.locator(".application-stage").all()) {
+      if ((await section.getAttribute("open")) === null)
+        await section.locator(":scope > summary").click();
+    }
     for (const [en, es, value] of [
       [
         "Why would you like to help?",
@@ -284,17 +289,13 @@ module.exports = async function runCoreJourney(
     await page
       .getByRole("heading", {
         name: L(
-          "Private competency portfolio",
-          "Portafolio privado de competencias",
+          "Small acts. Lasting contribution.",
+          "Pequeños gestos. Contribuciones que cuentan.",
         ),
       })
       .waitFor();
     assert.equal(
-      await page
-        .locator(".stats-grid article")
-        .first()
-        .locator("strong")
-        .textContent(),
+      await page.locator(".impact-points strong").textContent(),
       "60",
     );
     assert(
@@ -303,6 +304,14 @@ module.exports = async function runCoreJourney(
         .count()),
     );
     await page.reload();
+    await page
+      .locator(".contribution-timeline details")
+      .first()
+      .waitFor({ state: "attached" });
+    for (const detail of await page
+      .locator(".contribution-timeline details")
+      .all())
+      await detail.locator("summary").click();
     await page
       .getByText(
         L(

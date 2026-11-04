@@ -7,6 +7,7 @@ import {
   Upload,
 } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
+import { FlowSteps } from "../components/ExperienceUI";
 import { ErrorState, Loading } from "../components/ui";
 import { request, useRemote } from "../lib/api";
 import { useDemo } from "../lib/demo";
@@ -236,64 +237,77 @@ function StudioWorkspace() {
           "Turn course materials into learning practice, with your expertise at every step.",
         )}
       />
-      <div className="studio-status learning-card">
-        <span
-          className={`studio-light ${connection.data?.available && !connection.data?.demo_enabled ? "online" : ""}`}
-        />
-        <div>
-          <strong>
-            {tr(
-              connection.data?.demo_enabled
-                ? "Prepared demo mode"
-                : connection.data?.available
-                  ? "Local AI connected"
-                  : connection.loading
-                    ? "Checking local AI…"
-                    : "Local AI unavailable",
-            )}
-          </strong>
-          {connection.data && (
-            <small className="studio-model">{connection.data.model}</small>
+      <details className="studio-connection">
+        <summary>
+          {tr("Local model connection")} ·{" "}
+          {tr(
+            connection.data?.available
+              ? "Available"
+              : "Prepared example available",
           )}
-          {connection.data &&
-            !connection.data.available &&
-            !connection.data.demo_enabled && (
-              <p>
-                {tr(
-                  connection.data.reason === "model_missing"
-                    ? "The configured model is not installed. Check it in Ollama and retry."
-                    : "Cannot reach local Ollama. Start Ollama on this computer, or open the prepared example.",
-                )}
-              </p>
+        </summary>
+        <div className="studio-status learning-card">
+          <span
+            className={`studio-light ${connection.data?.available && !connection.data?.demo_enabled ? "online" : ""}`}
+          />
+          <div>
+            <strong>
+              {tr(
+                connection.data?.demo_enabled
+                  ? "Prepared demo mode"
+                  : connection.data?.available
+                    ? "Local AI connected"
+                    : connection.loading
+                      ? "Checking local AI…"
+                      : "Local AI unavailable",
+              )}
+            </strong>
+            {connection.data && (
+              <small className="studio-model">{connection.data.model}</small>
             )}
-          <p>
-            {tr(
-              "Documents stay on this computer. Questions reach learners only after your review.",
-            )}
-          </p>
+            {connection.data &&
+              !connection.data.available &&
+              !connection.data.demo_enabled && (
+                <p>
+                  {tr(
+                    connection.data.reason === "model_missing"
+                      ? "The configured model is not installed. Check it in Ollama and retry."
+                      : "Cannot reach local Ollama. Start Ollama on this computer, or open the prepared example.",
+                  )}
+                </p>
+              )}
+            <p>
+              {tr(
+                "Documents stay on this computer. Questions reach learners only after your review.",
+              )}
+            </p>
+          </div>
+          <button
+            className="button secondary small"
+            onClick={connection.retry}
+            disabled={!!busy}
+          >
+            {tr("Check connection")}
+          </button>
         </div>
-        <button
-          className="button secondary small"
-          onClick={connection.retry}
-          disabled={!!busy}
-        >
-          {tr("Check connection")}
-        </button>
-      </div>
-      <ol className="studio-steps" aria-label={tr("Studio workflow")}>
-        {[
-          tr("Upload"),
-          tr("Analyze"),
-          tr("Generate"),
-          tr("Review"),
-          tr("Publish"),
-        ].map((step, i) => (
-          <li key={step}>
-            <span>{i + 1}</span>
-            {tr(step)}
-          </li>
-        ))}
-      </ol>
+      </details>
+      <FlowSteps
+        label="Studio workflow"
+        steps={["Upload", "Analyze", "Generate", "Review", "Publish", "Assign"]}
+        current={
+          publication
+            ? 5
+            : assessment
+              ? assessment.questions.every((q) => q.status === "approved")
+                ? 4
+                : 3
+              : analysis?.status === "reviewed"
+                ? 2
+                : did
+                  ? 1
+                  : 0
+        }
+      />
       <div className="studio-demo info-box">
         <BookOpen size={22} />
         <div>
@@ -344,11 +358,14 @@ function StudioWorkspace() {
         </p>
       )}
       <div className="studio-layout">
-        <section className="learning-card studio-panel">
-          <h2>
+        <details
+          className="learning-card studio-panel studio-disclosure"
+          open={!assessment}
+        >
+          <summary>
             <Upload size={20} />
             {tr("1. Course materials")}
-          </h2>
+          </summary>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -504,13 +521,16 @@ function StudioWorkspace() {
               </button>
             </>
           )}
-        </section>
+        </details>
         <div className="studio-main-column">
-          <section className="learning-card studio-panel">
-            <h2>
+          <details
+            className="learning-card studio-panel studio-disclosure"
+            open={!assessment}
+          >
+            <summary>
               <BookOpen size={20} />
               {tr("2. Topics & objectives")}
-            </h2>
+            </summary>
             <label>
               {tr("Saved analyses")}
               <select
@@ -554,13 +574,16 @@ function StudioWorkspace() {
                 )}
               </p>
             )}
-          </section>
+          </details>
           {analysis && (
-            <section className="learning-card studio-panel">
-              <h2>
+            <details
+              className="learning-card studio-panel studio-disclosure"
+              open={!assessment}
+            >
+              <summary>
                 <Sparkles size={20} />
                 {tr("3. Generate a pre/post pair")}
-              </h2>
+              </summary>
               <p className="fine-print">
                 {tr(
                   "Two distinct sets cover the same objectives. Small batches keep local generation practical.",
@@ -669,7 +692,7 @@ function StudioWorkspace() {
               >
                 {tr("Generate draft pair")}
               </button>
-            </section>
+            </details>
           )}
         </div>
       </div>

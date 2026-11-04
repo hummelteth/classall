@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { t as tr } from "../lib/i18n";
+import { t as tr, useLanguage } from "../lib/i18n";
 import { useDemo } from "../lib/demo";
 import { request, useRemote, dateLabel } from "../lib/api";
 import { RemoteContent, useMutation } from "./ConnectedUI";
@@ -269,6 +269,7 @@ const names: Record<string, string> = {
 };
 export function ContributionPortfolio() {
   const { user, version } = useDemo();
+  const language = useLanguage();
   const remote = useRemote<PortfolioData>(
     "/portfolio",
     user.id,
@@ -276,127 +277,194 @@ export function ContributionPortfolio() {
     user.role !== "professor",
   );
   if (user.role === "professor") return null;
+  const number = (value: number, digits = 0) =>
+    value.toLocaleString(language, {
+      maximumFractionDigits: digits,
+      minimumFractionDigits: digits,
+    });
   return (
     <RemoteContent remote={remote}>
       {(data) => (
         <section
-          className="core-stack"
+          className="core-stack portfolio"
           aria-label={tr("Private competency portfolio")}
         >
-          <h2>{tr("Private competency portfolio")}</h2>
-          <p>
-            {tr(
-              "A record of contribution and experience, with suggested strengths kept separate from formally certified competencies.",
-            )}
-          </p>
+          <div className="impact-hero">
+            <div>
+              <span className="eyebrow">{tr("YOUR SHARED STRENGTH")}</span>
+              <h2>{tr("Small acts. Lasting contribution.")}</h2>
+              <p>{tr("Your private record of helping others learn.")}</p>
+              <span className="pill neutral">
+                {tr("Synthetic demonstration records")}
+              </span>
+            </div>
+            <div className="impact-points">
+              <strong>{number(data.points)}</strong>
+              <span>{tr("Contribution points")}</span>
+              <small>{tr("Stored contribution ledger")}</small>
+            </div>
+          </div>
           <div className="stats-grid">
             <article>
-              <span>{tr("Contribution points")}</span>
-              <strong>{data.points}</strong>
-              <p>{tr("Stored contribution ledger")}</p>
-            </article>
-            <article>
               <span>{tr("Documented sessions")}</span>
-              <strong>{data.confirmed_sessions}</strong>
+              <strong>{number(data.confirmed_sessions)}</strong>
               <p>{tr("Includes labeled synthetic history")}</p>
             </article>
             <article>
               <span>{tr("Documented teaching hours")}</span>
-              <strong>{(data.teaching_minutes / 60).toFixed(1)}</strong>
-              <p>
+              <strong>{number(data.teaching_minutes / 60, 1)}</strong>
+              <p>{tr("Recorded teaching time")}</p>
+            </article>
+            <article>
+              <span>{tr("Approved tutoring subjects")}</span>
+              <strong>{number(data.approved_subjects.length)}</strong>
+              <p>{tr("Subject-specific authorization")}</p>
+            </article>
+          </div>
+          <div className="portfolio-grid">
+            <section className="form-panel">
+              <span className="eyebrow">{tr("DOCUMENTED EXPERIENCE")}</span>
+              <h3>{tr("The knowledge you share")}</h3>
+              <h4>{tr("Approved tutoring subjects")}</h4>
+              <div className="chip-list">
+                {data.approved_subjects.map((s) => (
+                  <span className="pill sage" key={s.id}>
+                    {tr(s.name)}
+                  </span>
+                ))}
+                {!data.approved_subjects.length && <p>{tr("None yet")}</p>}
+              </div>
+              <h4>{tr("Topics taught")}</h4>
+              <div className="chip-list">
+                {data.topics.map((topic) => (
+                  <span className="pill neutral" key={topic.id}>
+                    {tr(topic.name)}
+                  </span>
+                ))}
+                {!data.topics.length && (
+                  <p>{tr("Confirmed teaching topics will appear here.")}</p>
+                )}
+              </div>
+              <p className="fine-print">
                 {data.learners_supported === 1
                   ? tr("1 learner confirmed synthetic attendance")
                   : tr(
                       "{{0}} distinct learners confirmed synthetic attendance",
-                      {
-                        0: data.learners_supported,
-                      },
+                      { 0: data.learners_supported },
                     )}
               </p>
-            </article>
+            </section>
+            <section className="form-panel milestone-panel">
+              <span className="eyebrow">{tr("YOUR OWN PACE")}</span>
+              <h3>{tr("Personal teaching milestones")}</h3>
+              <div className="milestone-list">
+                {data.milestones.map((n) => (
+                  <div className="milestone" key={n}>
+                    <span aria-hidden="true">✳</span>
+                    <strong>
+                      {n === 1
+                        ? tr("First documented session")
+                        : tr("{{0}} documented sessions", { 0: n })}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+              {!data.milestones.length && (
+                <p>{tr("Your first documented contribution is ahead.")}</p>
+              )}
+              <p className="fine-print">
+                {tr(
+                  "Milestones reflect your stored activity. There is no public ranking.",
+                )}
+              </p>
+            </section>
+            <section className="form-panel">
+              <h3>{tr("Constructive feedback summary")}</h3>
+              {data.feedback_summary ? (
+                <div className="feedback-bars">
+                  {Object.entries(data.feedback_summary).map(([key, value]) => (
+                    <label key={key}>
+                      {tr(names[key])}
+                      <strong>{number(value, 1)}/3</strong>
+                      <progress max={3} value={value} />
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p>
+                  {tr(
+                    "Summaries require at least {{0}} distinct learners. Individual ratings and private comments are hidden.",
+                    { 0: data.feedback_minimum },
+                  )}
+                </p>
+              )}
+              <h4>{tr("Suggested strengths")}</h4>
+              <div className="chip-list">
+                {data.suggested_strengths.map((s) => (
+                  <span className="pill neutral" key={s}>
+                    {tr(names[s])}
+                  </span>
+                ))}
+              </div>
+              {!data.suggested_strengths.length && (
+                <p>
+                  {tr("More feedback is needed before suggesting strengths.")}
+                </p>
+              )}
+              <p className="fine-print">
+                {tr("Suggestions are not formally verified qualifications.")}
+              </p>
+            </section>
+            <section className="form-panel">
+              <h3>{tr("Contribution history")}</h3>
+              {data.entries.length ? (
+                <ol className="contribution-timeline">
+                  {data.entries.map((entry) => (
+                    <li key={entry.id}>
+                      <span className="event-points">
+                        +{number(entry.points)}
+                      </span>
+                      <div>
+                        <strong>{entry.title}</strong>
+                        <small>{dateLabel(entry.created_at)}</small>
+                        <details>
+                          <summary>{tr("Record source")}</summary>
+                          <p>
+                            {tr(
+                              entry.provenance === "legacy-synthetic-history"
+                                ? "Original synthetic history"
+                                : "Two-party synthetic confirmation",
+                            )}{" "}
+                            · {tr("Session")} #{entry.session_id}
+                          </p>
+                        </details>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p>
+                  {tr(
+                    "A completed session with host and learner confirmation creates one contribution entry.",
+                  )}
+                </p>
+              )}
+            </section>
           </div>
-          <section className="form-panel">
-            <h3>{tr("Verified activity and its limits")}</h3>
+          <details className="evidence-details">
+            <summary>{tr("Verified activity and its limits")}</summary>
             <p>
               {tr(
                 "Subject authorization is recorded by a professor or the original fictional seed. Attendance is synthetic; independently verified sessions: {{0}}.",
                 { 0: data.independently_verified_sessions },
               )}
             </p>
-            <p>
-              {tr("Approved tutoring subjects")}:{" "}
-              {data.approved_subjects.map((s) => tr(s.name)).join(", ") ||
-                tr("None yet")}
-            </p>
-            <h3>{tr("Documented experience")}</h3>
-            <p>
-              {data.topics.map((t) => tr(t.name)).join(", ") ||
-                tr("Confirmed teaching topics will appear here.")}
-            </p>
-            <h3>{tr("Suggested strengths")}</h3>
-            <p>
-              {data.suggested_strengths.map((s) => tr(names[s])).join(", ") ||
-                tr("More feedback is needed before suggesting strengths.")}
-            </p>
-            <h3>{tr("Constructive feedback summary")}</h3>
-            {data.feedback_summary ? (
-              <ul>
-                {Object.entries(data.feedback_summary).map(([key, value]) => (
-                  <li key={key}>
-                    {tr(names[key])}: {value}/3
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>
-                {tr(
-                  "Summaries require at least {{0}} distinct learners. Individual ratings and private comments are hidden.",
-                  { 0: data.feedback_minimum },
-                )}
-              </p>
+          </details>
+          <p className="fine-print">
+            {tr(
+              "No public rankings, monetary value, academic credit, certificate or university endorsement.",
             )}
-            <h3>{tr("Personal teaching milestones")}</h3>
-            <p>
-              {data.milestones
-                .map((n) =>
-                  n === 1
-                    ? tr("First documented session")
-                    : tr("{{0}} documented sessions", { 0: n }),
-                )
-                .join(" · ") ||
-                tr("Your first documented contribution is ahead.")}
-            </p>
-            <p className="fine-print">
-              {tr(
-                "No public rankings, monetary value, academic credit, certificate or university endorsement.",
-              )}
-            </p>
-          </section>
-          <section className="form-panel">
-            <h3>{tr("Contribution history")}</h3>
-            {data.entries.length ? (
-              <ul>
-                {data.entries.map((e) => (
-                  <li key={e.id}>
-                    <strong>{e.title}</strong> · +{e.points} ·{" "}
-                    {tr(
-                      e.provenance === "legacy-synthetic-history"
-                        ? "Original synthetic history"
-                        : "Two-party synthetic confirmation",
-                    )}{" "}
-                    · {dateLabel(e.created_at)} · {tr("Session")} #
-                    {e.session_id}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>
-                {tr(
-                  "A completed session with host and learner confirmation creates one contribution entry.",
-                )}
-              </p>
-            )}
-          </section>
+          </p>
         </section>
       )}
     </RemoteContent>

@@ -66,18 +66,21 @@ export function LearningCard({ item }: { item: LearningItem }) {
         {tr("Booking #")}
         {item.booking_id}
         {item.booking_status === "cancelled"
-          ? " · Cancelled; saved results retained"
+          ? tr(" · Cancelled; saved results retained")
           : ""}
       </p>
-      <ul>
-        {item.objectives.map((o) => (
-          <li key={o.id}>
-            {o.id >= 10 && o.id <= 61 && o.id % 10 <= 1
-              ? tr(o.description)
-              : o.description}
-          </li>
-        ))}
-      </ul>
+      <details className="learning-objectives">
+        <summary>{tr("Practice objectives")}</summary>
+        <ul>
+          {item.objectives.map((o) => (
+            <li key={o.id}>
+              {o.id >= 10 && o.id <= 61 && o.id % 10 <= 1
+                ? tr(o.description)
+                : o.description}
+            </li>
+          ))}
+        </ul>
+      </details>
       <div className="learning-comparison">
         <ScoreBar label={tr("Before tutoring")} score={item.pre.result} />
         <ScoreBar label={tr("After tutoring")} score={item.post.result} />
@@ -220,10 +223,47 @@ export function LearningProgress() {
               </p>
             )}
             {remote.data.items.length ? (
-              <div className="learning-grid">
-                {remote.data.items.map((i) => (
-                  <LearningCard key={`${user.id}-${i.booking_id}`} item={i} />
-                ))}
+              <div className="topic-journeys">
+                {[
+                  ...new Set(
+                    remote.data.items.map((item) =>
+                      item.topics
+                        .map((t) => t.id)
+                        .sort((a, b) => a - b)
+                        .join(","),
+                    ),
+                  ),
+                ].map((key) => {
+                  const items = remote.data!.items.filter(
+                    (item) =>
+                      item.topics
+                        .map((t) => t.id)
+                        .sort((a, b) => a - b)
+                        .join(",") === key,
+                  );
+                  return (
+                    <section className="topic-journey" key={key}>
+                      <h3>
+                        {items[0].topics
+                          .map((topic) => tr(topic.name))
+                          .join(" · ") || tr("Learning practice")}
+                      </h3>
+                      <p className="fine-print">
+                        {tr(
+                          "Each session keeps its own questions and results. Scores are not combined across sessions.",
+                        )}
+                      </p>
+                      <div className="learning-grid">
+                        {items.map((item) => (
+                          <LearningCard
+                            key={`${user.id}-${item.booking_id}`}
+                            item={item}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
             ) : (
               <EmptyState

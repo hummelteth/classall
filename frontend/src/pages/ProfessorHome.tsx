@@ -8,6 +8,7 @@ import { PageTitle } from "../components/PageTitle";
 import { useDemo } from "../lib/demo";
 import { useRemote } from "../lib/api";
 import { ErrorState, Loading, SectionHeading } from "../components/ui";
+import { FlowSteps } from "../components/ExperienceUI";
 import type { Insights } from "../lib/types";
 
 export function ProfessorHome({
@@ -41,6 +42,22 @@ export function ProfessorHome({
         description={tr(
           "Notice support needs, review the evidence and create opportunities in your assigned courses.",
         )}
+      >
+        <Link
+          className="button primary"
+          to={mode === "insights" ? "/app/actions" : "/app/applications"}
+        >
+          {tr(
+            mode === "insights"
+              ? "Create support action"
+              : "Review tutor applications",
+          )}
+          <ArrowRight size={18} />
+        </Link>
+      </PageTitle>
+      <FlowSteps
+        label="Evidence to support"
+        steps={["Observation", "Interpretation", "Human action"]}
       />
       <div className="faculty-banner">
         <span className="faculty-icon">
@@ -151,7 +168,7 @@ export function ProfessorHome({
                   </div>
                   <Link
                     to={`/app/explore?subject=${c.subject.id}`}
-                    className="text-link"
+                    className="button secondary small"
                   >
                     {tr("Explore course sessions")}
                     <ArrowRight size={15} />
@@ -166,7 +183,7 @@ export function ProfessorHome({
                     </>
                   )}
                   {mode !== "insights" && (
-                    <Link className="text-link" to="/app/insights">
+                    <Link className="button secondary small" to="/app/insights">
                       {tr("Review topic evidence & voluntary demand")}
                     </Link>
                   )}
@@ -203,7 +220,7 @@ export function ProfessorHome({
                 {tr(" open requests · review suggested.")}
               </small>
             ))}
-          <Link className="text-link" to="/app/insights">
+          <Link className="button secondary small" to="/app/insights">
             {tr("Review learning insights")}
           </Link>
         </div>
@@ -228,7 +245,7 @@ export function ProfessorHome({
               {tr("completed")}
             </small>
           )}
-          <Link className="text-link" to="/app/actions">
+          <Link className="button secondary small" to="/app/actions">
             {tr("Manage support actions")}
           </Link>
         </div>
