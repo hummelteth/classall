@@ -188,3 +188,109 @@ it("persists a learner booking, updates faculty counts, and releases the seat th
     expect(released.available_seats).toBe(before.available_seats);
   });
 }, 20000);
+
+it("runs pre and demo post checks through the real API, reviews progress, and updates privacy-safe teacher insights", async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter initialEntries={["/app/explore"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await user.click(
+    await screen.findByRole("button", { name: /Make sense of the chain rule/ }),
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Book a free seat" }),
+  );
+  await user.click(
+    await screen.findByRole("link", {
+      name: "Start pre-session Learning Check",
+    }),
+  );
+  expect(
+    await screen.findByRole("heading", { name: "Pre-session Learning Check" }),
+  ).toBeInTheDocument();
+  const submit = await screen.findByRole("button", {
+    name: "Submit Learning Check",
+  });
+  expect(submit).toBeDisabled();
+  await user.click(screen.getByRole("radio", { name: "3x + 1" }));
+  expect(submit).toBeDisabled();
+  await user.click(screen.getByRole("radio", { name: "3(2x + 1)²" }));
+  await user.click(submit);
+  expect(
+    await screen.findByRole("heading", { name: "Your saved result" }),
+  ).toBeInTheDocument();
+  expect(await screen.findByText("1/2 · 50%")).toBeInTheDocument();
+  expect(screen.getByText(/Multiply the outer derivative/)).toBeInTheDocument();
+  await user.click(
+    screen.getByRole("link", { name: "See progress & demo follow-up" }),
+  );
+  await user.click(
+    await screen.findByRole("button", {
+      name: "Demo: simulate completed session",
+    }),
+  );
+  await user.click(
+    await screen.findByRole("link", { name: "Start post-session check" }),
+  );
+  await user.click(await screen.findByRole("radio", { name: "sin(x)" }));
+  await user.click(screen.getByRole("radio", { name: "2(5x − 2)" }));
+  await user.click(
+    screen.getByRole("button", { name: "Submit Learning Check" }),
+  );
+  await screen.findByRole("heading", { name: "Your saved result" });
+  expect(
+    await screen.findByText(
+      /Difference on these checks: -50 percentage points/,
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/This describes your answers on different questions/),
+  ).toBeInTheDocument();
+  const stored = (
+    await actualFetch(`${base}/api/learning/history`, {
+      headers: { "X-Demo-User-Id": "1" },
+    }).then((r) => r.json())
+  ).items;
+  const item = stored.find(
+    (i: { booking_status: string }) => i.booking_status === "confirmed",
+  );
+  expect(item.pre.result.percent).toBe(50);
+  expect(item.post.result.percent).toBe(0);
+  expect(item.simulated).toBe(true);
+  expect(item.change_percentage_points).toBe(-50);
+  await user.click(
+    screen.getByRole("link", { name: "See progress & demo follow-up" }),
+  );
+  const reviewLinks = await screen.findAllByRole("link", {
+    name: "Review post-session check",
+  });
+  await user.click(reviewLinks[0]);
+  expect(
+    await screen.findByRole("heading", { name: "Your saved result" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Submit Learning Check" }),
+  ).not.toBeInTheDocument();
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Demo role" }),
+    "3",
+  );
+  await screen.findByRole("heading", { name: "See where support can begin." });
+  expect(
+    await screen.findByText("Post-session checks · n=3 of 3"),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", {
+      name: /Consider additional practice materials/,
+    }),
+  ).toBeInTheDocument();
+  expect(screen.getAllByText(/Advisory · Human review required/)).toHaveLength(
+    2,
+  );
+  expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Multiply the outer derivative/),
+  ).not.toBeInTheDocument();
+}, 20000);

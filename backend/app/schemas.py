@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictInt, ConfigDict
 
 
 class DemoUser(BaseModel):
@@ -38,6 +38,7 @@ class Session(BaseModel):
     booked_seats: int
     available_seats: int
     approved: bool
+    learning_check_available: bool = False
 
 
 class BookingCreate(BaseModel):
@@ -49,3 +50,8 @@ class Booking(BaseModel):
     status: str
     created_at: str
     session: Session
+
+
+class LearningSubmission(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    answers: dict[str, StrictInt] = Field(min_length=2, max_length=3)

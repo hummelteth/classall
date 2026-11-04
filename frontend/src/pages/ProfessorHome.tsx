@@ -1,3 +1,4 @@
+import { TeacherLearningInsights } from "../components/TeacherLearningInsights";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, Sprout } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
@@ -125,6 +126,10 @@ export function ProfessorHome() {
                     Explore course sessions
                     <ArrowRight size={15} />
                   </Link>
+                  <TeacherLearningInsights
+                    topics={c.topics ?? []}
+                    subjectId={c.subject.id}
+                  />
                 </article>
               ))}
             </div>
@@ -139,11 +144,6 @@ export function ProfessorHome() {
         <ComingSoon title="Additional TA sessions">
           A future faculty workflow will let instructors respond to unmet demand
           with extra teaching support. No scheduling or invitations are active.
-        </ComingSoon>
-        <ComingSoon title="Explainable early support">
-          Learning checks and permissioned support signals need careful
-          validation. No risk scores, individual alerts or AI analysis are
-          running.
         </ComingSoon>
       </div>
     </>

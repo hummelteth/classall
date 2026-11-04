@@ -16,6 +16,11 @@ def user(db, user_id):
 
 def session_dict(db, row):
     result = dict(row)
+    result["learning_check_available"] = bool(
+        db.execute(
+            "SELECT 1 FROM learning_checks WHERE session_id=?", (result["id"],)
+        ).fetchone()
+    )
     result["goals"] = json.loads(result["goals"])
     result["tutor"] = user(db, result.pop("tutor_id"))
     result["subject"] = dict(
