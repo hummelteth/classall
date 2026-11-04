@@ -1,5 +1,18 @@
-/* V6: shared experience tokens and component hierarchy. */
+/* V6.1: shared responsive type scale and V6 component hierarchy. */
 :root {
+  /* Keep essential labels at 14px and ordinary reading at 16–17px.
+     Decorative overlines are the only smaller tier. All sizes use rem. */
+  --text-overline: 0.75rem;
+  --text-label: 0.875rem;
+  --text-secondary: 0.9375rem;
+  --text-body: clamp(1rem, 0.96rem + 0.05vw, 1.0625rem);
+  --text-control: 0.9375rem;
+  --text-card: 1.25rem;
+  --text-section: clamp(1.375rem, 1.15rem + 0.4vw, 1.625rem);
+  --text-page: clamp(1.875rem, 1.4rem + 0.8vw, 2.25rem);
+  --text-hero: clamp(2.625rem, 1.5rem + 2.2vw, 4rem);
+  --leading-body: 1.6;
+  --leading-compact: 1.45;
   --violet: #6550b5;
   --muted: #66685f;
   --paper: #faf9f6;
@@ -16,7 +29,8 @@
   background: var(--paper);
 }
 body {
-  font-size: 15px;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 button,
 input,
@@ -44,7 +58,7 @@ textarea {
 }
 .button,
 .button.small {
-  font-size: 13px;
+  font-size: var(--text-secondary);
   line-height: 1.4;
   white-space: normal;
   text-align: center;
@@ -70,7 +84,7 @@ textarea {
 }
 .text-link {
   white-space: normal;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   align-items: center;
 }
 .icon-button {
@@ -82,17 +96,17 @@ textarea {
 }
 .fine-print,
 .page-note {
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 1.65;
   color: #64665e;
 }
 .eyebrow {
   color: #62675b;
-  font-size: 10px;
+  font-size: var(--text-overline);
   letter-spacing: 1.4px;
 }
 .pill {
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.45;
   white-space: normal;
 }
@@ -121,7 +135,7 @@ summary {
   cursor: pointer;
   min-height: 44px;
   padding: 12px 0;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   font-weight: 600;
 }
 summary::marker {
@@ -147,11 +161,11 @@ details > p {
 .campus-label {
   margin-bottom: 12px;
   padding-bottom: 15px;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .campus-label small {
   color: #6b7063;
-  font-size: 11px;
+  font-size: var(--text-label);
 }
 .sidebar nav {
   gap: 5px;
@@ -164,14 +178,14 @@ details > p {
 .nav-caption {
   display: block;
   margin: 10px 13px 4px;
-  font-size: 10px;
+  font-size: var(--text-overline);
   letter-spacing: 0.7px;
   text-transform: uppercase;
   color: #686d60;
 }
 .nav-link {
   min-height: 44px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   padding: 10px 12px;
   line-height: 1.4;
   color: #555e50;
@@ -210,7 +224,7 @@ details > p {
   margin-bottom: 24px;
 }
 .page-title h1 {
-  font-size: clamp(25px, 2.6vw, 34px);
+  font-size: var(--text-page);
   letter-spacing: -1px;
   line-height: 1.2;
   margin-top: 9px;
@@ -219,33 +233,33 @@ details > p {
   max-width: 65ch;
   color: #64695e;
   margin-top: 10px;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .page-title > .button {
   flex-shrink: 0;
   min-height: 44px;
   padding: 11px 18px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
 }
 .section-heading h2 {
-  font-size: 22px;
+  font-size: var(--text-section);
   letter-spacing: -0.6px;
 }
 .section-heading p {
-  font-size: 14px;
+  font-size: var(--text-body);
   max-width: 65ch;
 }
 .app-footer {
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #62695c;
 }
 .demo-strip {
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.5;
   padding-block: 10px;
 }
 .demo-tag {
-  font-size: 9px;
+  font-size: var(--text-overline);
   color: #615840;
 }
 .demo-strip strong {
@@ -255,7 +269,7 @@ details > p {
 .tabs > button {
   color: #59614f;
   min-height: 44px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
 }
 .tabs > button.active {
   color: #594394;
@@ -273,10 +287,10 @@ details > p {
 .landing-cta small,
 .landing-footer > span {
   color: #5f6556;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .role-intros p {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .everyone-section > div > p {
   color: #5f5668;
@@ -301,7 +315,7 @@ details > p {
 }
 .catalog-results small {
   color: #5d6752;
-  font-size: 11px;
+  font-size: var(--text-label);
 }
 .catalog-intro p > span {
   color: #62566f;
@@ -313,7 +327,7 @@ details > p {
   color: #59694e;
 }
 .tutor-line small {
-  font-size: 11px;
+  font-size: var(--text-label);
 }
 .avatar.tone-peach {
   color: #815132;
@@ -340,18 +354,18 @@ details > p {
   color: #58634f;
 }
 .faculty-banner h2 {
-  font-size: 22px;
+  font-size: var(--text-section);
 }
 .faculty-banner p {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .insight-value small {
   color: #5e6c50;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .tutor-banner .eyebrow {
   color: #665080;
-  font-size: 10px;
+  font-size: var(--text-overline);
 }
 .stats-grid strong small,
 .teaching-attendance,
@@ -359,7 +373,7 @@ details > p {
   color: #5a694d;
 }
 .teaching-attendance small {
-  font-size: 11px;
+  font-size: var(--text-label);
 }
 .studio-language small {
   color: #68616e;
@@ -401,14 +415,14 @@ details > p {
   margin-bottom: 24px;
 }
 .pillar-card h3 {
-  font-size: 23px;
+  font-size: var(--text-section);
   letter-spacing: -0.6px;
   margin: 0 0 9px;
 }
 .pillar-card p {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
-  max-width: 28ch;
+  max-width: 36ch;
 }
 .pillar-card > svg {
   position: absolute;
@@ -424,12 +438,12 @@ a.pillar-card:hover {
   padding-bottom: 60px;
 }
 .landing-hero h1 {
-  font-size: clamp(42px, 5.1vw, 74px);
+  font-size: var(--text-hero);
   line-height: 1.1;
   letter-spacing: -3px;
 }
 .landing-hero-copy > p {
-  font-size: 17px;
+  font-size: var(--text-body);
   line-height: 1.65;
   color: #62675b;
   margin: 28px 0;
@@ -440,11 +454,11 @@ a.pillar-card:hover {
 .landing-ribbon {
   background: #ebe6f5;
   color: #534281;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   letter-spacing: 0.5px;
 }
 .landing-section-heading h2 {
-  font-size: clamp(28px, 3vw, 40px);
+  font-size: var(--text-page);
   letter-spacing: -1px;
 }
 .learning-story {
@@ -455,7 +469,7 @@ a.pillar-card:hover {
   margin-top: 24px;
 }
 .learning-story > p {
-  font-size: 14px;
+  font-size: var(--text-body);
   color: #656b5f;
 }
 .landing-cta {
@@ -486,7 +500,7 @@ a.pillar-card:hover {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #fffefa;
-  font-size: 12px;
+  font-size: var(--text-label);
   color: #606657;
   line-height: 1.45;
 }
@@ -498,7 +512,7 @@ a.pillar-card:hover {
   flex-shrink: 0;
   border-radius: 50%;
   background: #f0eee6;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .flow-steps li[aria-current="step"] {
   background: var(--learning);
@@ -527,12 +541,12 @@ a.pillar-card:hover {
   border-radius: var(--radius);
 }
 .welcome-banner h2 {
-  font-size: 30px;
+  font-size: var(--text-page);
   line-height: 1.15;
   letter-spacing: -1px;
 }
 .welcome-banner p {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
   margin: 12px 0 18px;
 }
@@ -545,7 +559,7 @@ a.pillar-card:hover {
 }
 .welcome-banner .button {
   min-height: 44px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   padding: 11px 18px;
   border-radius: 11px;
 }
@@ -557,12 +571,12 @@ a.pillar-card:hover {
 }
 .filter-chip {
   min-height: 44px;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .select-field select,
 .search-field input {
   min-height: 44px;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .banner-scribble {
   display: none;
@@ -585,11 +599,11 @@ a.pillar-card:hover {
   border-color: #ecd2c1;
 }
 .connections-strip h2 {
-  font-size: 21px;
+  font-size: var(--text-card);
   letter-spacing: -0.5px;
 }
 .connections-strip p {
-  font-size: 14px;
+  font-size: var(--text-body);
   margin: 8px 0 14px;
 }
 .connections-strip small {
@@ -605,10 +619,10 @@ a.pillar-card:hover {
   padding: 22px;
 }
 .quick-card strong {
-  font-size: 15px;
+  font-size: var(--text-body);
 }
 .quick-card p {
-  font-size: 13px;
+  font-size: var(--text-secondary);
   line-height: 1.6;
 }
 .next-card,
@@ -618,10 +632,10 @@ a.pillar-card:hover {
   border-color: var(--border);
 }
 .next-card h3 {
-  font-size: 23px;
+  font-size: var(--text-section);
 }
 .next-card p {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .faculty-banner {
   background: var(--support);
@@ -633,10 +647,10 @@ a.pillar-card:hover {
 }
 .tutor-banner h2 {
   color: #71472e;
-  font-size: 28px;
+  font-size: var(--text-page);
 }
 .tutor-banner p {
-  font-size: 14px;
+  font-size: var(--text-body);
   color: #65503e;
   line-height: 1.65;
 }
@@ -656,7 +670,7 @@ a.pillar-card:hover {
 }
 .stats-grid article > span {
   color: #626759;
-  font-size: 13px;
+  font-size: var(--text-secondary);
 }
 .stats-grid strong {
   font-size: 38px;
@@ -664,7 +678,7 @@ a.pillar-card:hover {
   font-variant-numeric: tabular-nums;
 }
 .stats-grid article p {
-  font-size: 12px;
+  font-size: var(--text-label);
   color: #666b5e;
 }
 
@@ -686,24 +700,24 @@ a.pillar-card:hover {
 }
 .card-title {
   min-height: 50px;
-  font-size: 20px;
+  font-size: var(--text-card);
   letter-spacing: -0.5px;
   line-height: 1.35;
 }
 .card-meta {
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .session-description summary {
   padding: 8px 0;
-  font-size: 12px;
+  font-size: var(--text-label);
   color: #636957;
 }
 .session-description p {
-  font-size: 13px;
+  font-size: var(--text-secondary);
   color: #64695f;
 }
 .card-details {
-  font-size: 13px;
+  font-size: var(--text-secondary);
 }
 .card-bottom {
   flex-wrap: wrap;
@@ -713,11 +727,11 @@ a.pillar-card:hover {
 .card-bottom .button {
   margin-left: auto;
   min-height: 44px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   padding: 11px 18px;
 }
 .offering-label {
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #656b60;
   line-height: 1.5;
 }
@@ -728,7 +742,7 @@ a.pillar-card:hover {
   gap: 20px;
 }
 .connected-form label {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.5;
 }
 .connected-form
@@ -753,7 +767,7 @@ a.pillar-card:hover {
   background: #f7f4fc;
 }
 .core-question legend {
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: 1.6;
   max-width: 100%;
   padding: 0 7px;
@@ -790,7 +804,7 @@ input[type="checkbox"] {
   align-items: center;
   gap: 14px;
   padding: 16px 0;
-  font-size: 17px;
+  font-size: var(--text-body);
   letter-spacing: -0.3px;
 }
 .application-stage > summary::after {
@@ -807,7 +821,7 @@ input[type="checkbox"] {
   border-radius: 10px;
   min-width: 32px;
   height: 32px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   background: var(--learning);
   color: #594599;
 }
@@ -833,13 +847,13 @@ input[type="checkbox"] {
 }
 .application-preview dt {
   font-weight: 650;
-  font-size: 12px;
+  font-size: var(--text-label);
   margin-bottom: 7px;
 }
 .application-preview dd {
   margin: 0;
   white-space: pre-wrap;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
 }
 .check-completion {
@@ -850,11 +864,11 @@ input[type="checkbox"] {
 }
 .check-completion p {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
 }
 .application-status {
   padding: 7px 14px;
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 650;
 }
 .status-pending {
@@ -875,7 +889,7 @@ input[type="checkbox"] {
 }
 .application-card h2 {
   margin-top: 14px;
-  font-size: 23px;
+  font-size: var(--text-section);
 }
 .application-card dl {
   display: grid;
@@ -888,13 +902,13 @@ input[type="checkbox"] {
   padding: 16px;
 }
 .application-card dt {
-  font-size: 12px;
+  font-size: var(--text-label);
   color: #646958;
   margin-bottom: 8px;
 }
 .application-card dd {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -926,10 +940,10 @@ input[type="checkbox"] {
   box-shadow: inset 3px 0 var(--violet);
 }
 .pulse-choices strong {
-  font-size: 15px;
+  font-size: var(--text-body);
 }
 .pulse-choices small {
-  font-size: 13px;
+  font-size: var(--text-secondary);
   color: #626957;
 }
 .pulse-layout .form-panel {
@@ -943,7 +957,7 @@ input[type="checkbox"] {
   padding: 24px;
 }
 .teaching-management h2 {
-  font-size: 21px;
+  font-size: var(--text-card);
   margin: 10px 0;
 }
 .teaching-management .action-row {
@@ -958,7 +972,7 @@ input[type="checkbox"] {
   margin-top: 20px;
 }
 .topic-journey > h3 {
-  font-size: 22px;
+  font-size: var(--text-section);
   padding-left: 15px;
   border-left: 4px solid #a798d2;
   margin-bottom: 8px;
@@ -967,7 +981,7 @@ input[type="checkbox"] {
   margin-bottom: 16px;
 }
 .learning-card h3 {
-  font-size: 20px;
+  font-size: var(--text-card);
   line-height: 1.4;
 }
 .learning-comparison {
@@ -992,14 +1006,14 @@ progress {
   background: #f5f7ef;
 }
 .topic-insight h4 {
-  font-size: 17px;
+  font-size: var(--text-body);
   margin: 0 0 12px;
 }
 .topic-capacity {
   display: grid;
   gap: 8px;
   margin: 16px 0 20px;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .topic-capacity > span {
   color: #4d6150;
@@ -1011,7 +1025,8 @@ progress {
   padding: 18px;
 }
 .insight-card > h3 {
-  font-size: 25px;
+  font-size: var(--text-section);
+  color: #3f6146;
 }
 
 /* A portfolio of actual records, without competitive scores or invented skills. */
@@ -1026,13 +1041,13 @@ progress {
   border: 1px solid #eed5c3;
 }
 .impact-hero h2 {
-  font-size: 32px;
+  font-size: var(--text-page);
   letter-spacing: -1px;
   line-height: 1.2;
   margin: 12px 0;
 }
 .impact-hero p {
-  font-size: 15px;
+  font-size: var(--text-body);
   margin-bottom: 18px;
 }
 .impact-points {
@@ -1041,8 +1056,9 @@ progress {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 188px;
-  height: 188px;
+  width: 210px;
+  min-height: 210px;
+  padding: 18px;
   border-radius: 50%;
   border: 10px solid #fff9f0;
   outline: 1px solid #dfbaa2;
@@ -1057,12 +1073,12 @@ progress {
   font-variant-numeric: tabular-nums;
 }
 .impact-points span {
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 650;
   margin: 9px 0 4px;
 }
 .impact-points small {
-  font-size: 10px;
+  font-size: var(--text-overline);
   max-width: 130px;
   color: #765741;
 }
@@ -1072,16 +1088,16 @@ progress {
   gap: 20px;
 }
 .portfolio-grid h3 {
-  font-size: 21px;
+  font-size: var(--text-card);
   margin-bottom: 18px;
 }
 .portfolio-grid h4 {
   margin: 22px 0 12px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   color: #5f6658;
 }
 .portfolio-grid p {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .chip-list {
   display: flex;
@@ -1104,10 +1120,10 @@ progress {
   border-radius: 11px;
   border: 1px solid #d4dfc9;
   background: #fffefa;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .milestone > span {
-  font-size: 29px;
+  font-size: var(--text-page);
   color: #527645;
 }
 .contribution-timeline {
@@ -1121,7 +1137,7 @@ progress {
   display: flex;
   align-items: start;
   gap: 14px;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .contribution-timeline small {
   display: block;
@@ -1129,7 +1145,7 @@ progress {
   margin: 6px 0;
 }
 .contribution-timeline details p {
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .event-points {
   display: grid;
@@ -1145,7 +1161,7 @@ progress {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--text-secondary);
   margin: 15px 0;
 }
 .feedback-bars progress {
@@ -1160,7 +1176,7 @@ progress {
 }
 .studio-connection summary {
   color: #5d6757;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .studio-status {
   border: none;
@@ -1171,7 +1187,7 @@ progress {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 18px;
+  font-size: var(--text-card);
 }
 .studio-disclosure > summary::after {
   content: "+";
@@ -1219,7 +1235,7 @@ progress {
   gap: 8px;
   text-align: left;
   padding: 12px;
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 650;
   color: #5c4799;
 }
@@ -1230,7 +1246,7 @@ progress {
   padding: 0 10px 12px;
 }
 .guide-content > p {
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #656171;
   line-height: 1.6;
   margin: 5px 0 12px;
@@ -1253,16 +1269,16 @@ progress {
 }
 .guide-content a > span {
   color: #6550b5;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .guide-content strong {
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.4;
   display: block;
 }
 .guide-content small {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-overline);
   line-height: 1.5;
   color: #626857;
   margin-top: 5px;
@@ -1283,7 +1299,7 @@ progress {
     padding: 23px;
   }
   .pillar-card h3 {
-    font-size: 20px;
+    font-size: var(--text-card);
   }
 }
 @media (max-width: 900px) {
@@ -1321,7 +1337,7 @@ progress {
     padding: 25px;
   }
   .header-breadcrumb {
-    font-size: 12px;
+    font-size: var(--text-label);
   }
   .welcome-banner .study-art {
     max-width: 40%;
@@ -1330,7 +1346,7 @@ progress {
     grid-template-columns: 1fr;
   }
   .landing-hero h1 {
-    font-size: 52px;
+    font-size: var(--text-hero);
   }
   .landing-hero {
     padding-top: 40px;
@@ -1350,13 +1366,13 @@ progress {
     padding: 23px 18px;
   }
   .page-title h1 {
-    font-size: 27px;
+    font-size: var(--text-page);
   }
   .page-title > .button {
     width: 100%;
   }
   .page-title p {
-    font-size: 14px;
+    font-size: var(--text-body);
   }
   .header-breadcrumb {
     display: none;
@@ -1371,7 +1387,7 @@ progress {
   .role-select select {
     padding-left: 9px;
     padding-right: 24px;
-    font-size: 12px;
+    font-size: var(--text-label);
   }
   .profile-divider,
   .app-header .avatar {
@@ -1381,11 +1397,11 @@ progress {
     padding: 32px 22px;
   }
   .landing-hero h1 {
-    font-size: 44px;
+    font-size: var(--text-hero);
     letter-spacing: -2px;
   }
   .landing-hero-copy > p {
-    font-size: 16px;
+    font-size: var(--text-body);
   }
   .landing-header {
     flex-wrap: wrap;
@@ -1405,7 +1421,7 @@ progress {
     padding: 24px;
   }
   .pillar-card h3 {
-    font-size: 23px;
+    font-size: var(--text-section);
   }
   .pillar-card p {
     max-width: none;
@@ -1414,7 +1430,7 @@ progress {
     padding: 23px;
   }
   .flow-steps {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     margin: 18px 0 22px;
   }
@@ -1424,7 +1440,7 @@ progress {
     align-items: flex-start;
     gap: 8px;
     min-height: 70px;
-    font-size: 11px;
+    font-size: var(--text-label);
     overflow-wrap: anywhere;
   }
   .welcome-banner {
@@ -1432,7 +1448,7 @@ progress {
     min-height: 0;
   }
   .welcome-banner h2 {
-    font-size: 29px;
+    font-size: var(--text-page);
   }
   .welcome-banner .study-art {
     display: none;
@@ -1453,7 +1469,7 @@ progress {
     padding: 18px;
   }
   .quick-card strong {
-    font-size: 14px;
+    font-size: var(--text-body);
   }
   .home-columns > .next-card {
     order: -1;
@@ -1477,7 +1493,7 @@ progress {
     padding-inline: 15px;
   }
   .application-stage > summary {
-    font-size: 15px;
+    font-size: var(--text-body);
   }
   .application-card dl {
     grid-template-columns: 1fr;
@@ -1500,12 +1516,12 @@ progress {
     align-items: flex-start;
   }
   .impact-hero h2 {
-    font-size: 29px;
+    font-size: var(--text-page);
   }
   .impact-points {
     align-self: center;
-    width: 172px;
-    height: 172px;
+    width: 210px;
+    min-height: 210px;
   }
   .portfolio .stats-grid {
     gap: 12px;
@@ -1540,5 +1556,426 @@ progress {
     scroll-behavior: auto !important;
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* Reading roles also cover inherited V5 components, dialogs and recording views. */
+small,
+.fine-print,
+.page-note,
+.stats-note,
+.app-footer,
+.landing-footer,
+.sidebar-footer {
+  font-size: var(--text-label);
+  line-height: var(--leading-body);
+}
+.eyebrow,
+.tutor-banner .eyebrow,
+.teaching-row .eyebrow,
+.nav-caption,
+.demo-tag {
+  font-size: var(--text-overline);
+  line-height: var(--leading-compact);
+}
+.nav-link,
+.landing-header nav,
+.button,
+.button.small,
+.page-title > .button,
+.welcome-banner .button,
+.card-bottom .button,
+.text-link,
+.text-button,
+.tabs > button,
+.tab-list button,
+.filter-chip,
+.guide-toggle {
+  font-size: var(--text-control);
+  line-height: var(--leading-compact);
+}
+.language-select,
+.language-select select,
+.role-select select,
+.role-control > label,
+.header-breadcrumb,
+.demo-strip,
+.pill,
+.hero-pill,
+.banner-pill,
+.card-meta,
+.offering-label,
+.card-details,
+.seats,
+.tutor-line small,
+.group-details,
+.catalog-results,
+.catalog-results small,
+.checkbox-label,
+.sort-label,
+.sort-label select,
+.topic-label,
+.topic-capacity,
+.stats-grid article > span,
+.stats-grid article p,
+.stats-grid strong small,
+.insight-value,
+.insight-value small,
+.bar-key,
+.booking-row-details,
+.booking-host,
+.booking-host small,
+.next-date,
+.next-tutor,
+.session-facts > div,
+.session-facts small,
+.demo-disclosure,
+.approved-note,
+.application-card dt,
+.application-preview dt,
+.application-status,
+.form-error,
+.guide-content > p,
+.guide-content small,
+.guide-content a > span {
+  font-size: var(--text-label);
+  line-height: var(--leading-body);
+}
+.page-title p,
+.section-heading p,
+.quick-card p,
+.pillar-card p,
+.welcome-banner p,
+.next-card p,
+.connections-strip p,
+.faculty-banner p,
+.tutor-banner p,
+.approval-card > p,
+.reciprocity-note p,
+.learning-story > p,
+.everyone-section p,
+.role-intros p,
+.landing-section-heading p,
+.card-description,
+.session-description p,
+.group-card > p,
+.insight-card > p,
+.future-note p,
+.insight-note,
+.dialog-description,
+.goals li,
+.dialog-tutor > div,
+.booking-success > p:not(.fine-print),
+.connected-form label,
+.connected-filters label,
+.check-label,
+.connected-form input,
+.connected-form select,
+.connected-form textarea,
+.core-question legend,
+.core-question label,
+.core-consent,
+.application-card dd,
+.application-preview dd,
+.pulse-choices strong,
+.portfolio-grid p,
+.contribution-timeline li,
+.milestone,
+.studio-panel label,
+.studio-panel legend,
+.studio-panel h3,
+.studio-panel input,
+.studio-panel select,
+.studio-panel textarea,
+.studio-status p,
+.studio-demo p,
+.studio-source,
+.studio-source blockquote,
+.studio-passage span span,
+.studio-language,
+.guide-content strong {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+.quick-card strong,
+.subject-mini strong,
+.tutor-line strong,
+.teaching-row h3,
+.approval-card h3,
+.card-title {
+  font-size: var(--text-card);
+  line-height: 1.35;
+}
+.quick-card strong,
+.subject-mini strong,
+.tutor-line strong {
+  font-size: var(--text-body);
+}
+/* Readable neutral text on warm paper and all three pastel surfaces. */
+.fine-print,
+.page-note,
+.stats-note,
+.sidebar-footer,
+.app-footer,
+.landing-footer > span,
+.landing-footer p,
+.header-breadcrumb,
+.header-breadcrumb strong,
+.role-control > label,
+.demo-strip,
+.demo-strip strong,
+.demo-tag,
+.quick-card p,
+.card-description,
+.card-details,
+.tutor-line small,
+.seats,
+.seats.low,
+.free-label,
+.next-date,
+.next-tutor,
+.community-line,
+.community-line > span:last-child,
+.approval-card > p,
+.approved-subject small,
+.stats-grid article p,
+.insight-card > p,
+.insight-value small,
+.bar-key,
+.insight-note,
+.future-note p,
+.booking-row-details,
+.booking-host,
+.booking-host small,
+.catalog-footer-note,
+.session-facts small,
+.demo-disclosure,
+.approved-note,
+.dialog-tutor > div > span,
+.connections-strip small,
+.connected-form label small,
+.support-result small,
+.studio-language small,
+.studio-status p,
+.studio-demo p,
+.studio-passage span span,
+.studio-source blockquote,
+.guide-content > p,
+.guide-content small {
+  color: var(--muted);
+}
+/* Capacity has intrinsic height: the translated label never overlays the value. */
+.teaching-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(8rem, 10rem);
+  gap: 16px;
+  padding: 18px;
+}
+.teaching-row > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.teaching-row p {
+  font-size: var(--text-label);
+  color: var(--muted);
+}
+.teaching-row .eyebrow {
+  font-size: var(--text-label);
+}
+.teaching-attendance {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-content: center;
+  gap: 4px 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--support);
+  font-size: var(--text-body);
+  line-height: var(--leading-compact);
+  color: #285a49;
+  font-variant-numeric: tabular-nums;
+}
+.teaching-attendance small {
+  position: static;
+  grid-column: 1 / -1;
+  width: auto;
+  font-size: var(--text-label);
+  color: #285a49;
+  line-height: var(--leading-compact);
+  overflow-wrap: anywhere;
+}
+/* Give enlarged text room without fixed-height clipping or narrow action columns. */
+.session-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+}
+.home-columns {
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.5fr);
+}
+.workspace-columns {
+  grid-template-columns: minmax(0, 1.7fr) minmax(17rem, 1fr);
+}
+.card-title {
+  height: auto;
+  text-align: left;
+}
+.card-meta,
+.card-details > span,
+.card-bottom,
+.tabs,
+.tab-list,
+.session-facts > div,
+.confirmation-box > div {
+  flex-wrap: wrap;
+}
+.card-details > span {
+  row-gap: 4px;
+}
+.tutor-line > span,
+.next-tutor > span,
+.guide-content a > div {
+  min-width: 0;
+}
+.section-heading {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.tutor-banner > div,
+.faculty-banner > div {
+  min-width: 0;
+}
+.tutor-banner .button {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+.quick-card {
+  min-height: 0;
+}
+.pillar-icon {
+  margin-bottom: 18px;
+}
+.impact-points {
+  flex: 0 0 auto;
+}
+.impact-points small {
+  max-width: none;
+  font-size: var(--text-label);
+}
+.connected-form label small,
+.pulse-choices small,
+.contribution-timeline small {
+  font-size: var(--text-label);
+}
+.studio-connection summary,
+.session-description summary,
+.contribution-timeline details p {
+  font-size: var(--text-secondary);
+}
+.flow-steps li,
+.flow-steps li > span {
+  font-size: var(--text-label);
+}
+.flow-steps strong {
+  font-weight: 600;
+}
+.landing-hero h1 {
+  letter-spacing: -0.04em;
+}
+.landing-header nav > a,
+.landing-footer a,
+.app-footer a,
+.sidebar-footer a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+.catalog-results,
+.catalog-results > div {
+  flex-wrap: wrap;
+}
+.catalog-results > div {
+  min-width: 0;
+}
+.sort-label {
+  flex-wrap: wrap;
+  white-space: normal;
+}
+.sort-label select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+}
+.checkbox-label {
+  min-height: 44px;
+}
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+@media (max-width: 1180px) {
+  .home-columns,
+  .workspace-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-columns > .next-card {
+    order: -1;
+  }
+  .studio-question-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .sidebar {
+    width: min(300px, calc(100vw - 36px));
+  }
+  .app-header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 76px;
+    padding-block: 10px;
+  }
+  .header-right {
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .welcome-banner > div {
+    max-width: 58%;
+  }
+}
+@media (max-width: 600px) {
+  .teaching-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .teaching-attendance {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+  .quick-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .welcome-banner > div {
+    max-width: none;
+  }
+  .tutor-banner-icon {
+    display: none;
+  }
+  .app-header .role-control {
+    padding: 4px 6px;
+    gap: 6px;
+  }
+  .role-select select {
+    max-width: 11rem;
+  }
+  .language-select select {
+    padding-inline: 5px;
+  }
+  .demo-strip {
+    flex-wrap: wrap;
+  }
+  .studio-panel,
+  .studio-question {
+    padding: 18px;
   }
 }

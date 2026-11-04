@@ -26,6 +26,8 @@ module.exports = async function designReview(base, artifacts) {
     ["attendance-feedback", "/app/sessions", 1],
     ["portfolio", "/app/impact", 2],
     ["history", "/app/impact", 1],
+    ["faculty-dashboard", "/app", 3],
+    ["courses", "/app/courses", 3],
     ["faculty", "/app/insights", 3],
     ["actions", "/app/actions", 3],
     ["studio", "/app/studio", 3],
@@ -124,8 +126,14 @@ module.exports = async function designReview(base, artifacts) {
             .click();
           await page.locator(".studio-question").first().waitFor();
         }
-        for (const width of [1440, 768, 390]) {
-          await page.setViewportSize({ width, height: 1000 });
+        for (const [width, height] of [
+          [1920, 1080],
+          [1440, 900],
+          [1366, 768],
+          [768, 1000],
+          [390, 844],
+        ]) {
+          await page.setViewportSize({ width, height });
           await page.evaluate(() => window.scrollTo(0, 0));
           const overflow = await page.evaluate(() => ({
             width: innerWidth,
@@ -151,14 +159,57 @@ module.exports = async function designReview(base, artifacts) {
             );
           if (smallButtons.length)
             issues.push({ name, language, width, smallButtons });
+          const readability = await page.evaluate(() => {
+            const selectors =
+              ".button, .nav-link, .card-title, .card-meta, .card-details, .seats, .teaching-attendance small, .stats-grid article > span, .stats-grid article p, .flow-steps li, .connected-form label, .form-error, .studio-panel label";
+            return [...document.querySelectorAll(selectors)]
+              .filter(
+                (el) =>
+                  el.getClientRects().length &&
+                  getComputedStyle(el).visibility !== "hidden" &&
+                  parseFloat(getComputedStyle(el).fontSize) < 14,
+              )
+              .map((el) => ({
+                selector: el.className,
+                text: el.textContent.slice(0, 80),
+                size: getComputedStyle(el).fontSize,
+              }));
+          });
+          if (readability.length)
+            issues.push({ name, language, width, readability });
+          const capacity = await page
+            .locator(".teaching-attendance")
+            .evaluateAll((nodes) =>
+              nodes.map((node) => {
+                const icon = node.querySelector("svg").getBoundingClientRect();
+                const value = node
+                  .querySelector("strong")
+                  .getBoundingClientRect();
+                const label = node
+                  .querySelector("small")
+                  .getBoundingClientRect();
+                const box = node.getBoundingClientRect();
+                return {
+                  text: node.textContent,
+                  clear:
+                    icon.right <= value.left + 1 &&
+                    label.top >= Math.max(icon.bottom, value.bottom) - 1 &&
+                    label.bottom <= box.bottom &&
+                    label.left >= box.left &&
+                    label.right <= box.right,
+                };
+              }),
+            );
+          if (capacity.some((c) => !c.clear))
+            issues.push({ name, language, width, capacity });
           await page.screenshot({
-            path: join(artifacts, `v6-${language}-${name}-${width}.png`),
+            path: join(artifacts, `v6.1-${language}-${name}-${width}.png`),
             fullPage: true,
           });
           await page.screenshot({
             path: join(
               artifacts,
-              `v6-${language}-${name}-${width}-viewport.png`,
+              `v6.1-${language}-${name}-${width}-viewport.png`,
             ),
             fullPage: false,
           });
@@ -166,37 +217,62 @@ module.exports = async function designReview(base, artifacts) {
             name,
             language,
             width,
+            height,
+            capacity,
             overflow: overflow.actual > width,
           });
-        }
-        if (process.env.CLASSALL_AXE_SOURCE) {
-          await page.addScriptTag({ path: process.env.CLASSALL_AXE_SOURCE });
-          const violations = await page.evaluate(async () =>
-            (
-              await window.axe.run(document, {
-                runOnly: {
-                  type: "tag",
-                  values: ["wcag2a", "wcag2aa", "wcag21aa"],
-                },
-              })
-            ).violations.map((v) => ({
-              id: v.id,
-              impact: v.impact,
-              description: v.description,
-              nodes: v.nodes.map((n) => ({
-                target: n.target,
-                summary: n.failureSummary,
+          if (process.env.CLASSALL_AXE_SOURCE) {
+            await page.addScriptTag({ path: process.env.CLASSALL_AXE_SOURCE });
+            const violations = await page.evaluate(async () =>
+              (
+                await window.axe.run(document, {
+                  runOnly: {
+                    type: "tag",
+                    values: ["wcag2a", "wcag2aa", "wcag21aa"],
+                  },
+                })
+              ).violations.map((v) => ({
+                id: v.id,
+                impact: v.impact,
+                description: v.description,
+                nodes: v.nodes.map((n) => ({
+                  target: n.target,
+                  summary: n.failureSummary,
+                })),
               })),
-            })),
-          );
-          writeFileSync(
-            join(artifacts, `axe-${language}-${name}.json`),
-            JSON.stringify(violations, null, 2),
-          );
-          if (violations.length)
-            accessibility.push({ name, language, violations });
+            );
+            writeFileSync(
+              join(artifacts, `axe-${language}-${name}-${width}.json`),
+              JSON.stringify(violations, null, 2),
+            );
+            if (violations.length)
+              accessibility.push({ name, language, width, violations });
+          }
+        }
+
+        if (name === "discovery") {
+          await page.locator(".card-title").first().click();
+          const dialog = page.locator(".booking-dialog");
+          await dialog.waitFor({ state: "visible" });
+          for (const width of [1920, 1440, 1366, 768, 390]) {
+            await page.setViewportSize({ width, height: 900 });
+            const fits = await dialog.evaluate((el) => {
+              const rect = el.getBoundingClientRect();
+              return (
+                rect.left >= 0 &&
+                rect.right <= innerWidth &&
+                el.scrollWidth <= el.clientWidth + 1
+              );
+            });
+            if (!fits) issues.push({ name: "booking-dialog", language, width });
+            await page.screenshot({
+              path: join(artifacts, `v6.1-${language}-booking-${width}.png`),
+            });
+          }
+          await page.locator(".dialog-close").click();
         }
       }
+      await page.setViewportSize({ width: 390, height: 844 });
       // The mobile menu traps focus, hides the background and restores the trigger on Escape.
       await page.goto(base + "/app");
       await page.locator("#main-content").waitFor();
@@ -217,17 +293,47 @@ module.exports = async function designReview(base, artifacts) {
       await page.keyboard.press("Escape");
       assert(await menu.evaluate((el) => el === document.activeElement));
       assert.equal(await page.locator(".app-area").getAttribute("inert"), null);
+      // Open through the visible menu first; then test real scene navigation.
+      await menu.click();
+      const guide = page.locator(".guide-toggle");
+      if ((await guide.getAttribute("aria-expanded")) !== "true")
+        await guide.click();
+      await page
+        .locator(".guide-content a")
+        .first()
+        .waitFor({ state: "visible" });
+      await page
+        .locator(".guide-content")
+        .evaluate((el) => el.scrollIntoView({ block: "start" }));
+      await page.screenshot({
+        path: join(artifacts, `v6.1-${language}-guide-390.png`),
+        fullPage: false,
+      });
+      assert.equal(await page.locator(".guide-content a").count(), 5);
+      assert(
+        await page
+          .locator(".guide-content strong")
+          .first()
+          .evaluate((el) => parseFloat(getComputedStyle(el).fontSize) >= 16),
+      );
+      await page.locator(".guide-content a").first().click();
+      await page.waitForURL("**/app/pulse");
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.screenshot({
+        path: join(artifacts, `v6.1-${language}-guide-1440.png`),
+        fullPage: false,
+      });
       await context.close();
     }
     writeFileSync(
-      join(artifacts, "v6-layout-results.json"),
+      join(artifacts, "v6.1-layout-results.json"),
       JSON.stringify({ results, issues, errors, accessibility }, null, 2),
     );
     assert.deepEqual(errors, []);
     assert.deepEqual(issues, []);
     assert.deepEqual(accessibility, []);
     console.log(
-      `V6 design review passed: ${results.length} route/language/viewport combinations; mobile keyboard checks EN/ES.`,
+      `V6.1 design review passed: ${results.length} route/language/viewport combinations; mobile keyboard checks EN/ES.`,
     );
   } finally {
     await browser.close();
