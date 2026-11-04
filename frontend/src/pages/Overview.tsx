@@ -1,3 +1,4 @@
+import { LearningConnections } from "../components/LearningConnections";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -70,6 +71,7 @@ function LearnerHome() {
           grow.
         </span>
       </section>
+      <LearningConnections />
       <div className="home-columns">
         <div className="home-left">
           <SectionHeading title="A little direction" />

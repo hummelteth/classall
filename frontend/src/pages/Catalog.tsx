@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import {
   ChevronDown,
@@ -20,9 +20,11 @@ import type { Session, Subject } from "../lib/types";
 export function Catalog() {
   const { version } = useDemo();
   const [searchParams, setSearchParams] = useSearchParams();
+  const topicId = searchParams.get("topic");
   const subject = searchParams.get("subject") ?? "";
   const setSubject = (value: string) => {
     const next = new URLSearchParams(searchParams);
+    next.delete("topic");
     if (value) next.set("subject", value);
     else next.delete("subject");
     setSearchParams(next);
@@ -34,6 +36,7 @@ export function Catalog() {
   const subjects = useRemote<Subject[]>("/subjects");
   const params = new URLSearchParams();
   if (subject) params.set("subject_id", subject);
+  if (topicId) params.set("topic_id", topicId);
   if (delivery) params.set("delivery", delivery);
   const sessions = useRemote<Session[]>(
     `/sessions?${params}`,
@@ -45,6 +48,7 @@ export function Catalog() {
     .filter(
       (s) =>
         (!availableOnly || s.available_seats > 0) &&
+        (!topicId || s.topics?.some((t) => t.id === Number(topicId))) &&
         `${s.title} ${s.description} ${s.subject.name} ${s.tutor.name}`
           .toLowerCase()
           .includes(query.trim().toLowerCase()),
@@ -83,6 +87,24 @@ export function Catalog() {
           Subject-approved demo tutors
         </span>
       </div>
+      {topicId && (
+        <div className="action-row">
+          <span className="pill neutral">Showing your selected topic</span>
+          <button
+            className="text-link"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete("topic");
+              setSearchParams(next);
+            }}
+          >
+            Show all topics
+          </button>
+          <Link className="text-link" to={`/app/pulse?topic=${topicId}`}>
+            Request more support for this topic
+          </Link>
+        </div>
+      )}
       <div className="catalog-tools">
         <div className="search-field">
           <Search size={19} />

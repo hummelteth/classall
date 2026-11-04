@@ -37,7 +37,7 @@ function Aggregate({
 }
 export function TeacherLearningInsights({
   topics,
-  subjectId,
+  subjectId: _subjectId,
 }: {
   topics: TopicInsight[];
   subjectId: number;
@@ -87,15 +87,12 @@ export function TeacherLearningInsights({
                 <li key={s}>{s}</li>
               ))}
             </ul>
-            <Link
-              className="text-link"
-              to={`/app/explore?subject=${subjectId}`}
-            >
-              Review existing tutoring opportunities
+            <Link className="text-link" to={`/app/actions?topic=${t.topic.id}`}>
+              Create a human-reviewed support action
             </Link>
             <p className="fine-print">
-              TA scheduling is a future action. No learner is labeled or
-              contacted.
+              You can organize synthetic TA support from Support actions. No
+              learner is labeled or contacted.
             </p>
           </aside>
         </section>

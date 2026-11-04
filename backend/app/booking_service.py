@@ -57,6 +57,10 @@ def create_booking(db, user_id: int, session_id: int):
         "SELECT * FROM bookings WHERE id=?", (cursor.lastrowid,)
     ).fetchone()
     result = repo.booking_dict(db, row)
+    from .connected import match_requests
+
+    for topic in target["topics"]:
+        match_requests(db, user_id, topic["id"])
     db.commit()  # Persist before FastAPI sends the success response.
     return result
 
@@ -79,5 +83,9 @@ def cancel_booking(db, user_id: int, booking_id: int):
     result = repo.booking_dict(
         db, db.execute("SELECT * FROM bookings WHERE id=?", (booking_id,)).fetchone()
     )
+    from .connected import reopen_requests
+
+    for topic in target["topics"]:
+        reopen_requests(db, user_id, topic["id"])
     db.commit()
     return result

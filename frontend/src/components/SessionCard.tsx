@@ -39,6 +39,15 @@ export function SessionCard({
           {session.title}
           <ArrowUpRight size={18} />
         </button>
+        <span className="offering-label">
+          {session.kind === "faculty"
+            ? "Faculty-organized · synthetic TA support"
+            : "Peer tutoring"}{" "}
+          ·{" "}
+          {session.source === "demo-interaction"
+            ? "Demo interaction"
+            : "Synthetic example"}
+        </span>
         <p className="card-description">{session.description}</p>
         <div className="tutor-line">
           <Avatar user={session.tutor} small />

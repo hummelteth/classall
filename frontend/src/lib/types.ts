@@ -34,6 +34,10 @@ export interface Session {
   available_seats: number;
   approved: boolean;
   learning_check_available?: boolean;
+  topics?: Pick<Topic, "id" | "subject_id" | "name">[];
+  kind?: "peer" | "faculty";
+  organizer_id?: number | null;
+  source?: string;
 }
 export interface Booking {
   id: number;
@@ -129,4 +133,80 @@ export interface TopicInsight {
     signals: string[];
     human_review_required: boolean;
   };
+}
+
+export interface Topic {
+  id: number;
+  subject_id: number;
+  name: string;
+  objectives: { id: number; description: string }[];
+}
+export interface Pulse {
+  topic_id: number;
+  response: "confident" | "practice" | "support";
+  updated_at: string;
+  source: string;
+}
+export interface SupportRequest {
+  id: number;
+  topic_id: number;
+  status: "open" | "matched" | "withdrawn";
+  created_at: string;
+  updated_at: string;
+  source: string;
+}
+export interface EventData {
+  topic_id: number;
+  title: string;
+  description: string;
+  starts_at: string;
+  duration_minutes: number;
+  capacity: number;
+  format: "Online" | "In person";
+  location: string;
+}
+export interface StudyGroup extends EventData {
+  id: number;
+  creator_id: number;
+  status: string;
+  source: string;
+  topic_name: string;
+  subject_id: number;
+  subject_name: string;
+  member_count: number;
+  available_places: number;
+  joined: boolean;
+}
+export interface SupportSignal {
+  topic: Pick<Topic, "id" | "subject_id" | "name">;
+  participants: number;
+  suppressed: boolean;
+  distribution: Record<string, number> | null;
+  open_requests: number | null;
+  requests_suppressed: boolean;
+  tutoring_places: number;
+  study_group_places: number;
+  recommendation: string;
+  rule: string;
+  missing_data: string;
+  human_review_required: boolean;
+  synthetic: boolean;
+}
+export interface SupportAction {
+  id: number;
+  professor_id: number;
+  topic_id: number;
+  action_type: string;
+  rationale: string;
+  status: string;
+  created_at: string;
+  follow_up_date: string | null;
+  notes: string;
+  evidence: SupportSignal & {
+    captured_at: string;
+    learning_checks?: TopicInsight;
+  };
+  session_id: number | null;
+  topic_name: string;
+  subject_name: string;
 }

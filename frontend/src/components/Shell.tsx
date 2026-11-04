@@ -20,22 +20,55 @@ export default function Shell() {
   const { user, users, selectUser } = useDemo();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const links = [
-    { to: "/app", label: "Overview", icon: LayoutDashboard, end: true },
-    { to: "/app/explore", label: "Find tutoring", icon: Compass },
-    {
-      to: "/app/sessions",
-      label: user.role === "tutor" ? "My schedule" : "My sessions",
-      icon: CalendarDays,
-    },
-    {
-      to: "/app/impact",
-      label:
-        user.role === "professor" ? "Course insights" : "My learning & impact",
-      icon: Sprout,
-    },
-    { to: "/app/groups", label: "Study groups", icon: Users, soon: true },
-  ];
+  const links =
+    user.role === "professor"
+      ? [
+          {
+            to: "/app",
+            label: "Teaching dashboard",
+            icon: LayoutDashboard,
+            end: true,
+          },
+          { to: "/app/courses", label: "My courses", icon: GraduationCap },
+          { to: "/app/insights", label: "Learning insights", icon: Sprout },
+          {
+            to: "/app/actions",
+            label: "Support actions",
+            icon: HeartHandshake,
+          },
+        ]
+      : [
+          {
+            to: "/app",
+            label:
+              user.role === "tutor" ? "Tutor dashboard" : "My learning space",
+            icon: LayoutDashboard,
+            end: true,
+          },
+          ...(user.role === "tutor"
+            ? [
+                {
+                  to: "/app/teaching",
+                  label: "My teaching",
+                  icon: GraduationCap,
+                },
+                {
+                  to: "/app/publish",
+                  label: "Create a session",
+                  icon: CalendarDays,
+                },
+              ]
+            : []),
+          { to: "/app/explore", label: "Find support", icon: Compass },
+          { to: "/app/pulse", label: "Learning Pulse", icon: HeartHandshake },
+          { to: "/app/sessions", label: "My sessions", icon: CalendarDays },
+          { to: "/app/groups", label: "Study groups", icon: Users },
+          {
+            to: "/app/impact",
+            label: user.role === "tutor" ? "My impact" : "My progress",
+            icon: Sprout,
+          },
+        ];
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -48,6 +81,9 @@ export default function Shell() {
       <aside
         className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}
         aria-label="Main navigation"
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setMenuOpen(false);
+        }}
       >
         <div className="sidebar-brand">
           <Brand />
@@ -69,7 +105,7 @@ export default function Shell() {
         </div>
         <span className="nav-caption">YOUR CAMPUS, CONNECTED</span>
         <nav>
-          {links.map(({ to, label, icon: Icon, end, soon }) => (
+          {links.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               end={end}
@@ -81,7 +117,6 @@ export default function Shell() {
             >
               <Icon size={19} />
               <span>{label}</span>
-              {soon && <span className="soon-dot" aria-hidden="true" />}
             </NavLink>
           ))}
         </nav>
@@ -92,8 +127,12 @@ export default function Shell() {
             <br />A bigger possibility.
           </h3>
           <p>Everyone has something to learn. And something to share.</p>
-          <NavLink to="/app/explore">
-            Find your people
+          <NavLink
+            to={user.role === "professor" ? "/app/actions" : "/app/explore"}
+          >
+            {user.role === "professor"
+              ? "Create support opportunities"
+              : "Find your people"}
             <ArrowUpRight size={15} />
           </NavLink>
         </div>
@@ -161,7 +200,7 @@ export default function Shell() {
         <div className="demo-strip">
           <span className="demo-tag">DEMO CAMPUS</span>
           <span>
-            Synthetic people. Real local bookings.{" "}
+            Synthetic examples. Persistent local interactions.{" "}
             <strong>No real authentication.</strong>
           </span>
           <span className="hackathon-label">

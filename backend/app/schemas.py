@@ -21,6 +21,12 @@ class Subject(BaseModel):
     symbol: str
 
 
+class TopicSummary(BaseModel):
+    id: int
+    subject_id: int
+    name: str
+
+
 class Session(BaseModel):
     id: int
     title: str
@@ -39,6 +45,10 @@ class Session(BaseModel):
     available_seats: int
     approved: bool
     learning_check_available: bool = False
+    topics: list[TopicSummary] = Field(default_factory=list)
+    kind: str = "peer"
+    organizer_id: int | None = None
+    source: str = "seeded-synthetic"
 
 
 class BookingCreate(BaseModel):
