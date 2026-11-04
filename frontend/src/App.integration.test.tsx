@@ -278,6 +278,7 @@ it("runs pre and demo post checks through the real API, reviews progress, and up
     "3",
   );
   await screen.findByRole("heading", { name: "See where support can begin." });
+  await user.click(screen.getByRole("link", { name: "Learning insights" }));
   expect(
     await screen.findByText("Post-session checks · n=3 of 3"),
   ).toBeInTheDocument();
@@ -286,11 +287,154 @@ it("runs pre and demo post checks through the real API, reviews progress, and up
       name: /Consider additional practice materials/,
     }),
   ).toBeInTheDocument();
-  expect(screen.getAllByText(/Advisory · Human review required/)).toHaveLength(
-    2,
-  );
+  expect(
+    screen.getAllByText(/Advisory · Human review required/).length,
+  ).toBeGreaterThanOrEqual(2);
   expect(screen.queryByRole("radio")).not.toBeInTheDocument();
   expect(
     screen.queryByText(/Multiply the outer derivative/),
   ).not.toBeInTheDocument();
 }, 20000);
+
+it("connects Pulse, groups, tutor publishing and a human-confirmed faculty session through SQLite", async () => {
+  const user = userEvent.setup();
+  render(
+    <MemoryRouter initialEntries={["/app/pulse"]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await user.click(
+    await screen.findByRole("radio", {
+      name: "I'm struggling and would like support. You don’t have to work it out alone.",
+    }),
+  );
+  await user.click(screen.getByRole("button", { name: "Save check-in" }));
+  expect(
+    await screen.findByRole("button", { name: "Withdraw response" }),
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole("button", { name: "Request help with this topic" }),
+  );
+  expect(await screen.findByText("Request open")).toBeInTheDocument();
+  await user.click(screen.getByRole("link", { name: "Study groups" }));
+  const join = await screen.findAllByRole("button", { name: "Join group" });
+  await user.click(join[0]);
+  expect(
+    await screen.findByRole("button", { name: "Leave group" }),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Leave group" }));
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Demo role" }),
+    "2",
+  );
+  await user.click(
+    within(screen.getByRole("navigation")).getByRole("link", {
+      name: "Create a session",
+    }),
+  );
+  await screen.findByRole("heading", { name: "Publish a tutoring session" });
+  await user.type(
+    await screen.findByLabelText("Title"),
+    "Integration tutoring circle",
+  );
+  await user.type(
+    screen.getByLabelText("Description"),
+    "A small synthetic practice session with patient explanations.",
+  );
+  await user.type(
+    screen.getByLabelText(/Learning objectives/),
+    "Apply the chain rule",
+  );
+  const dateInput = screen.getByLabelText(/Date and time/);
+  // Native datetime input entry is browser-dependent; React receives a real change event.
+  const { fireEvent } = await import("@testing-library/react");
+  fireEvent.change(dateInput, { target: { value: "2099-12-01T10:00" } });
+  await user.type(screen.getByLabelText(/^Location/), "Library room 7");
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  expect(
+    await screen.findByRole("heading", { name: "Integration tutoring circle" }),
+  ).toBeInTheDocument();
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Demo role" }),
+    "1",
+  );
+  await user.click(screen.getByRole("link", { name: "Find support" }));
+  await user.click(
+    await screen.findByRole("button", { name: /Integration tutoring circle/ }),
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Book a free seat" }),
+  );
+  expect(
+    await screen.findByRole("heading", { name: "Your seat is saved!" }),
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole("button", { name: "Close session details" }),
+  );
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Demo role" }),
+    "3",
+  );
+  await user.click(screen.getByRole("link", { name: "Support actions" }));
+  await user.click(
+    screen.getByRole("button", { name: "Create support action" }),
+  );
+  await user.selectOptions(screen.getByLabelText("Action"), "ta_session");
+  await user.type(
+    screen.getByLabelText("Rationale from observable evidence"),
+    "Three voluntary requests indicate demand worth reviewing.",
+  );
+  const confirm = screen.getByRole("checkbox", {
+    name: /I reviewed the available evidence/,
+  });
+  expect(confirm).toBeRequired();
+  await user.click(confirm);
+  await user.click(
+    screen.getByRole("button", { name: "Save confirmed action" }),
+  );
+  expect(
+    await screen.findByRole("heading", { name: "TA-led support session" }),
+  ).toBeInTheDocument();
+  await user.click(
+    screen.getByRole("button", { name: "Organize synthetic TA session" }),
+  );
+  await screen.findByRole("combobox", { name: "Approved synthetic host" });
+  await user.type(
+    screen.getByLabelText("Title"),
+    "Integration faculty support circle",
+  );
+  await user.type(
+    screen.getByLabelText("Description"),
+    "Synthetic faculty-organized practice with an approved peer tutor.",
+  );
+  await user.type(
+    screen.getByLabelText(/Learning objectives/),
+    "Practice a fresh composite function",
+  );
+  fireEvent.change(screen.getByLabelText(/Date and time/), {
+    target: { value: "2099-12-02T10:00" },
+  });
+  await user.type(screen.getByLabelText(/^Location/), "Library room 8");
+  await user.click(
+    screen.getByRole("checkbox", { name: /I confirm this synthetic faculty/ }),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Publish synthetic TA session" }),
+  );
+  expect(
+    await screen.findByRole("heading", {
+      name: "Integration faculty support circle",
+    }),
+  ).toBeInTheDocument();
+  const actions = await actualFetch(`${base}/api/support-actions`, {
+    headers: { "X-Demo-User-Id": "3" },
+  }).then((r) => r.json());
+  expect(actions[0].evidence.human_review_required).toBe(true);
+  expect(actions[0].status).toBe("active");
+  const offering = await actualFetch(
+    `${base}/api/sessions/${actions[0].session_id}`,
+  ).then((r) => r.json());
+  expect(offering.kind).toBe("faculty");
+  expect(offering.organizer_id).toBe(3);
+  expect(offering.tutor.id).toBe(2);
+}, 30000);

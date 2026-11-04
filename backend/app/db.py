@@ -72,3 +72,7 @@ def initialize(path: str):
         from .learning import migrate
 
         migrate(db)
+
+        from .connected import migrate as connected_migrate
+
+        connected_migrate(db)

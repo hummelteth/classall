@@ -35,6 +35,19 @@ def session_dict(db, row):
             (result["tutor"]["id"], result["subject"]["id"]),
         ).fetchone()
     )
+    result["topics"] = [
+        dict(t)
+        for t in db.execute(
+            "SELECT t.* FROM topics t JOIN session_topics st ON st.topic_id=t.id WHERE st.session_id=?",
+            (result["id"],),
+        )
+    ]
+    detail = db.execute(
+        "SELECT * FROM session_details WHERE session_id=?", (result["id"],)
+    ).fetchone()
+    result["kind"] = detail["kind"] if detail else "peer"
+    result["organizer_id"] = detail["organizer_id"] if detail else None
+    result["source"] = detail["source"] if detail else "seeded-synthetic"
     return result
 
 

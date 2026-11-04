@@ -291,7 +291,7 @@ describe("ClassAll demo flows", () => {
     );
     expect(screen.queryByText("Your seat is saved!")).not.toBeInTheDocument();
   });
-  it("navigates all three demo roles and keeps future features honest", async () => {
+  it("navigates all three roles and shows only relevant primary navigation", async () => {
     const user = userEvent.setup();
     mount("/app");
     expect(
@@ -322,10 +322,18 @@ describe("ClassAll demo flows", () => {
         "Booking demand is not evidence of academic difficulty.",
       ),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("link", { name: "Study groups" }));
     expect(
-      screen.getByText("PLANNED FEATURE · NOT ACTIVE"),
-    ).toBeInTheDocument();
+      screen.queryByRole("link", { name: "Study groups" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "My sessions" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Support actions" }),
+    ).toHaveAttribute("href", "/app/actions");
+    expect(
+      screen.getByRole("link", { name: "Learning insights" }),
+    ).toHaveAttribute("href", "/app/insights");
   });
   it("provides a recoverable startup failure", async () => {
     vi.mocked(fetch).mockRejectedValueOnce(

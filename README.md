@@ -1,215 +1,152 @@
 # ClassAll
 
-**Learning is a shared strength.** A local Hack4Edu 2026 MVP built with React, TypeScript, Vite, Tailwind CSS, Python/FastAPI and SQLite.
+**Learning is a shared strength.** A local, synthetic Hack4Edu 2026 connected learning ecosystem using React/TypeScript/Vite, FastAPI and SQLite.
 
-Phase 2 builds on the merged MVP (`90cbeb1`) and preserves the existing design, demo roles, booking/cancellation APIs and stored bookings. All learning content and identities are fictional; nothing is deployed publicly.
+Phase 3 extends merged Version 2 (`55fe089`) without rebuilding the project or resetting its database. Peer tutoring, bookings/cancellation, curated Learning Checks, private progress, professor aggregates and David’s original contribution rules remain.
 
 ## What works
 
-- Responsive landing page and dashboard, with a shared design system, custom local SVG illustration, mobile navigation and native session dialogs.
-- Explicit **demo access** for Laura (learner), David (tutor) and Professor García. The selected demo role persists in the browser; it is **not authentication**.
-- Catalog with subject filters, topic/tutor search, in-person/online format, availability filter and sorting. Subject links can be bookmarked (`/app/explore?subject=1`).
-- Session details with subject, tutor, synthetic approval, objectives, time, duration, format, location and live seat counts.
-- Real REST booking, persistent SQLite storage, confirmation, upcoming/past/cancelled booking views and cancellation with seat restoration.
-- Backend protection against duplicate bookings, overbooking, overlaps with learning or teaching, host self-booking, expired/completed sessions and unapproved subjects. Capacity checks run inside a SQLite write transaction.
-- Tutor schedule and illustrative engagement points from two **seeded completed sessions**. Tutors can also book someone else's tutoring.
-- Professor view of current booking counts and capacity for the two assigned synthetic courses, plus topic demand, Learning Check participation, suppressed assessment means and advisory teaching recommendations.
-- Curated pre- and post-session Learning Checks for all six upcoming demo sessions: two multiple-choice questions per check, different questions for the same two objectives, backend scoring, saved answers and explanations.
-- Private learning progress with pending/completed checks, practiced topics, side-by-side results and supportive next steps. A labeled demo completion mechanism unlocks future sessions' follow-up checks without recording attendance or changing tutor points.
-- Loading, retry, empty and booking-error states. The public landing page works with the API stopped.
+- Focused role navigation: learner learning space; tutor teaching/publishing with full learner access; professor courses, insights and support actions.
+- Voluntary topic **Learning Pulse** with update/withdrawal, supportive matching suggestions and explicit open/matched/withdrawn support requests.
+- Persistent **Study Groups**: subject/topic/date/availability filters, creation, joining, leaving, personal groups, creator editing/cancellation and real capacity checks. These are student-organized activities, separate from approved tutoring.
+- **Tutor publishing** for approved subjects, immediate catalog visibility, host booking lists, safe edits and explicit cancellation of reservations.
+- **Professor actions** for assigned courses: rationale, human confirmation, timestamped aggregate evidence, status, follow-up and notes. TA actions can publish faculty-organized sessions with an approved synthetic host, using the original catalog and booking service.
+- Topic links connect reflection → support → booking/group → checks → aggregate evidence → faculty opportunity. Refresh preserves SQLite records and the selected demo role.
+- Clear labels distinguish seeded synthetic examples, new demo interactions, peer tutoring and faculty-organized synthetic support. Online format has no meeting integration.
+- Responsive layouts, semantic forms, keyboard-accessible controls, native booking dialogs and loading/retry/empty/error/success states.
 
-## Requirements
+The product recognizes **support needs**, not individual academic risk. Voluntary reflection, explicit demand and two-question check results are different evidence. Deterministic recommendations require human review; there is **no AI or machine learning**, automatic student contact or academic decision. Every person and observation is fictional. `X-Demo-User-Id` is **not authentication**. Do not expose this demo publicly or enter real student information.
 
-- **Python 3.12+** (tested with 3.12.14), with `venv` and pip.
-- **Node.js 22.12+** (tested with 24.22.1) and npm.
-- Two terminal windows. No Docker, API keys, external services or university credentials required.
+## Install and run
 
-Run all commands from the extracted `classall` directory unless a command explicitly changes directories. On macOS/Linux, `python3` can be used wherever `python` appears below.
+Requires Python 3.12+, Node.js 22.12+ and npm. Tested on Linux with Python 3.12.14 and Node 24.22.1; Windows instructions use the existing Python/Node setup and have not been executed on Windows.
 
-## Install
+From the repository root:
 
 ```sh
 python -m venv .venv
 ```
 
-Activate the environment:
-
-```sh
-# macOS / Linux
-source .venv/bin/activate
-```
-
-```powershell
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-```
-
-Then install both parts:
+Activate with `source .venv/bin/activate` (macOS/Linux) or `.venv\Scripts\Activate.ps1` (Windows PowerShell), then:
 
 ```sh
 python -m pip install -r backend/requirements.lock.txt
 npm ci --prefix frontend
 ```
 
-`backend/requirements.txt` records the direct dependencies. `requirements.lock.txt` pins the full tested dependency set; `frontend/package-lock.json` locks npm dependencies.
-
-## Start locally
-
-**Terminal 1 — API**, from the project root with the virtual environment activated:
+Terminal 1 (virtual environment active):
 
 ```sh
 python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 ```
 
-**Terminal 2 — frontend**, from the project root:
+Terminal 2:
 
 ```sh
 npm run dev --prefix frontend
 ```
 
-Open **http://127.0.0.1:5173**. If Vite prints a different port because 5173 is occupied, use that printed URL.
+Open **http://127.0.0.1:5173/app** (or Vite’s printed port). The landing page is `/`; API health is `http://127.0.0.1:8000/api/health` and interactive API documentation is `/docs` on the API port. Both servers bind to loopback. Stop them with Ctrl+C.
 
-- Landing: `http://127.0.0.1:5173/`
-- Demo workspace: `http://127.0.0.1:5173/app`
-- API health: `http://127.0.0.1:8000/api/health`
-- Interactive API documentation: `http://127.0.0.1:8000/docs`
+The default database is `backend/data/classall.sqlite3`. Startup performs additive, repeatable migrations and seeds only missing versioned example data. Existing bookings, submissions, history and dates are preserved. **Do not delete an existing database to upgrade.** All event timestamps use UTC storage and the browser’s local display time zone; the group date filter explicitly uses a UTC day.
 
-The SQLite database is created and seeded automatically at **`backend/data/classall.sqlite3`** during API startup. Restarting the API preserves bookings and does not duplicate seed data. Phase 2 automatically adds its schema and versioned synthetic question bank to existing MVP databases; **do not delete an existing database to upgrade**. A compatibility test opens the frozen MVP schema and verifies original records remain unchanged after repeated upgrades. Dates are seeded relative to the first initialization: six future sessions, two completed sessions, five subjects and eight fictional people. Session timestamps are stored in UTC and displayed in the browser's time zone.
+### Update an existing Windows installation
 
-Both services bind to loopback. No public deployment is configured. Stop each service with **Ctrl+C**.
+Stop both local servers and back up `backend/data/classall.sqlite3` while stopped. Commit/stash your own source changes, fetch, and switch to `feature/classall-connected-learning` (after PR merge, use the updated `main`). From the project root:
 
-### Local production build
+```powershell
+git fetch origin
+git switch feature/classall-connected-learning
+git pull --ff-only
+.venv\Scripts\Activate.ps1
+python -m pip install -r backend/requirements.lock.txt
+npm ci --prefix frontend
+cd backend
+python -m pytest -q
+cd ..
+npm test --prefix frontend
+npm run build --prefix frontend
+```
 
-With the API still running:
+Restart the API and frontend using the commands above. The migration runs automatically. Existing environment variables and custom database paths should remain in place. If PowerShell activation is restricted, use `.venv\Scripts\python.exe` directly instead of changing system-wide execution policy.
+
+### Keep examples useful without resetting history
+
+Examples use dates relative to initial creation. If they have expired, explicitly append fresh synthetic opportunities:
+
+```sh
+# With the virtual environment active, from the repository root
+cd backend
+python -m app.demo --add-examples
+cd ..
+```
+
+This fills missing future example groups and Mathematics/Statistics tutoring, preserving old records and dates. Repeating it while suitable examples exist adds nothing. Real demo interactions are never relabeled. There is no reset API.
+
+For a separate rehearsal database, set `CLASSALL_DB_PATH` before starting the API:
+
+```powershell
+$env:CLASSALL_DB_PATH = "C:\path\to\rehearsal.sqlite3"
+```
+
+On macOS/Linux use `CLASSALL_DB_PATH=/path/to/rehearsal.sqlite3 python -m uvicorn ...`. Never reset a database that contains history you want to retain.
+
+## Test and build
+
+```sh
+# Virtual environment active
+cd backend
+python -m pytest -q
+cd ..
+npm test --prefix frontend
+npm run build --prefix frontend
+```
+
+Frontend integration tests launch temporary FastAPI/SQLite instances and drive React through real HTTP in JSDOM. Set `CLASSALL_PYTHON` to an absolute Python executable if you use a different virtual environment. Tests do not touch the normal database.
+
+For real Chromium testing, install its browser once:
+
+```sh
+cd frontend
+npx playwright install chromium
+cd ..
+npm run test:browser --prefix frontend
+```
+
+The browser runner starts its own isolated API, Vite server and temporary SQLite database on free loopback ports, runs all roles and the connected journey, checks 390/768/1440px layouts and stops its services. Screenshots/logs go to gitignored `work/browser-qa/`. To use an installed Chromium, set `CLASSALL_CHROMIUM` to its executable. `CLASSALL_API_TARGET` is an optional Vite proxy override used by the isolated runner; the default remains port 8000.
+
+For a local production preview with the API running:
 
 ```sh
 npm run build --prefix frontend
 npm run preview --prefix frontend
 ```
 
-Open the URL printed by Vite (normally `http://127.0.0.1:4173`). The preview configuration also proxies `/api` to the Python API. Opening `dist/index.html` as a file will not work; use a server.
+Open Vite’s printed URL (normally port 4173). Do not open `dist/index.html` directly.
 
-## Learning Checks demonstration
+## Rules worth knowing
 
-1. Open the workspace as **Learner (Laura)**, find **Make sense of the chain rule**, and book a free seat.
-2. From confirmation choose **Start pre-session Learning Check** (also available in **My sessions**). Answer both questions and submit. Backend scoring saves the result; explanations and correct answers become visible only after submission.
-3. Open **My learning & impact**. Review the before result, practiced topic and pending follow-up. Choose **Demo: simulate completed session**, whose disclosure explains that no attendance or tutor points are recorded.
-4. Complete the different post-session questions and review the comparison. A difference in percentage points describes these short checks; it is not a validated learning gain or evidence of tutoring effectiveness. Lower results lead to constructive practice suggestions.
-5. Reload the page and reopen either completed check to demonstrate persistent answers and explanations. Each booking permits one submission per stage. Partial selections are local drafts, lost when leaving the page; they never create a score.
-6. Switch to **Professor**. Only assigned Mathematics and Statistics appear. Chain-rule groups start with two seeded fictional learners and are suppressed; Laura's submitted pre/post checks bring the respective groups to three. Missing checks stay missing. For an example practice-material recommendation, let Laura answer both follow-up questions incorrectly.
-7. Inspect each recommendation's observable demand and assessment signals and **Human review required** label. TA scheduling remains a clearly labeled future action; nobody is contacted.
-8. Return to **Learner**, open **My sessions**, cancel the future booking and confirm. The seat is restored, saved results stay private, and professor aggregates exclude the cancelled booking and suppress groups that fall below three.
+- Groups include the creator as one member. With other members, only title, description and capacity can change. The creator cancels rather than leaving.
+- Tutors publish only in their approved subjects. With confirmed bookings, only text/objectives or increased capacity can change. Topic stays fixed after any booking history. Explicit cancellation marks reservations cancelled while retaining history and saved checks.
+- Faculty must own the action and supervise its topic. Host approval is checked separately. Faculty organizer and tutor host are distinct; hosts cannot change faculty offerings. A faculty action’s topic stays fixed.
+- Support requests match when their owner books/joins corresponding support; leaving/cancelling reopens them if no matching reservation remains. A match is not attendance or proof of improvement.
+- Latest active Pulse responses count once per learner/topic. Pulse distributions and open-request counts are suppressed independently below three. Existing Learning Check suppression remains. The threshold is illustrative and **not production-ready privacy protection**.
+- Publishing, group participation, bookings and demo completion do not award tutor points. The original two completed synthetic sessions still give David 40 illustrative points.
 
-The **Tutor** demo still shows 40 illustrative points from the original two completed sessions. Tutors can book others' sessions and use the same private Learning Checks. Checks also cover Python loops/functions, forces/motion, supply/demand, confidence intervals and stacks/queues. Older completed sessions (IDs 7–8) have no curated checks.
+## Documentation
 
-See [docs/LEARNING_INTELLIGENCE.md](docs/LEARNING_INTELLIGENCE.md) for the schema, indicators, deterministic rules and demo limitations.
+- [Architecture, initial audit, migrations, tables and new APIs](docs/CONNECTED_LEARNING.md)
+- [Hack4Edu demonstration sequence](docs/HACK4EDU_DEMO.md)
+- [Pilot and transferability](docs/PILOT_AND_TRANSFER.md)
+- [Manual QA checklist](docs/DEMO_CHECKLIST.md)
+- [Executed checks and limits](docs/TEST_REPORT.md)
+- [Phase 3 delivery report](docs/PHASE3_REPORT.md)
+- [Original Learning Check design](docs/LEARNING_INTELLIGENCE.md)
 
-## Test
+Original API routes remain compatible, including `/api/bookings`, checks/history, tutor overview and assigned-course `/api/insights`. See `/docs` or the architecture document for the full new endpoint inventory.
 
-Install both sets of dependencies first, then from the project root:
+## Prototype limits and future work
 
-```sh
-# Backend tests (temporary, isolated SQLite databases)
-cd backend
-python -m pytest -v
-cd ..
+Real identity, institutional authorization, multi-institution boundaries, tutor applications/professor approval reviews, moderation, production privacy, reviewed assessment instruments, attendance verification, backup operations and load testing are future work. The existing fictional tutor approvals are enforced now. There is no real early-warning model, grade ingestion, official accreditation, university endorsement, live video/chat, notifications, payments, LMS/calendar integration or offline synchronization. Faculty snapshot retention and differencing-resistant privacy need institutional review before any real-data pilot. Discovery and aggregation are optimized for a small local dataset, not measured institutional scale.
 
-# React tests plus a real HTTP integration test
-npm test --prefix frontend
-
-# TypeScript validation and production bundle
-npm run build --prefix frontend
-```
-
-The frontend integration test launches its own temporary FastAPI subprocess on a free **loopback** port, drives the React UI in JSDOM, verifies persisted bookings and professor counts, cancels through the UI, and stops the subprocess. It does not touch your demo database. It uses `.venv/bin/python` on macOS/Linux and `.venv/Scripts/python.exe` on Windows. For a different virtual environment, set `CLASSALL_PYTHON` to its absolute Python executable path before testing.
-
-See [docs/TEST_REPORT.md](docs/TEST_REPORT.md) for exact results and verification limits. Phase 2 also received a Chromium end-to-end smoke check and responsive overflow checks at 390/768/1440px. A full keyboard, screen-reader and accessibility audit remains manual; JSDOM cannot establish those.
-
-## Reset the demo
-
-Only reset when you want to discard **all local demo bookings and history**. Stop the API first, then run from the project root:
-
-```sh
-python -c "from pathlib import Path; p=Path('backend/data/classall.sqlite3'); p.unlink(missing_ok=True)"
-```
-
-Restart the API. A fresh synthetic database is seeded with new upcoming dates. The app does not move session dates on every startup: if the catalog becomes empty after the original dates pass, reset it intentionally. The role preference can be reset by choosing **Learner** in the UI.
-
-You can select another database path before API startup:
-
-```sh
-# macOS / Linux example
-CLASSALL_DB_PATH=/absolute/path/to/demo.sqlite3 python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
-```
-
-There is deliberately no unauthenticated reset API endpoint.
-
-## Architecture
-
-```text
-classall/
-├── frontend/
-│   ├── src/
-│   │   ├── pages/             # Learner, catalog, schedule, tutor, faculty, impact, groups
-│   │   ├── components/        # Shell, cards, booking dialog, shared UI and illustration
-│   │   ├── lib/               # Typed REST client, demo context, booking helpers, types
-│   │   ├── App.tsx            # Routes
-│   │   ├── Landing.tsx        # Backend-independent public page
-│   │   └── *.test.tsx         # Component and real API integration tests
-│   ├── vite.config.ts        # React, Tailwind, test setup, /api proxy
-│   └── package-lock.json
-├── backend/
-│   ├── app/
-│   │   ├── main.py            # App factory, API routes and demo role guards
-│   │   ├── schemas.py         # Validated API input/output contracts
-│   │   ├── booking_service.py # Transactional booking/cancellation rules
-│   │   ├── repository.py      # Parameterized queries and record serialization
-│   │   ├── db.py              # Schema and connection lifecycle
-│   │   └── seed.py            # Synthetic personas, approvals, courses and sessions
-│   ├── data/                 # Generated SQLite database (gitignored)
-│   └── tests/                # Real service/database tests, including concurrency
-└── docs/
-```
-
-The frontend uses relative `/api` requests. Vite forwards them to `http://127.0.0.1:8000`, so frontend and backend remain separate and no permissive CORS configuration is needed. A different hosting setup must supply an equivalent reverse proxy. The UI has no client secrets, remote fonts, trackers or external image dependencies.
-
-### REST endpoints
-
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| GET | `/api/health` | Database readiness and synthetic-demo status |
-| GET | `/api/demo-users` | The three selectable synthetic personas |
-| GET | `/api/subjects` | All synthetic university subjects |
-| GET | `/api/sessions` | Upcoming sessions; optional `subject_id`, `q`, `delivery` |
-| GET | `/api/sessions/{id}` | Full session details and current seats |
-| GET | `/api/bookings` | Selected demo user's bookings |
-| POST | `/api/bookings` | Reserve a seat; JSON `{"session_id": 1}` |
-| POST | `/api/bookings/{id}/cancel` | Cancel own upcoming booking; idempotent |
-| GET | `/api/tutor/overview` | Tutor's upcoming teaching, approvals and seeded contribution metrics |
-| GET | `/api/insights` | Assigned-course capacity, topic demand, participation, suppressed means and advisory recommendations |
-| GET | `/api/learning/topics` | Curated topics and objectives; no question keys |
-| GET | `/api/learning/history` | Selected learner/tutor's private results and suggestions |
-| GET | `/api/bookings/{id}/learning-checks/{stage}` | Own `pre`/`post` check, readiness, or saved result and explanations |
-| POST | `/api/bookings/{id}/learning-checks/{stage}` | Submit all answers once; JSON `{"answers":{"100":1000,"101":1011}}` |
-| POST | `/api/bookings/{id}/simulate-completion` | Explicit demo-only follow-up unlock; requires own confirmed booking and completed pre-check |
-
-Persona-specific endpoints require `X-Demo-User-Id`: `1` (Laura), `2` (David), or `3` (professor). This is an intentionally forgeable local demo selector, **not identity verification or production authorization**. Role and ownership checks demonstrate business rules only.
-
-Example with the API running:
-
-```sh
-curl http://127.0.0.1:8000/api/subjects
-curl -X POST http://127.0.0.1:8000/api/bookings -H 'Content-Type: application/json' -H 'X-Demo-User-Id: 1' -d '{"session_id":1}'
-```
-
-## Deliberately incomplete
-
-- Real sign-in, verified university membership, production access control and multi-university support.
-- Session publishing/editing, real tutor applications, instructor approval decisions and attendance verification. Approval badges refer only to the seeded fictional dataset.
-- AI qualification, validated assessment instruments, early-warning models and individual academic alerts. The implemented curated checks and deterministic recommendations are demo-only; booking counts are not evidence of learning difficulty.
-- Working study groups, messaging, moderation, faculty TA scheduling and calendar/email invitations.
-- Assessed competencies, verified new contribution points, certificates, credit, rewards or portfolio export. The tutor portfolio is illustrative.
-- Online meeting links, real campus reservations, payments, LMS integrations and offline support.
-- Automated accessibility audit or visual testing in a browser. Responsive styles and accessible controls are implemented but still need device review.
-
-Future features are labeled in the UI and have no misleading submit/join/generate actions. New points are not awarded merely for bookings. There are no forms that solicit real student information, and no paid services or public hosting were activated.
+No real student data, public deployment, automated messages or paid integrations are used.

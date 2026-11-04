@@ -18,6 +18,10 @@ export async function request<T>(
     try {
       const body = await response.json();
       if (typeof body.detail === "string") message = body.detail;
+      else if (Array.isArray(body.detail))
+        message = body.detail
+          .map((item: { msg: string }) => item.msg)
+          .join(" ");
     } catch {
       /* Non-JSON proxy error. */
     }

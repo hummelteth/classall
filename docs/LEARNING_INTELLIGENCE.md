@@ -1,3 +1,5 @@
+> Historical Phase 2 design. Phase 3 now implements tutoring publishing, study groups and faculty support actions; see [CONNECTED_LEARNING.md](CONNECTED_LEARNING.md) for the current architecture and limits. The assessment methodology below remains in use.
+
 # Phase 2: Learning Checks & Teacher Intelligence
 
 Built from the latest merged MVP `90cbeb13a41c467ecd369c4e09e904e1b3de0690` on `feature/classall-learning-intelligence`. The existing React/TypeScript/Tailwind frontend, FastAPI endpoints, synthetic identities, SQLite records and booking rules remain in place.

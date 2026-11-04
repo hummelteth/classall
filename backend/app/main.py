@@ -27,7 +27,7 @@ def create_app(db_path: str | None = None):
 
     app = FastAPI(
         title="ClassAll Demo API",
-        version="0.1.0",
+        version="0.3.0",
         lifespan=lifespan,
         description="Synthetic data only. X-Demo-User-Id is a demo selector, NOT authentication. Do not expose this API publicly.",
     )
@@ -54,9 +54,15 @@ def create_app(db_path: str | None = None):
         subject_id: Annotated[int | None, Query(gt=0)] = None,
         q: Annotated[str | None, Query(max_length=100)] = None,
         delivery: Literal["Online", "In person"] | None = None,
+        topic_id: Annotated[int | None, Query(gt=0)] = None,
         db=Depends(get_db),
     ):
-        return repo.sessions(db, subject_id, q, delivery)
+        offerings = repo.sessions(db, subject_id, q, delivery)
+        return [
+            s
+            for s in offerings
+            if topic_id is None or any(t["id"] == topic_id for t in s["topics"])
+        ]
 
     @app.get("/api/sessions/{session_id}", response_model=Session)
     def session(session_id: int, db=Depends(get_db)):
@@ -180,6 +186,9 @@ def create_app(db_path: str | None = None):
     ):
         return learning.simulate(db, actor, booking_id)
 
+    from .connected_routes import register
+
+    register(app, get_db, demo_actor)
     return app
 
 

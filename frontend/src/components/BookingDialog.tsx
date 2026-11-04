@@ -141,7 +141,11 @@ export default function BookingDialog({
         <>
           <div className={`dialog-banner tone-${s?.subject.color ?? "violet"}`}>
             <span className="dialog-symbol">{s?.subject.symbol ?? "✳"}</span>
-            <span className="pill neutral">Free peer tutoring</span>
+            <span className="pill neutral">
+              {s?.kind === "faculty"
+                ? "Faculty-organized · synthetic TA support"
+                : "Free peer tutoring"}
+            </span>
           </div>
           <div className="dialog-content">
             {remote.loading ? (
@@ -174,6 +178,12 @@ export default function BookingDialog({
                       Demo approval
                     </span>
                   </div>
+                  {s.kind === "faculty" && (
+                    <p className="fine-print">
+                      Faculty-organized synthetic support with an approved demo
+                      tutor. This is not an official university offering.
+                    </p>
+                  )}
                   <p className="dialog-description">{s.description}</p>
                   <div className="session-facts">
                     <div>

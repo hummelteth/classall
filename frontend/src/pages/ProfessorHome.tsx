@@ -1,26 +1,43 @@
+import type { SupportAction, SupportSignal } from "../lib/types";
+import { PulseInsights } from "../components/PulseInsights";
 import { TeacherLearningInsights } from "../components/TeacherLearningInsights";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, Sprout } from "lucide-react";
 import { PageTitle } from "../components/PageTitle";
 import { useDemo } from "../lib/demo";
 import { useRemote } from "../lib/api";
-import {
-  ComingSoon,
-  ErrorState,
-  Loading,
-  SectionHeading,
-} from "../components/ui";
+import { ErrorState, Loading, SectionHeading } from "../components/ui";
 import type { Insights } from "../lib/types";
 
-export function ProfessorHome() {
+export function ProfessorHome({
+  mode = "overview",
+}: {
+  mode?: "overview" | "courses" | "insights";
+}) {
   const { user, version } = useDemo();
   const remote = useRemote<Insights>("/insights", user.id, version);
+  const actions = useRemote<SupportAction[]>(
+    "/support-actions",
+    user.id,
+    version,
+  );
+  const signals = useRemote<SupportSignal[]>(
+    "/professor/signals",
+    user.id,
+    version,
+  );
   return (
     <>
       <PageTitle
         eyebrow="YOUR FACULTY WORKSPACE"
-        title="See where support can begin."
-        description="A shared view of tutoring participation across your assigned demo courses."
+        title={
+          mode === "overview"
+            ? "See where support can begin."
+            : mode === "courses"
+              ? "Your courses, connected."
+              : "Understand the need. Choose the next step."
+        }
+        description="Notice support needs, review the evidence and create opportunities in your assigned courses."
       />
       <div className="faculty-banner">
         <span className="faculty-icon">
@@ -126,25 +143,79 @@ export function ProfessorHome() {
                     Explore course sessions
                     <ArrowRight size={15} />
                   </Link>
-                  <TeacherLearningInsights
-                    topics={c.topics ?? []}
-                    subjectId={c.subject.id}
-                  />
+                  {mode === "insights" && (
+                    <>
+                      <PulseInsights subjectId={c.subject.id} />
+                      <TeacherLearningInsights
+                        topics={c.topics ?? []}
+                        subjectId={c.subject.id}
+                      />
+                    </>
+                  )}
+                  {mode !== "insights" && (
+                    <Link className="text-link" to="/app/insights">
+                      Review topic evidence & voluntary demand
+                    </Link>
+                  )}
                 </article>
               ))}
             </div>
-            <p className="insight-note">
-              <ShieldCheck size={20} />
-              {remote.data.note}
-            </p>
+            <details className="evidence-details">
+              <summary>How to interpret these signals</summary>
+              <p className="insight-note">
+                <ShieldCheck size={20} />
+                {remote.data.note}
+              </p>
+            </details>
           </>
         )
       )}
-      <div className="future-grid">
-        <ComingSoon title="Additional TA sessions">
-          A future faculty workflow will let instructors respond to unmet demand
-          with extra teaching support. No scheduling or invitations are active.
-        </ComingSoon>
+      <div className="connections-strip">
+        <div>
+          <h2>What needs human review?</h2>
+          <p>
+            Check topic evidence before deciding what additional support could
+            help.
+          </p>
+          {signals.loading && <Loading label="Loading topic demand" />}
+          {signals.error && (
+            <ErrorState message={signals.error} retry={signals.retry} />
+          )}
+          {signals.data
+            ?.filter((s) => s.open_requests !== null)
+            .map((s) => (
+              <small key={s.topic.id}>
+                {s.topic.name}: {s.open_requests} open requests · review
+                suggested.
+              </small>
+            ))}
+          <Link className="text-link" to="/app/insights">
+            Review learning insights
+          </Link>
+        </div>
+        <div>
+          <h2>From evidence to action</h2>
+          <p>
+            Plan practice, a follow-up review or synthetic faculty-supported
+            tutoring.
+          </p>
+          {actions.loading && <Loading label="Loading support actions" />}
+          {actions.error && (
+            <ErrorState message={actions.error} retry={actions.retry} />
+          )}
+          {actions.data && (
+            <small>
+              {actions.data.filter((a) => a.status === "planned").length}{" "}
+              planned ·{" "}
+              {actions.data.filter((a) => a.status === "active").length} active
+              · {actions.data.filter((a) => a.status === "completed").length}{" "}
+              completed
+            </small>
+          )}
+          <Link className="text-link" to="/app/actions">
+            Manage support actions
+          </Link>
+        </div>
       </div>
     </>
   );

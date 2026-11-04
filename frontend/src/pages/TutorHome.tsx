@@ -41,11 +41,13 @@ export function TutorHome() {
             could start with you.
           </h2>
           <p>
-            Your teaching history below is synthetic. New session publishing is
-            on the roadmap.
+            Offer a new session in your approved subjects and welcome learners
+            into your teaching space.
           </p>
         </div>
-        <span className="large-spark">✳</span>
+        <Link className="button primary" to="/app/teaching?create=true">
+          Create a session
+        </Link>
       </section>
       {remote.loading ? (
         <Loading label="Loading your workspace" />
@@ -59,7 +61,10 @@ export function TutorHome() {
               <section>
                 <SectionHeading
                   title="Your upcoming teaching"
-                  link={{ to: "/app/sessions", label: "Full schedule" }}
+                  link={{
+                    to: "/app/teaching",
+                    label: "Manage teaching & bookings",
+                  }}
                 />
                 {remote.data.sessions.length ? (
                   <div className="teaching-list">
