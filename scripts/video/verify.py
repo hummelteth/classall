@@ -42,11 +42,44 @@ def verify(database, output):
     report['foreign_key_errors'] = rows('PRAGMA foreign_key_check')
     assert not report['foreign_key_errors']
     records = json.loads((Path(output)/'recording.json').read_text())
-    assert [r['number'] for r in records] == list(range(1,9))
+    expected = 9 if records[0].get('version') == 2 else 8
+    assert [r['number'] for r in records] == list(range(1,expected+1))
+    if expected == 9:
+        assert all(r.get('version') == 2 for r in records)
+        assert all(any(e['type']=='click' and e['trusted'] for e in r['events']) for r in records[1:8])
+        action = report['support_action'][0]
+        evidence = json.loads(action['evidence'])
+        assert action['topic_id'] == 1 and action['action_type'] == 'practice'
+        assert evidence['topic']['id'] == 1 and evidence['human_review_required'] and evidence['synthetic']
+        assert evidence['participants'] == db.execute('SELECT COUNT(*) FROM learning_pulses WHERE topic_id=1 AND active=1').fetchone()[0]
+        requests = db.execute("SELECT COUNT(DISTINCT learner_id) FROM support_requests WHERE topic_id=1 AND status='open'").fetchone()[0]
+        assert evidence['open_requests'] == (requests if requests >= 3 else None)
+        assert evidence['learning_checks']['topic']['id'] == 1
+        assert evidence['captured_at']
+        # Recompute the complete available evidence on this same read-only
+        # connection; importing service helpers does not start the application.
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'backend'))
+        from app.connected import topic_signal
+        from app.learning import topic_insights
+        from datetime import datetime
+        from unittest.mock import patch
+        captured = datetime.fromisoformat(evidence['captured_at'])
+        assert captured.tzinfo is not None
+        class SnapshotClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return captured.astimezone(tz) if tz else captured.replace(tzinfo=None)
+        # Availability is evaluated at the saved decision time, so checking an
+        # archived take weeks later does not make historical evidence invalid.
+        with patch('app.repository.datetime', SnapshotClock), patch('app.learning.datetime', SnapshotClock):
+            expected_evidence = topic_signal(db, 1)
+            expected_evidence['learning_checks'] = next(t for t in topic_insights(db, 3, 1) if t['topic']['id'] == 1)
+        assert {k: v for k, v in evidence.items() if k != 'captured_at'} == expected_evidence, 'Saved evidence disagrees with the available aggregate state'
+        report['v2_evidence_verified'] = True
     for record in records:
         assert (Path(output)/'raw'/f"scene-{record['number']:02}.webm").stat().st_size > 1000
     (Path(output)/'state-qa.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print('PASS: eight scenes and persisted pulse, request, approval, booking, precheck, two-party attendance, feedback, 40 + 20 = 60 points, faculty evidence.')
+    print(f'PASS: {expected} scenes and persisted pulse, request, approval, booking, precheck, two-party attendance, feedback, 40 + 20 = 60 points, faculty evidence.')
 
 if __name__=='__main__':
     verify(*sys.argv[1:])

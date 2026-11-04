@@ -34,7 +34,10 @@ async function stop(child) {
 }
 (async () => {
   const root = resolve(__dirname, "../..");
-  const outputRoot = resolve(process.argv[2] || join(root,'work','video'));
+  const v2 = process.argv.includes('--v2');
+  const supplied = process.argv.slice(2).filter(arg => arg !== '--v2');
+  if(supplied.length > 1) throw Error('Usage: record-video.cjs [output-root] [--v2]');
+  const outputRoot = resolve(supplied[0] || join(root,'work',v2 ? 'video-v2' : 'video'));
   mkdirSync(outputRoot,{recursive:true});
   const artifacts = mkdtempSync(join(outputRoot,'take-'));
   const directory = join(artifacts,'database');
@@ -123,7 +126,7 @@ async function stop(child) {
     frontend.stderr.on("data", (s) => (logs += s));
     await waitReady(`http://127.0.0.1:${frontPort}`, frontend);
     {
-      await require('./video-story.cjs')(`http://127.0.0.1:${frontPort}`,artifacts,true);
+      await require('./video-story.cjs')(`http://127.0.0.1:${frontPort}`,artifacts,true,{v2});
       const verified = spawnSync(python,[join(root,'scripts/video/verify.py'),database,artifacts],{cwd:root,encoding:'utf8'});
       if(verified.status !== 0) throw Error(verified.stderr || verified.stdout);
       console.log(verified.stdout);

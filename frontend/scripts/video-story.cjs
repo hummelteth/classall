@@ -5,6 +5,7 @@ module.exports = async function recordStory(
   base,
   artifacts,
   spanish = true,
+  {v2 = false} = {},
 ) {
   const browser = await chromium.launch({
     executablePath: process.env.CLASSALL_CHROMIUM || undefined,
@@ -13,7 +14,10 @@ module.exports = async function recordStory(
   });
   const fs = require('node:fs');
   const errors = [];
-  let page, context, scene = 0, beats = [], sceneStart;
+  let page, context, scene = 0, beats = [], events = [], sceneStart;
+  let persona = 0;
+  const director = require('./video-director.cjs');
+  const event = data => events.push({...data,at:(Date.now()-sceneStart)/1000});
   let nextUrl = base + '/';
   let state;
   const manifest = [];
@@ -30,10 +34,15 @@ module.exports = async function recordStory(
       storageState: state,
       recordVideo: { dir: join(artifacts, 'raw'), size: {width:1920,height:1080} }
     });
+    events = [];
     sceneStart = Date.now();
+    if(v2) await director.installCursor(context,event);
     page = await context.newPage();
+    if(v2) page = director.direct(page,event);
+    event({type:'persona',id:persona});
     page.setDefaultTimeout(15000);
     page.on('pageerror', e => errors.push(e.message));
+    page.on('requestfailed', r => { if(r.url().includes('/api/') && r.failure()?.errorText !== 'net::ERR_ABORTED') errors.push(`${r.failure()?.errorText} ${r.url()}`); });
     page.on('response', r => { if(r.url().includes('/api/') && r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
     await page.goto(nextUrl);
     await page.getByRole('main').waitFor();
@@ -45,7 +54,7 @@ module.exports = async function recordStory(
     const alerts = await page.locator('[role="alert"]').allTextContents();
     assert(!alerts.some(t => /error|failed|no se pudo/i.test(t)), alerts.join(' '));
     await page.screenshot({path:join(artifacts, 'frames', `scene-${String(scene).padStart(2,'0')}-${beats.length+1}.png`)});
-    beats.push({note, at:(Date.now()-sceneStart)/1000});
+    beats.push({note, at:(Date.now()-sceneStart)/1000, duration:seconds});
     await page.waitForTimeout(seconds*1000);
   }
   async function endScene() {
@@ -54,7 +63,7 @@ module.exports = async function recordStory(
     const path = join(artifacts, 'raw', `scene-${String(scene).padStart(2,'0')}.webm`);
     await video.saveAs(path);
     await video.delete();
-    manifest.push({number:scene, source:require('node:path').relative(artifacts,path), beats});
+    manifest.push({number:scene, source:require('node:path').relative(artifacts,path), beats, ...(v2 ? {version:2,events} : {})});
     fs.writeFileSync(join(artifacts,'recording.json'), JSON.stringify(manifest,null,2));
     context = null;
   }
@@ -69,6 +78,8 @@ module.exports = async function recordStory(
     // Leave a private learner check before selecting a different demo identity.
     if(page.url().includes('/checks/')) await page.goto(base + '/app');
     await label("Demo role", "Rol de demostración").selectOption(String(id));
+    persona=id;
+    event({type:'persona',id});
   }
   async function layout(name) { await hold(name, 3); }
   try {
@@ -77,21 +88,26 @@ module.exports = async function recordStory(
       await page
         .getByLabel("Interface language", { exact: true })
         .selectOption("es");
-    await hold('¿Y si aprender fuera una experiencia compartida?', 5);
+    await hold('¿Qué ocurre cuando un estudiante necesita ayuda, pero nadie lo sabe a tiempo?', v2 ? 7 : 5);
+    if(v2) {
+      await page.locator('#how-it-works').scrollIntoViewIfNeeded();
+      await hold('Aprender juntos. Reconocer fortalezas. Apoyar a tiempo.',9);
+    }
     await startScene(2);
     await page.goto(base + '/app');
+    if(v2) { persona=1;event({type:'persona',id:1}); }
     // Laura: express a learning need using the existing connected pathway.
     await link("Learning Pulse", "Pulso de aprendizaje").click();
     await page
       .getByLabel(L("I'm struggling and would like support."), { exact: false })
       .check();
-    await hold("Laura necesita apoyo con la regla de la cadena", 3);
+    await hold("Laura necesita apoyo con la regla de la cadena", v2 ? 6 : 3);
     await button("Save check-in").click();
     await hold("Reflexión guardada", 2);
     await button("Request help with this topic").click();
-    await hold("Solicitud de apoyo guardada", 2);
+    await hold("Solicitud de apoyo guardada", v2 ? 5 : 2);
     await page.locator(".support-options").scrollIntoViewIfNeeded();
-    await hold("De una necesidad a oportunidades de apoyo", 3);
+    await hold("De una necesidad a oportunidades de apoyo", v2 ? 7 : 3);
     console.log("PASS Laura expresses a learning need");
     await startScene(3);
     // David begins without Mathematics approval in the dedicated scenario.
@@ -156,16 +172,17 @@ module.exports = async function recordStory(
         "Un cambio en x modifica la función interior y después la exterior. Multiplicamos ambas tasas. En (2x + 1)³, multiplicamos 3(2x + 1)² por 2 y obtenemos 6(2x + 1)². Dibujemos las etapas y probemos otro ejemplo.",
       );
     const stages = await form.locator('.application-stage').all();
-    for (const section of stages) {
+    for (const section of v2 ? stages.slice(-2) : stages) {
       for(const other of stages) {
         if(await other.getAttribute('open') !== null) await other.locator(':scope > summary').click();
       }
       await section.locator(':scope > summary').click();
       await section.scrollIntoViewIfNeeded();
-      await hold('Solicitud: ' + await section.locator(':scope > summary').innerText(), 3);
+      await hold('Solicitud: ' + await section.locator(':scope > summary').innerText(), v2 ? 4 : 3);
     }
     await button("Submit application", "Enviar solicitud").click();
     await page.locator(".application-card").waitFor();
+    if(!v2) {
     await button(
       "Open prepared review checklist",
       "Abrir guía de revisión preparada",
@@ -180,7 +197,8 @@ module.exports = async function recordStory(
       .waitFor();
     await page.reload();
     await page.getByText(L("Pending", "Pendiente"), { exact: true }).waitFor();
-    await layout("Solicitud pendiente y guía preparada");
+    }
+    await layout(v2 ? "Solicitud enviada: pendiente de revisión humana" : "Solicitud pendiente y guía preparada");
     await startScene(4);
     // Professor: inspect evidence, explicitly approve and persist a human decision.
     await role(3);
@@ -237,7 +255,9 @@ module.exports = async function recordStory(
     await hold("Matemáticas autorizada: una nueva oportunidad", 3);
     await button("Publish", "Publicar").click();
     await page.getByRole("heading", { name: title, exact: true }).waitFor();
+    if(v2) await page.getByRole("heading", { name: title, exact: true }).scrollIntoViewIfNeeded();
     await hold("Sesión publicada", 3);
+    if(v2) await startScene(6);
     // Laura: book the newly published session, save optional pre-check.
     await role(1);
     await link("Find support", "Buscar apoyo").click();
@@ -268,7 +288,7 @@ module.exports = async function recordStory(
     await button("Submit Learning Check").click();
     await page.getByRole("heading", { name: L("Your saved result") }).waitFor();
     await hold("Resultado guardado", 3);
-    await startScene(6);
+    await startScene(v2 ? 7 : 6);
     // David proposes attendance; no contribution before learner confirmation.
     await role(2);
     await link("My teaching", "Mis tutorías").click();
@@ -285,7 +305,7 @@ module.exports = async function recordStory(
       .click();
     await card.getByRole("checkbox").first().check();
     await card.getByRole("checkbox").last().check();
-    await hold("David propone asistencia sintética", 3);
+    await hold("David propone asistencia sintética", v2 ? 1 : 3);
     await card
       .getByRole("button", {
         name: L(
@@ -302,7 +322,7 @@ module.exports = async function recordStory(
         ),
       )
       .waitFor();
-    await layout("Propuesta sintética guardada");
+    await hold("Propuesta sintética guardada",v2 ? 1 : 3);
     // Laura confirms and gives feedback; the pre/post simulation was not used.
     await role(1);
     await link("My sessions", "Mis sesiones").click();
@@ -310,7 +330,7 @@ module.exports = async function recordStory(
       "I confirm my fictional participation in this synthetic demonstration.",
       "Confirmo mi participación ficticia en esta demostración sintética.",
     ).check();
-    await hold("Laura confirma por separado su participación ficticia", 3);
+    await hold("Laura confirma por separado su participación ficticia",v2 ? 1 : 3);
     await button(
       "Confirm my synthetic attendance",
       "Confirmar mi asistencia sintética",
@@ -331,7 +351,7 @@ module.exports = async function recordStory(
       "Optional private reflection",
       "Reflexión privada opcional",
     ).fill("Un diagrama me ayudaría a visualizar mejor las etapas la próxima vez.");
-    await hold("Comentarios para mejorar la enseñanza", 3);
+    await hold("Comentarios para mejorar la enseñanza",v2 ? 1 : 3);
     await button(
       "Send constructive feedback",
       "Enviar comentarios constructivos",
@@ -384,8 +404,8 @@ module.exports = async function recordStory(
         { exact: false },
       )
       .waitFor();
-    await layout("Origen de las contribuciones documentadas");
-    await startScene(7);
+    await hold("Origen de las contribuciones documentadas",v2 ? 2 : 3);
+    await startScene(v2 ? 8 : 7);
     // Faculty completes the story using existing aggregate signals and actions.
     await role(3);
     await link("Learning insights").click();
@@ -397,6 +417,7 @@ module.exports = async function recordStory(
       .fill(
         "La demanda agregada de apoyo sobre la regla de la cadena justifica ofrecer materiales de práctica adicionales.",
       );
+    if(v2) await page.locator('select[name="action_type"]').selectOption('practice');
     await page.locator('input[type="checkbox"]').last().check();
     await hold("Una acción confirmada por la profesora", 2);
     await button("Save confirmed action").click();
@@ -410,13 +431,14 @@ module.exports = async function recordStory(
     await actionEvidence.locator(':scope > summary').click();
     await actionEvidence.scrollIntoViewIfNeeded();
     await layout("Acción guardada con evidencia agregada");
-    await startScene(8);
+    await startScene(v2 ? 9 : 8);
+    persona=0;event({type:"persona",id:0});
     await page.goto(base + '/');
     await hold('Aprender juntos. Reconocer fortalezas. Apoyar a tiempo.', 5);
     await endScene();
     assert.deepEqual(errors, []);
     console.log(
-      `Spanish 1080p production journey passed; all eight scenes captured.`,
+      `Spanish 1080p production journey passed; all ${manifest.length} scenes captured.`,
     );
   } catch (error) {
     if (page && !page.isClosed()) await page.screenshot({

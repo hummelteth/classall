@@ -1,3 +1,87 @@
+# ClassAll Video V2 production
+
+V2 adds a nine-segment, 179-second edit to the existing V1 pipeline. All product code and the exclusive-create presentation initializer are unchanged. V1 remains available with its existing commands and eight-scene configuration below. V2 defaults to `work/video-v2/`, unique takes, `v2-scene-*.mp4`, and `classall-demo-v2-silent.mp4`; it does not replace V1 recordings or masters.
+
+## Windows: update, install, record and render V2
+
+Run from the repository root in PowerShell. Commit or stash unrelated local edits before changing branches. Use Python 3.11+, Node 20+ and FFmpeg with ffprobe/libx264 on PATH. No new paid tools, services, Python packages or npm dependencies are introduced.
+
+```powershell
+git switch feature/classall-demo-video
+git pull --ff-only origin feature/classall-demo-video
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+npm ci --prefix frontend
+Push-Location frontend
+npx playwright install chromium ffmpeg
+Pop-Location
+ffmpeg -version
+ffprobe -version
+$env:CLASSALL_PYTHON = (Resolve-Path .venv\Scripts\python.exe).Path
+node frontend\scripts\record-video.cjs --v2
+if ($LASTEXITCODE -ne 0) { throw 'Recording failed; inspect the retained take' }
+$take = (Get-Content work\video-v2\latest.txt -Raw).Trim()
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take
+if ($LASTEXITCODE -ne 0) { throw 'V2 rendering failed' }
+Start-Process (Join-Path $take 'final\classall-demo-v2-silent.mp4')
+```
+
+The recorder builds the frontend, chooses loopback ports, starts its own private backend and preview server, creates a fresh isolated database, records the real UI journey and verifies persisted state. Do not set `CLASSALL_DB_PATH` for this command. A new take is retained even after a failure; check command exit status before using `latest.txt`. An alternative media root is supported: `node frontend/scripts/record-video.cjs D:\ClassAll-media-v2 --v2`. Keep all generated media outside Git.
+
+If FFmpeg is absent, one installation option is `winget install --id Gyan.FFmpeg -e`; reopen PowerShell afterward. On Linux use `CLASSALL_PYTHON=python` with backend requirements installed. `CLASSALL_CHROMIUM` can select an installed compatible browser; otherwise use Playwright's installed Chromium. A managed environment may need its own local FFmpeg cache adaptation, described in the QA report; this is not needed on the user's working Windows setup.
+
+## Adjust timing and rerender without recording
+
+Edit `scripts/video/scenes-v2.json`. Durations must be positive whole frames at 30 fps and sum to **strictly less than 180 seconds**. The default is 179 seconds. Update the narration and worksheet if changing the timeline. No database or browser is needed for these commands:
+
+```powershell
+$take = (Get-Content work\video-v2\latest.txt -Raw).Trim()
+notepad scripts\video\scenes-v2.json
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take
+if ($LASTEXITCODE -ne 0) { throw 'Render failed' }
+# Re-encode only scene 4 after changing just that scene:
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take --scene 4
+if ($LASTEXITCODE -ne 0) { throw 'Scene render failed' }
+# Reassemble already edited scenes without re-encoding:
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take --assemble-only
+```
+
+A one-scene render requires a previous complete render. Changes to other scenes cause a clear failure so the cached clips cannot silently disagree with the configuration. The renderer reuses V1's FFmpeg/probe helpers. Scenes and masters are encoded to temporary MP4s and replace their V2 targets only after validation, keeping the previous valid file available during rendering. It preserves real important clicks (including 0.85 seconds before the action), recorded result holds and chronological order; routine navigation and form entry are cut. Meaningful footage is retimed only as necessary, with a maximum of 1.35×; longer scenes retain a final saved-state hold. If meaningful footage cannot fit, the render fails rather than discarding the result. `kept_ranges`, playback speed, source hashes, mapped interactions and measured beat timestamps are written to the manifest.
+
+The recording-only pointer is installed on every new document, including reloads. It has no pointer events or focus targets and cannot intercept controls. Its position follows actual browser pointer events; click rings come only from trusted pointer-down events. Playwright moves toward the actual locator box before clicking normally. The overlay never changes saved application state. The film keeps the full application inside a 1748×984 area above a separate 96-pixel editorial band. Names, roles and pillar messages cannot cover application controls. The tiny scaling difference between those dimensions and 16:9 is below 0.1%.
+
+## Four human voices later
+
+Use the complete Spanish script in `VIDEO_V2_NARRATION_ES.md` and the recording worksheet `VIDEO_V2_RECORDING_ES.md`. Deliver nine WAV files to `work/team-voice-v2/`. Names, speakers and scene-relative entry offsets are in `scenes-v2.json`.
+
+```powershell
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take --audio work\team-voice-v2 --check-audio
+if ($LASTEXITCODE -ne 0) { throw 'Missing or overlong voice segments: inspect audio-preflight-v2.json' }
+& $env:CLASSALL_PYTHON scripts\video\render_v2.py $take --audio work\team-voice-v2
+if ($LASTEXITCODE -ne 0) { throw 'Voice assembly failed' }
+Start-Process (Join-Path $take 'final\classall-demo-v2-voiced.mp4')
+```
+
+Audio import validates all nine files before encoding, reports missing/overlong recordings together, preserves natural pauses and levels, and adds configured silence before each segment. Each validated voice is aligned inside its own bounded PCM WAV slot; the nine slots are concatenated and encoded once to AAC. Aligned intermediates are retained under `audio-v2/`. It never shortens or time-stretches a recording. Video is copied from the existing silent master; the master is not rewritten. Output is AAC in a separate voiced MP4, still below 180 seconds. The team's actual recordings and final mix must be reviewed together; no voices or music are generated.
+
+## V2 artifacts and QA
+
+Each successful take includes `raw/scene-01.webm` through `scene-09.webm`, `edited/v2-scene-01.mp4` through `v2-scene-09.mp4`, the silent master, recorded checkpoints, `recording.json`, `state-qa.json`, `scene-manifest-v2.json`, `timing-config-v2.json`, a fresh synthetic database, and service logs. The manifest maps source cuts, real click events and persona transitions to the final timeline.
+
+```powershell
+& $env:CLASSALL_PYTHON scripts\video\verify.py (Join-Path $take 'database\classall-v5-presentation.sqlite3') $take
+& $env:CLASSALL_PYTHON scripts\video\test_v2.py
+& $env:CLASSALL_PYTHON scripts\video\review_v2.py $take
+Start-Process (Join-Path $take 'frames\review-v2\index.html')
+ffprobe -v error -show_streams -show_format (Join-Path $take 'final\classall-demo-v2-silent.mp4')
+```
+
+Verification opens only the take database in SQLite read-only mode. V2 additionally checks trusted recorded clicks and the support action's topic, action type, participant/request counts, Learning Check topic, human-review flag and complete captured evidence. Availability is recomputed at the saved decision time, allowing archived takes to be checked after their session dates. The same saved approval, session, booking, formative check, synthetic attendance, private-feedback protection and 40 + 20 = 60 contribution checks remain in place.
+
+Read `VIDEO_V2_QA_REPORT.md` for the measured output, reviewed frames, exercised commands and limits. Watch the complete film before submission: frame review and state checks cannot establish audience comprehension. No deployment or merge is part of this workflow.
+
+---
+
 # ClassAll silent demo production
 
 Base: merged `main` fa9f68f (includes V6.1 54a1df3). This workflow changes no product code. All characters, attendance and evidence are fictional. It requires no Ollama, keys, public hosting, music or speech service.
