@@ -4,9 +4,15 @@
 
 **V6 experience design** builds on merged V5: three visible learning pillars, grouped role navigation, accessible primary actions, guided applications and faculty review, a visual contribution portfolio, topic-grouped learning history and a simpler six-stage Studio. EN/ES layouts were inspected at 1440, 768 and 390px. See the [design report and screenshots](docs/V6_DESIGN_REPORT.md), [bilingual 6–7 minute demo guide](docs/V6_DEMO.md) and [QA report](docs/V6_QA_REPORT.md). The optional guided demo navigates real application screens; it does not complete actions.
 
-**Silent product video:** the separate [video production workflow](docs/VIDEO_PRODUCTION.md) records a real Spanish UI journey into eight adjustable scenes and assembles a 169-second silent 1080p MP4. See the [Spanish narration worksheet](docs/VIDEO_STORYBOARD_ES.md) and [production QA](docs/VIDEO_QA_REPORT.md). Every take uses a fresh isolated presentation database; normal application data is preserved.
+**Hack4Edu presentation video:** the [video production workflow](docs/VIDEO_PRODUCTION.md) produces a 179-second, nine-scene Spanish 1080p silent demonstration with visible interactions and a V2.1 role-colored editorial band. The [four-voice narration script](docs/VIDEO_V2_NARRATION_ES.md), [recording guide](docs/VIDEO_V2_RECORDING_ES.md), and [V2.1 QA report](docs/VIDEO_V2_1_QA_REPORT.md) are in `docs/`. The final MP4, original raw recordings and team voice files are local media assets, **not committed to Git**. See [team handover](docs/TEAM_HANDOVER.md).
 
 Version 5 extends V4 (`0f0a8d2`) with subject-specific tutor applications, human approval, explicitly synthetic two-party attendance, an idempotent contribution ledger, constructive feedback and a private portfolio. V4 bilingual learning, local AI Studio, professor publications, groups and faculty support actions remain. Existing SQLite records and David’s 40 historical synthetic points are preserved.
+
+## Team and contribution acknowledgment
+
+ClassAll is a Hack4Edu 2026 project shaped collaboratively by **its four official team members**. Their continuing ideas, product input, feedback and decisions helped define and refine the experience and presentation. **One official team member also contributed directly to prompting and iterating the AI-assisted workflow.**
+
+**Tim Hummel supported the team as an external technical collaborator**, helping with coding, integration and the Codex-assisted implementation and demonstration workflow. The Git commit history identifies who committed code; it does not capture every contribution to the concept, prompting, decisions, review or creative direction. The official Hack4Edu team remains responsible for its submission and continued development.
 
 ## What works
 
