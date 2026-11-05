@@ -8,12 +8,6 @@
 
 Version 5 extends V4 (`0f0a8d2`) with subject-specific tutor applications, human approval, explicitly synthetic two-party attendance, an idempotent contribution ledger, constructive feedback and a private portfolio. V4 bilingual learning, local AI Studio, professor publications, groups and faculty support actions remain. Existing SQLite records and David’s 40 historical synthetic points are preserved.
 
-## Team and contribution acknowledgment
-
-ClassAll is a Hack4Edu 2026 project shaped collaboratively by **its four official team members**. Their continuing ideas, product input, feedback and decisions helped define and refine the experience and presentation. **One official team member also contributed directly to prompting and iterating the AI-assisted workflow.**
-
-**Tim Hummel supported the team as an external technical collaborator**, helping with coding, integration and the Codex-assisted implementation and demonstration workflow. The Git commit history identifies who committed code; it does not capture every contribution to the concept, prompting, decisions, review or creative direction. The official Hack4Edu team remains responsible for its submission and continued development.
-
 ## What works
 
 - **Become a Tutor / Hazte tutor** for every student: subject/topic selection, motivation, experience, teaching plan, prepared bilingual knowledge questions and an explanation task. Students remain learners while gaining subject-specific teaching permissions.
