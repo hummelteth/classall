@@ -1,3 +1,9 @@
+# ClassAll Video V2.1 refinement
+
+To reuse the approved V2 recordings with a stronger 126-pixel editorial band, exact opening slogan and recorded-role colors, run `python scripts/video/render_v2_1.py <existing-v2-take>`. This creates `final/classall-demo-v2-1-silent.mp4` and separate V2.1 intermediates; it preserves V1/V2 masters and the approved narration. No new recording is needed.
+
+See the [design report](VIDEO_V2_1_DESIGN_REPORT.md), [Spanish editorial timeline](VIDEO_V2_1_TIMELINE_ES.md) and [QA / exact Windows commands](VIDEO_V2_1_QA_REPORT.md). The renderer uses `-filter_complex` directly instead of `-filter_complex_script`. The original Cloud take is absent; production rendering is to run locally on the user's successful existing Windows take. The documented measured cloud encode is a labeled static fixture.
+
 # ClassAll Video V2 production
 
 V2 adds a nine-segment, 179-second edit to the existing V1 pipeline. All product code and the exclusive-create presentation initializer are unchanged. V1 remains available with its existing commands and eight-scene configuration below. V2 defaults to `work/video-v2/`, unique takes, `v2-scene-*.mp4`, and `classall-demo-v2-silent.mp4`; it does not replace V1 recordings or masters.
@@ -172,3 +178,4 @@ ffprobe -v error -show_streams -show_format (Join-Path $take 'final\classall-dem
 Inspect every rendered scene and representative checkpoint images. Automated checks establish successful state transitions, codec, dimensions and duration; they do not establish subjective film quality. Watch the assembled film on a laptop before submission.
 
 This workflow's Windows commands are provided for reproduction; actual Windows execution is reported separately in VIDEO_QA_REPORT.md. No public deployment is part of production.
+
