@@ -1,0 +1,99 @@
+{
+  "version": 2,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "scenes": [
+    {
+      "number": 1,
+      "duration": 20,
+      "speaker": 1,
+      "title": "ClassAll · Una comunidad para aprender",
+      "message": "Cada estudiante tiene algo que aprender y algo que aportar.",
+      "detail": "Aprender juntos · Reconocer fortalezas · Apoyar a tiempo",
+      "voice_offset": 0.4,
+      "voice_file": "segment-01-speaker-1.wav"
+    },
+    {
+      "number": 2,
+      "duration": 29,
+      "speaker": 2,
+      "title": "Laura · Pedir ayuda",
+      "message": "Las necesidades de aprendizaje se hacen visibles",
+      "detail": "APOYAR A TIEMPO",
+      "voice_offset": 0.4,
+      "voice_file": "segment-02-speaker-2.wav"
+    },
+    {
+      "number": 3,
+      "duration": 25,
+      "speaker": 3,
+      "title": "David · Compartir conocimientos",
+      "message": "El conocimiento también está entre compañeros",
+      "detail": "APRENDER JUNTOS",
+      "voice_offset": 0.4,
+      "voice_file": "segment-03-speaker-3.wav"
+    },
+    {
+      "number": 4,
+      "duration": 19,
+      "speaker": 4,
+      "title": "Elena · Autorizar con evidencia",
+      "message": "La confianza se construye con revisión humana",
+      "detail": "DECISIÓN ACADÉMICA HUMANA",
+      "voice_offset": 0.4,
+      "voice_file": "segment-04-speaker-4.wav"
+    },
+    {
+      "number": 5,
+      "duration": 18,
+      "speaker": 3,
+      "title": "David · Crear una oportunidad",
+      "message": "De una fortaleza a una oportunidad compartida",
+      "detail": "APRENDER JUNTOS",
+      "voice_offset": 0.4,
+      "voice_file": "segment-05-speaker-3.wav"
+    },
+    {
+      "number": 6,
+      "duration": 25,
+      "speaker": 2,
+      "title": "Laura · Reservar y reflexionar",
+      "message": "Aprender juntos y orientar el siguiente paso",
+      "detail": "APRENDER JUNTOS · Evaluación formativa opcional",
+      "voice_offset": 0.4,
+      "voice_file": "segment-06-speaker-2.wav"
+    },
+    {
+      "number": 7,
+      "duration": 23,
+      "speaker": 3,
+      "title": "Una contribución documentada",
+      "message": "Ayudar también tiene valor",
+      "detail": "RECONOCER FORTALEZAS · Ejemplo sintético",
+      "voice_offset": 0.4,
+      "voice_file": "segment-07-speaker-3.wav"
+    },
+    {
+      "number": 8,
+      "duration": 15,
+      "speaker": 4,
+      "title": "Elena · Orientar el apoyo",
+      "message": "De las necesidades detectadas al apoyo concreto",
+      "detail": "APOYAR A TIEMPO",
+      "voice_offset": 0.4,
+      "voice_file": "segment-08-speaker-4.wav"
+    },
+    {
+      "number": 9,
+      "duration": 5,
+      "speaker": 1,
+      "title": "ClassAll · Cierre",
+      "message": "Aprender juntos · Reconocer fortalezas · Apoyar a tiempo",
+      "detail": "Necesidades → Fortalezas → Apoyo entre compañeros → Acción docente",
+      "voice_offset": 0.15,
+      "voice_file": "segment-09-speaker-1.wav"
+    }
+  ],
+  "edition": "2.1"
+}

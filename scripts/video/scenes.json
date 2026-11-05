@@ -1,0 +1,71 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "scenes": [
+    {
+      "number": 1,
+      "title": "¿Y si aprender fuera una experiencia compartida?",
+      "purpose": "Presentar el problema y los tres pilares",
+      "duration": 12,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a Laura encuentra apoyo"
+    },
+    {
+      "number": 2,
+      "title": "Laura · Encontrar apoyo",
+      "purpose": "Conectar una necesidad con oportunidades",
+      "duration": 22,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a David comparte sus fortalezas"
+    },
+    {
+      "number": 3,
+      "title": "David · Compartir fortalezas",
+      "purpose": "Mostrar las cuatro secciones y el estado pendiente",
+      "duration": 32,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a La decisión es humana"
+    },
+    {
+      "number": 4,
+      "title": "Elena · La decisión académica es humana",
+      "purpose": "Revisar evidencia y autorizar la asignatura",
+      "duration": 20,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a Una oportunidad para aprender"
+    },
+    {
+      "number": 5,
+      "title": "Una nueva oportunidad para aprender",
+      "purpose": "Publicar, reservar y completar la evaluación previa",
+      "duration": 30,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a Aprendizaje y contribución"
+    },
+    {
+      "number": 6,
+      "title": "Aprendizaje y contribución · Escenario sintético",
+      "purpose": "Confirmación sintética, comentarios y portfolio real",
+      "duration": 29,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a Apoyar a tiempo"
+    },
+    {
+      "number": 7,
+      "title": "Elena · Apoyar a tiempo",
+      "purpose": "Evidencia agregada y acción humana guardada",
+      "duration": 18,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pasar a ClassAll"
+    },
+    {
+      "number": 8,
+      "title": "ClassAll · Aprender juntos",
+      "purpose": "Cerrar con los tres pilares",
+      "duration": 6,
+      "narration_note": "Grabar la voz del equipo después de revisar el primer montaje.",
+      "transition": "Pausa final"
+    }
+  ]
+}
